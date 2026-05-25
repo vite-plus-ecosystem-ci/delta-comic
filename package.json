@@ -25,7 +25,11 @@
     "lint": "vp lint",
     "npm-build": "vp run -r build",
     "set-ver": "node ./script/set-version.mts",
-    "tauri": "vp run --filter app tauri"
+    "tauri": "vp run --filter app tauri",
+    "pub:npm": "vp run npm-build && vp pm publish -r --no-git-checks",
+    "pub:github": "vp run npm-build && pnpm -r publish --no-git-checks --registry https://npm.pkg.github.com/",
+    "pub:all": "vp run npm-build && vp pm publish -r --no-git-checks && pnpm -r publish --no-git-checks --registry https://npm.pkg.github.com/",
+    "pub:dry-run": "vp run npm-build && vp pm publish -r --no-git-checks --dry-run"
   },
   "dependencies": {
     "es-toolkit": "catalog:"
