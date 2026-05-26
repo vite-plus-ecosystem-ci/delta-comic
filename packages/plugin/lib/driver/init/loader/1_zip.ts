@@ -7,7 +7,7 @@ import { loadAsync, type JSZipObject } from 'jszip'
 import { PluginLoader } from '../utils'
 import { getPluginFsPath } from '../utils'
 
-class _PluginUserscriptLoader extends PluginLoader {
+export default new class extends PluginLoader {
   public override name = 'zip'
   public override async install(file: File): Promise<PluginArchiveDB.Meta> {
     console.log('[loader zip] begin:', file)
@@ -81,5 +81,3 @@ class _PluginUserscriptLoader extends PluginLoader {
     return meta
   }
 }
-
-export default new _PluginUserscriptLoader()

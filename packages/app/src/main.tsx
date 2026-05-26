@@ -19,8 +19,8 @@ DcCore
 DcDb
 DcModel
 DcPlugin
-import * as DcRequire from '@delta-comic/request'
 import * as DcUi from '@delta-comic/ui'
+import * as DcRequire from '@delta-comic/utils'
 import * as DcUtils from '@delta-comic/utils'
 import * as Pc from '@pinia/colada'
 import { reactiveComputed, useCssVar, useDark } from '@vueuse/core'

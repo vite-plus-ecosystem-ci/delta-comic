@@ -1,6 +1,9 @@
 packages:
   - packages/*
 
+allowBuilds:
+  core-js: true
+
 catalog:
   '@aptabase/tauri': ^0.4.1
   '@lhlyu/vue-virtual-waterfall': 1.0.8
@@ -23,9 +26,9 @@ catalog:
   browserslist: ^4.28.1
   dayjs: ^1.11.20
   dompurify: ^3.3.3
-  es-toolkit: ^1.45.1
+  es-toolkit: ^1.47.0
   jszip: ^3.10.1
-  kysely: ^0.28.13
+  kysely: ^0.29.2
   kysely-dialect-tauri: ^1.2.1
   kysely-plugin-serialize: ^0.8.2
   lightningcss: ^1.32.0
@@ -42,15 +45,15 @@ catalog:
   tailwindcss-safe-area-capacitor: ^0.5.1
   tauri-plugin-sentry-api: ^0.5.0
   tlds: ^1.261.0
-  typescript: ^5.9.3
-  unplugin-vue-components: 31.0.0
+  typescript: ^6.0.3
+  unplugin-vue-components: 32.1.0
   userscript-meta: ^1.0.1
   vant: ^4.9.22
-  vite: npm:@voidzero-dev/vite-plus-core@^0.1.16
+  vite: npm:@voidzero-dev/vite-plus-core@^0.1.22
   vite-plugin-externals: ^0.6.2
-  vite-plugin-monkey: ^7.1.9
-  vite-plus: ^0.1.16
-  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  vite-plugin-monkey: ^8.0.5
+  vite-plus: ^0.1.22
+  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.22
   vue: ^3.5.30
   vue-component-type-helpers: ^3.2.6
   vue-router: ^5.0.4
@@ -66,3 +69,7 @@ peerDependencyRules:
   allowedVersions:
     vite: '*'
     vitest: '*'
+
+onlyBuiltDependencies":
+  - "core-js"
+  - "tauri-plugin-better-cors-fetch"

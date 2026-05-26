@@ -9,7 +9,7 @@ const externals = Object.fromEntries(
 )
 
 /** vite插件，自动配置了库的外部化与脚本头 */
-export const deltaComic = (
+export const _ = (
   config: {
     name: string
     displayName: string
@@ -54,7 +54,7 @@ export const deltaComic = (
   return result
 }
 
-export const deltaComicPlus = (meta: PluginArchiveDB.Meta, command: 'build' | 'serve'): any => {
+export const deltaComic = (meta: PluginArchiveDB.Meta, command: 'build' | 'serve'): any => {
   const plugin = {
     name: 'delta-comic-helper',
     config(config: any) {
@@ -81,7 +81,7 @@ export const deltaComicPlus = (meta: PluginArchiveDB.Meta, command: 'build' | 's
   }
   return command == 'build'
     ? ([external(externals, { disableInServe: false }), plugin] as any)
-    : deltaComic(
+    : _(
         {
           description: meta.description,
           displayName: meta.name.display,
