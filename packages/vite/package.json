@@ -1,6 +1,6 @@
 {
   "name": "@delta-comic/vite",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "空阙虱楼",
   "homepage": "https://github.com/delta-comic/delta-comic",
   "license": "AGPL-3.0-only",
@@ -32,6 +32,7 @@
     "build": "vp build && pnpm pack --out ./dist/pack.tgz"
   },
   "devDependencies": {
+    "@vue/language-core": "^3.1.5",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },

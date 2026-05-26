@@ -1,9 +1,8 @@
 {
   "name": "app",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "scripts": {
-    "build": "echo \"Use (build:app) instead.\"",
     "build:app": "export TRUE_BUILD_MAIN_APP=\"true\" && tauri android build",
     "build:debug": "tauri android build --debug",
     "build:local": "tauri build --debug",

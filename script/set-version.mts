@@ -11,7 +11,6 @@ const packageJsonPaths = [
   '../packages/db/package.json',
   '../packages/model/package.json',
   '../packages/plugin/package.json',
-  '../packages/request/package.json',
   '../packages/ui/package.json',
   '../packages/utils/package.json',
   '../packages/vite/package.json'
