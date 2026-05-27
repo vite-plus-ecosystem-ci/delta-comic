@@ -28,7 +28,6 @@ export interface ExternalLibKey {
   '@delta-comic/core': 'DcCore'
   '@delta-comic/plugin': 'DcPlugin'
   '@delta-comic/utils': 'DcUtils'
-  '@delta-comic/require': 'DcRequire'
   '@delta-comic/db': 'DcDb'
 }
 
@@ -48,7 +47,6 @@ export const extendsDepends: ExternalLib = {
   '@delta-comic/core': 'window.$$lib$$.DcCore',
   '@delta-comic/plugin': 'window.$$lib$$.DcPlugin',
   '@delta-comic/utils': 'window.$$lib$$.DcUtils',
-  '@delta-comic/require': 'window.$$lib$$.DcRequire',
   '@delta-comic/db': 'window.$$lib$$.DcDb'
 }
 
@@ -68,7 +66,7 @@ export const useGlobalVar = <T>(val: T, key: string): T =>
 export class ReuseableAbortController implements AbortController {
   private _controller = new AbortController()
   private mitt = mitt<{ abort: void }>()
-  public get signal() {
+  public get signal(): AbortSignal {
     return this._controller.signal
   }
   public abort(reason?: any): void {
@@ -78,9 +76,9 @@ export class ReuseableAbortController implements AbortController {
   }
   public onAbort(fn: () => any) {
     this.mitt.on('abort', fn)
-    return () => this.mitt.off('abort', fn)
+    return (): void => this.mitt.off('abort', fn)
   }
-  public onAbortOnce(fn: () => any) {
+  public onAbortOnce(fn: () => any): void {
     const handler = async () => {
       await fn()
       this.mitt.off('abort', handler)

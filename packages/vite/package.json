@@ -16,23 +16,26 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "vp build && pnpm pack --out ./dist/pack.tgz"
+    "build": "vp pack && vp pm pack --out ./dist/pack.tgz"
+  },
+  "dependencies": {
+    "es-toolkit": "catalog:"
   },
   "devDependencies": {
-    "@vue/language-core": "^3.1.5",
+    "@vue/language-core": "^3.3.2",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
@@ -42,11 +45,7 @@
     "vite-plugin-externals": "catalog:",
     "vite-plugin-monkey": "catalog:"
   },
-  "release": {
-    "tagFormat": "vite-${version}"
-  },
   "dist": {
     "tarball": "./dist/pack.tgz"
-  },
-  "readme": "./README.md"
+  }
 }

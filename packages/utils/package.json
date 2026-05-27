@@ -16,37 +16,29 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "vp build && pnpm pack --out ./dist/pack.tgz"
+    "build": "vp pack && vp pm pack --out ./dist/pack.tgz"
   },
   "dependencies": {
-    "@vueuse/core": "catalog:",
-    "dayjs": "catalog:",
-    "mitt": "catalog:"
+    "mitt": "catalog:",
+    "naive-ui": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   },
   "devDependencies": {
-    "vite": "catalog:",
     "vite-plus": "catalog:"
-  },
-  "peerDependencies": {
-    "naive-ui": "^2.43",
-    "vue": "^3.5",
-    "vue-router": "^5.0"
-  },
-  "release": {
-    "tagFormat": "utils-${version}"
   },
   "dist": {
     "tarball": "./dist/pack.tgz"

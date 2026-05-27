@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "composite": true, "noEmit": true, "emitDeclarationOnly": false },
-  "include": ["./vite.config.mts", "./vite/**/*"]
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "isolatedDeclarations": true
+  },
+  "include": ["./vite.config.mts", "./vite/**/*", "./package.json"]
 }

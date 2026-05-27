@@ -3,8 +3,10 @@
   "compilerOptions": {
     "declaration": true,
     "lib": ["ESNext"],
+    "isolatedDeclarations": true,
     "composite": true,
-    "paths": { "@/*": ["./lib/*"] }
+    "paths": { "@/*": ["./lib/*"] },
+    "types": ["vite-plus/client"]
   },
   "include": ["lib"]
 }

@@ -1,6 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { extendsDepends } from '@delta-comic/utils'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -10,35 +9,28 @@ import MotionResolver from 'motion-v/resolver'
 import { NaiveUiResolver, VantResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import dtsPlugin from 'vite-plugin-dts'
-import { defineConfig } from 'vite-plus'
+import { defineConfig, type UserConfig } from 'vite-plus'
 
 export default defineConfig({
   plugins: [
-    dtsPlugin({ include: ['./lib', './vite'], tsconfigPath: './tsconfig.app.json' }),
+    dtsPlugin({ include: './lib', tsconfigPath: './tsconfig.app.json', bundleTypes: true }),
     vue(),
     vueJsx(),
     Components({ dts: true, resolvers: [VantResolver(), MotionResolver(), NaiveUiResolver()] }),
-    tailwindcss()
+    tailwindcss(),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./lib', import.meta.url)) },
-    extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts']
+    extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts'],
   },
   css: {
     transformer: 'lightningcss',
     lightningcss: {
-      targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8'))
-    }
+      targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8')),
+    },
   },
   base: '/',
-  build: {
-    lib: {
-      entry: ['lib/index.ts', 'vite/index.ts'],
-      name: 'DcUi',
-      fileName: 'index',
-      formats: ['es']
-    },
-    sourcemap: true,
-    rolldownOptions: { external: Object.keys(extendsDepends), output: { globals: extendsDepends } }
-  }
-})
+  // builds
+  build: { lib: { entry: 'lib/index.ts', fileName: 'index', formats: ['es'] }, sourcemap: true },
+  pack: { entry: './vite/index.ts', outDir: 'dist-vite', dts: { oxc: true }, sourcemap: true },
+}) as UserConfig

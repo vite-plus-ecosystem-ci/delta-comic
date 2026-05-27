@@ -59,6 +59,7 @@ TAURI
 temurin
 thiserror
 tlds
+tsgo
 tsgolint
 unplugin
 userscript

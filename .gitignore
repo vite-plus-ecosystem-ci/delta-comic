@@ -33,3 +33,4 @@ release
 .wrangler
 
 target
+dist-vite

@@ -7,22 +7,21 @@ export default defineConfig({
       'vp exec cspell --no-exit-code --no-must-find-files'
   },
   fmt: {
-    ignorePatterns: ['*.md', 'components.d.ts', 'src-tauri/**/*', 'typed-router.d.ts'],
+    ignorePatterns: ['*.md', 'components.d.ts', 'typed-router.d.ts'],
     endOfLine: 'lf',
     semi: false,
     useTabs: false,
     printWidth: 100,
     tabWidth: 2,
     singleQuote: true,
-    trailingComma: 'none',
     sortPackageJson: { sortScripts: true },
     arrowParens: 'avoid',
     jsxSingleQuote: true,
     singleAttributePerLine: false,
     vueIndentScriptAndStyle: false,
     sortTailwindcss: {
-      preserveDuplicates: false,
-      preserveWhitespace: false,
+      preserveDuplicates: true,
+      preserveWhitespace: true,
       stylesheet: './packages/app/src/index.css',
       attributes: ['overlayClass', ':class', 'Class'],
       functions: ['twMerge', 'cn']
@@ -31,10 +30,11 @@ export default defineConfig({
     bracketSpacing: true,
     embeddedLanguageFormatting: 'auto',
     insertFinalNewline: false,
-    proseWrap: 'preserve',
+    proseWrap: 'always',
     htmlWhitespaceSensitivity: 'css',
     objectWrap: 'collapse',
     quoteProps: 'consistent',
+    trailingComma: 'all',
     sortImports: {
       groups: [
         ['builtin'],
@@ -50,9 +50,9 @@ export default defineConfig({
     plugins: ['unicorn', 'typescript', 'oxc', 'vue'],
     categories: { correctness: 'error' },
     rules: {
-      'no-unused-expressions': 'allow',
-      'no-useless-escape': 'allow',
-      'no-non-null-asserted-optional-chain': 'allow',
+      // 'no-unused-expressions': 'allow',
+      // 'no-useless-escape': 'allow',
+      // 'no-non-null-asserted-optional-chain': 'allow',
       'no-thenable': 'allow'
       // 'tsconfig-error': 'allow'
     },
