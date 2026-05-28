@@ -32,5 +32,11 @@ export default defineConfig({
   base: '/',
   // builds
   build: { lib: { entry: 'lib/index.ts', fileName: 'index', formats: ['es'] }, sourcemap: true },
-  pack: { entry: './vite/index.ts', outDir: 'dist-vite', dts: { oxc: true }, sourcemap: true },
+  pack: {
+    entry: './vite/index.ts',
+    outDir: 'dist-vite',
+    dts: { oxc: true },
+    sourcemap: true,
+    deps: { neverBundle: ['unplugin-vue-components'] },
+  },
 }) as UserConfig

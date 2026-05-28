@@ -1,6 +1,6 @@
 import { type Component, type Raw } from 'vue'
 
-import Inject from './Inject.vue'
+import Inject from './Inject'
 export { Inject }
 
 import type { ComponentProps } from 'vue-component-type-helpers'

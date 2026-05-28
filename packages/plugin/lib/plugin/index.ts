@@ -26,12 +26,8 @@ export type * as Search from './search'
 import type * as Auth from './auth'
 export type * as Auth from './auth'
 
-import mitt from 'mitt'
-
 import type * as Resource from './resource'
 export type * as Resource from './resource'
-
-export const pluginEmitter = mitt<{ definedPlugin: PluginConfig }>()
 
 export interface PluginConfigValues {
   name: string

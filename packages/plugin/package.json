@@ -16,22 +16,20 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./style.css": "./dist/index.css"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "vp build && pnpm pack --out ./dist/pack.tgz"
+    "build": "vp pack"
   },
   "dependencies": {
     "@delta-comic/core": "workspace:*",
@@ -48,26 +46,10 @@
     "jszip": "catalog:",
     "ky": "^2.0.1",
     "lz-string": "catalog:",
-    "mitt": "catalog:",
     "pinia": "catalog:",
-    "vue": "catalog:",
-    "vue-component-type-helpers": "catalog:"
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
-    "@vitejs/plugin-vue": "catalog:",
-    "@vitejs/plugin-vue-jsx": "catalog:",
-    "browserslist": "catalog:",
-    "lightningcss": "catalog:",
-    "tailwindcss": "catalog:",
-    "vite": "catalog:",
-    "vite-plus": "catalog:"
-  },
-  "release": {
-    "tagFormat": "plugin-${version}"
-  },
-  "dist": {
-    "tarball": "./dist/pack.tgz"
-  },
-  "readme": "./README.md"
+    "@typescript/native-preview": "catalog:"
+  }
 }

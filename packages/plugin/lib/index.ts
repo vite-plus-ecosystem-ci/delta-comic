@@ -5,5 +5,3 @@ export * from './global'
 export * from './driver'
 
 export * from './env'
-
-import './index.css'

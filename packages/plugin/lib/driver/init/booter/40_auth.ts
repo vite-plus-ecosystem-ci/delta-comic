@@ -37,7 +37,7 @@ class _PluginAuth extends PluginBooter {
           },
           onPositiveClick() {
             waitMethod.resolve('logIn')
-          }
+          },
         })
       } else {
         setMeta('跳过鉴权方式选择')
@@ -55,25 +55,35 @@ class _PluginAuth extends PluginBooter {
                 void formInstance.data.then(() => (show.value = false))
                 return () =>
                   h(
-                    DcPopup as any,
+                    DcPopup,
                     {
                       show: show.value,
                       position: 'center',
                       round: true,
-                      class: 'auth-popup',
-                      transitionAppear: true
+                      style: 'width: 95vw !important; padding: 24px; padding-top: 16px',
+                      transitionAppear: true,
                     },
-                    [h('div', [pluginName]), formInstance.comp]
+                    [
+                      h(
+                        'div',
+                        {
+                          style:
+                            'width: 100%; padding-block: 4px; padding-left: 4px; font-size: 18px; line-height: 1.5;',
+                        },
+                        [pluginName],
+                      ),
+                      formInstance.comp,
+                    ],
                   )
-              })
-            )
+              }),
+            ),
           )
           const data = await formInstance.data
           return data
         },
         website(_url) {
           return window
-        }
+        },
       }
       if (method == 'logIn') {
         await cfg.auth.logIn(by)

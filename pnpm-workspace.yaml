@@ -5,6 +5,8 @@ allowBuilds:
   core-js: true
 
 catalog:
+  'vite-plugin-dts': '^5.0.1'
+  '@microsoft/api-extractor': '^7.58.7'
   '@aptabase/tauri': ^0.4.1
   '@typescript/native-preview': 7.0.0-dev.20260527.1
   '@lhlyu/vue-virtual-waterfall': 1.0.8
@@ -72,8 +74,8 @@ peerDependencyRules:
     vitest: '*'
 
 onlyBuiltDependencies":
-  - "core-js"
-  - "tauri-plugin-better-cors-fetch"
+  - 'core-js'
+  - 'tauri-plugin-better-cors-fetch'
 
 minimumReleaseAgeExclude:
   - '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260527.1'
