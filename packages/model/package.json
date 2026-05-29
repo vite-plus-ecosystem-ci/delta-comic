@@ -16,40 +16,30 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/lib/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/lib/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "vp build && pnpm pack --out ./dist/pack.tgz"
+    "build": "vp pack"
   },
   "dependencies": {
-    "@pinia/colada": "catalog:",
-    "@vueuse/core": "catalog:",
-    "dayjs": "catalog:",
-    "mitt": "catalog:"
+    "es-toolkit": "catalog:"
   },
   "devDependencies": {
-    "vite": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "@delta-comic/utils": "workspace:*",
     "vue": "^3.5"
-  },
-  "release": {
-    "tagFormat": "model-${version}"
-  },
-  "dist": {
-    "tarball": "./dist/pack.tgz"
-  },
-  "readme": "./README.md"
+  }
 }

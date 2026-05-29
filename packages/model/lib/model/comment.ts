@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { type Component } from 'vue'
 
 import { SourcedKeyMap, Struct, type Metadata, type Metadatable, type StreamQuery } from '../struct'
@@ -40,9 +39,6 @@ export abstract class Comment extends Struct<RawComment> implements RawComment {
   public abstract sender: User
   public content: { type: 'string' | 'html'; text: string }
   public time: number
-  public get $time() {
-    return dayjs(this.time)
-  }
   public id: string
   public childrenCount: number
   public likeCount: number

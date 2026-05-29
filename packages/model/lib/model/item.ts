@@ -1,5 +1,4 @@
 import { useGlobalVar } from '@delta-comic/utils'
-import dayjs from 'dayjs'
 import { type Component } from 'vue'
 
 import { SourcedKeyMap, Struct, type Metadatable } from '../struct'
@@ -116,9 +115,6 @@ export abstract class Item extends Struct<RawItem> implements RawItem {
   public isLiked?: boolean
   public description?: Description
   public updateTime?: number
-  public get $updateTime() {
-    return dayjs(this.updateTime)
-  }
   public contentType: ContentType
   public length: string
   public epLength: string
