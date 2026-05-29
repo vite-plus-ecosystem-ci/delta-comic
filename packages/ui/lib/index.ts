@@ -2,13 +2,13 @@ import './index.css'
 import DcAuthorIcon from './components/DcAuthorIcon.vue'
 import DcAwait from './components/DcAwait.vue'
 import DcContent from './components/DcContent.vue'
-import DcFloatPopup from './components/DcFloatPopup.vue'
 import DcImage from './components/DcImage.vue'
 import DcImagedIcon from './components/DcImagedIcon.vue'
 import DcList from './components/DcList.vue'
 import DcLoading from './components/DcLoading.vue'
 import DcMarkdown from './components/DcMarkdown/index.vue'
 import DcPopup from './components/DcPopup.vue'
+import DcPullRefresh from './components/DcPullRefresh.vue'
 import DcRouterTab from './components/DcRouterTab.vue'
 import DcState from './components/DcState.vue'
 import DcText from './components/DcText.vue'
@@ -23,7 +23,6 @@ export {
   DcAwait,
   DcContent,
   DcImage,
-  DcFloatPopup,
   DcList,
   DcLoading,
   DcPopup,
@@ -34,6 +33,7 @@ export {
   DcWaterfall,
   DcMarkdown,
   DcState,
+  DcPullRefresh,
 }
 
 export * from './utils'

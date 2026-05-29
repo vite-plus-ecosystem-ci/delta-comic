@@ -29,7 +29,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack && vp pm pack --out ./dist/pack.tgz"
+    "build": "vp pack",
+    "typecheck": "tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "mitt": "catalog:",
@@ -38,10 +39,7 @@
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
-  },
-  "dist": {
-    "tarball": "./dist/pack.tgz"
-  },
-  "readme": "./README.md"
+  }
 }

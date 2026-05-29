@@ -1,9 +1,9 @@
 import { NButton } from 'naive-ui'
 import { ref } from 'vue'
 
-import type { FormType } from '..'
-
 import DcForm from './components/DcForm.vue'
+
+import type { FormType } from '.'
 
 export const createForm = <T extends FormType.Configure>(configs: T) => {
   const data = ref<Record<string, FormType.SingleResult<any>>>({})

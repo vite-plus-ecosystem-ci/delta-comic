@@ -2,7 +2,7 @@
 import { NFormItem } from 'naive-ui'
 import type { ModelRef } from 'vue'
 
-import type { SingleConfigure, SingleResult } from '@/form/type'
+import type { SingleConfigure, SingleResult } from '../type'
 
 import DcFormCheckbox from './DcFormCheckbox.vue'
 import DcFormDate from './DcFormDate.vue'

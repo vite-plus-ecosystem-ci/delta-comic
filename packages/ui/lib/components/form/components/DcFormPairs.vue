@@ -2,7 +2,7 @@
 import { NDynamicInput, NInput } from 'naive-ui'
 import { watch } from 'vue'
 
-import type { SingleResult, Type } from '@/form/type'
+import type { SingleResult, Type } from '../type'
 
 const $props = defineProps<{ config: Type.Pairs }>()
 

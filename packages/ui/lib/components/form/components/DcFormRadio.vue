@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NRadio, NRadioGroup, NSelect, NSpace } from 'naive-ui'
 
-import type { SingleResult, Type } from '@/form/type'
+import type { SingleResult, Type } from '../type'
 
 defineProps<{ config: Type.Radio }>()
 

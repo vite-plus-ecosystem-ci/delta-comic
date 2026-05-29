@@ -29,12 +29,14 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack && vp pm pack --out ./dist/pack.tgz"
+    "build": "vp pack",
+    "typecheck": "tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "es-toolkit": "catalog:"
   },
   "devDependencies": {
+    "@typescript/native-preview": "catalog:",
     "@vue/language-core": "^3.3.2",
     "vite": "catalog:",
     "vite-plus": "catalog:"
@@ -44,8 +46,5 @@
     "@delta-comic/utils": "workspace:*",
     "vite-plugin-externals": "catalog:",
     "vite-plugin-monkey": "catalog:"
-  },
-  "dist": {
-    "tarball": "./dist/pack.tgz"
   }
 }

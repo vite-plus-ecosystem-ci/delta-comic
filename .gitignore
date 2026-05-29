@@ -34,3 +34,4 @@ release
 
 target
 dist-vite
+*.tsbuildinfo

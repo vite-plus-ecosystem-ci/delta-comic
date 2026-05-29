@@ -35,7 +35,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp build && vp pack"
+    "build": "vp build && vp pack",
+    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "@lhlyu/vue-virtual-waterfall": "catalog:",
@@ -68,7 +69,8 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vite-plus": "catalog:",
-    "vue-component-type-helpers": "catalog:"
+    "vue-component-type-helpers": "catalog:",
+    "vue-tsc": "catalog:"
   },
   "peerDependencies": {
     "@delta-comic/core": "workspace:*",

@@ -5,6 +5,7 @@ allowBuilds:
   core-js: true
 
 catalog:
+  vue-tsc: ^3.3.2
   'vite-plugin-dts': '^5.0.1'
   '@microsoft/api-extractor': '^7.58.7'
   '@aptabase/tauri': ^0.4.1

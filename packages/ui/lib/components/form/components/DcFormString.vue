@@ -2,7 +2,7 @@
 import { isEmpty } from 'es-toolkit/compat'
 import { NInput } from 'naive-ui'
 
-import type { SingleResult, Type } from '@/form/type'
+import type { SingleResult, Type } from '../type'
 
 defineProps<{ config: Type.String }>()
 

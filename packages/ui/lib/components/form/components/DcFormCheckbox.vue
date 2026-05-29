@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NCheckbox, NCheckboxGroup, NSelect, NSpace } from 'naive-ui'
 
-import type { SingleResult, Type } from '@/form/type'
+import type { SingleResult, Type } from '../type'
 
 defineProps<{ config: Type.Checkbox }>()
 
