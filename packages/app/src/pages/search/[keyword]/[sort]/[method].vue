@@ -146,7 +146,7 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
     ]"
   >
     <DcList
-      :itemHeight="140"
+      :minHeight="140"
       v-slot="{ data: { item } }"
       class="h-full transition-all duration-200 will-change-[transform,height]"
       ref="list"

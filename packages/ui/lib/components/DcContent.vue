@@ -167,7 +167,7 @@ defineSlots<{ default(data: { data?: T }): any }>()
         class="absolute flex scale-100 items-center justify-center whitespace-nowrap shadow"
       >
         <Transition name="van-fade">
-          <VanLoading size="25px" color="var(--p-color)" v-if="animateOn === 'isLoadingNoData'" />
+          <DcLoading size="25px" color="var(--p-color)" v-if="animateOn === 'isLoadingNoData'" />
           <DcLoading size="10px" color="white" v-else-if="animateOn === 'isLoadingData'"
             >加载中</DcLoading
           >
