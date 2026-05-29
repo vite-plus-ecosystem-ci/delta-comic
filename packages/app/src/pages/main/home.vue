@@ -70,7 +70,7 @@ const tabItem = computed(() =>
         : '-translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]',
     ]"
   >
-    <DcRouterTab
+    <DcTab
       :items="[
         { title: '推荐', name: 'random', route: { name: '/main/home/random' } },
         { title: '热门', name: 'hot', route: { name: '/main/home/hot' } },

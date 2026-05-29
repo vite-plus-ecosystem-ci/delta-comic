@@ -22,7 +22,7 @@ declare module 'vue' {
     DcList: typeof import('@delta-comic/ui')['DcList']
     DcMarkdown: typeof import('@delta-comic/ui')['DcMarkdown']
     DcPopup: typeof import('@delta-comic/ui')['DcPopup']
-    DcRouterTab: typeof import('@delta-comic/ui')['DcRouterTab']
+    DcTab: typeof import('@delta-comic/ui')['DcTab']
     DcVar: typeof import('@delta-comic/ui')['DcVar']
     DcWaterfall: typeof import('@delta-comic/ui')['DcWaterfall']
     Download: typeof import('./src/components/plugin/download.vue')['default']
