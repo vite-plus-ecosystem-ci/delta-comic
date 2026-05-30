@@ -101,7 +101,7 @@ const { data: thisFavouriteCount } = FavouriteDB.useQueryItem(db =>
         新建收藏夹
       </div>
     </div>
-    <VanCellGroup inset class="mb-6!">
+    <DcCellGroup inset class="mb-6!">
       <DcState
         contentClass="h-fit w-full"
         :state="allFavouriteCards"
@@ -112,7 +112,7 @@ const { data: thisFavouriteCount } = FavouriteDB.useQueryItem(db =>
           v-slot="{ value: count }"
           :value="getCardCount(card.createAt).data.value"
         >
-          <VanCell
+          <DcCell
             center
             :title="card.title"
             :label="`${count}个内容`"
@@ -126,10 +126,10 @@ const { data: thisFavouriteCount } = FavouriteDB.useQueryItem(db =>
             <template #right-icon>
               <NCheckbox :checked="selectList.has(card.createAt)" />
             </template>
-          </VanCell>
+          </DcCell>
         </DcVar>
       </DcState>
-    </VanCellGroup>
+    </DcCellGroup>
     <NButton class="m-5! w-30!" @click="submit" strong secondary type="primary" size="large">
       确定
     </NButton>

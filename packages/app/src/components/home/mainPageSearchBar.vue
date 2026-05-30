@@ -103,10 +103,10 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
         :transition="{ duration: 0.1 }"
         class="fixed top-safe-offset-[54px] flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
       >
-        <VanCellGroup class="w-full">
+        <DcCellGroup class="w-full">
           <template v-if="!isEmpty(thinkList)">
             <template v-for="think of thinkList">
-              <VanCell
+              <DcCell
                 v-if="'text' in think"
                 :title="think.text"
                 @click="handleSearch((text = think.value))"
@@ -115,7 +115,7 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
               <component v-else :is="think" />
             </template>
           </template>
-        </VanCellGroup>
+        </DcCellGroup>
       </motion.div>
     </AnimatePresence>
   </Teleport>

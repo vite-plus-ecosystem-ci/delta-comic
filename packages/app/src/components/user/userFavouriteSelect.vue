@@ -69,7 +69,7 @@ defineExpose({ create })
         新建收藏夹
       </div>
     </div>
-    <VanCellGroup inset class="mb-6!">
+    <DcCellGroup inset class="mb-6!">
       <DcState
         :state="allFavouriteCards"
         v-slot="{ data: afc }"
@@ -83,7 +83,7 @@ defineExpose({ create })
           class="size-fit"
           contentClass="size-fit"
         >
-          <VanCell
+          <DcCell
             center
             :title="card.title"
             :label="`${count ?? 0}个内容`"
@@ -97,10 +97,10 @@ defineExpose({ create })
             <template #right-icon>
               <NCheckbox :checked="selectList.has(card.createAt)" />
             </template>
-          </VanCell>
+          </DcCell>
         </DcState>
       </DcState>
-    </VanCellGroup>
+    </DcCellGroup>
     <NButton class="m-5! w-30!" @click="submit" strong secondary type="primary" size="large">
       确定
     </NButton>

@@ -181,7 +181,23 @@ const NImg = window.$api.NImage as typeof NImage
       >
         <slot name="loading" v-if="$slots.loading"></slot>
         <template v-else>
-          <VanIcon name="warning-o" size="2.5rem" color="var(--van-text-color-2)" />
+          <NIcon size="2.5rem" color="var(--van-text-color-2)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 32 32"
+            >
+              <path
+                d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm0 26a12 12 0 1 1 12-12a12 12 0 0 1-12 12z"
+                fill="currentColor"
+              ></path>
+              <path d="M15 8h2v11h-2z" fill="currentColor"></path>
+              <path
+                d="M16 22a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 22z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </NIcon>
           <div class="text-sm text-(--van-text-color-2)">点击重试</div>
         </template>
       </div>

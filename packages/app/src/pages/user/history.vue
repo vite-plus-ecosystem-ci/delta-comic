@@ -144,8 +144,8 @@ const filters = useNativeStore(pluginName, 'history.filter', new Array<string>()
     <div class="m-(--van-cell-group-inset-padding) mt-4 mb-2! w-full font-semibold">
       历史记录设置
     </div>
-    <VanCellGroup inset class="mb-6!">
-      <VanCell
+    <DcCellGroup inset class="mb-6!">
+      <DcCell
         center
         title="追踪历史记录"
         label="记录并展示新的历史足迹"
@@ -154,7 +154,7 @@ const filters = useNativeStore(pluginName, 'history.filter', new Array<string>()
         <template #right-icon>
           <VanSwitch size="large" v-model="config.recordHistory" />
         </template>
-      </VanCell>
-    </VanCellGroup>
+      </DcCell>
+    </DcCellGroup>
   </DcPopup>
 </template>

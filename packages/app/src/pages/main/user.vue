@@ -222,8 +222,8 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
     <template v-for="[pluginName, plugin] of pluginStore.plugins.entries()">
       <ActionCard :pluginName v-for="card of plugin.user?.userActionPages ?? []" :card />
     </template>
-    <VanCell title="设置" is-link @click="$router.force.push({ name: '/setting' })" />
-    <VanCell title="青少年模式" @click="$window.close()" is-link />
+    <DcCell title="设置" is-link @click="$router.force.push({ name: '/setting' })" />
+    <DcCell title="青少年模式" @click="$window.close()" is-link />
   </div>
 </template>
 <style scoped lang="css">

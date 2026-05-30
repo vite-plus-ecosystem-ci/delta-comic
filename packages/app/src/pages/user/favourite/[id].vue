@@ -195,7 +195,7 @@ const infoFilters = useNativeStore(pluginName, 'favourite.infoFilters', new Arra
   </DcState>
 
   <DcPopup v-model:show="isShowMore" position="bottom" round class="bg-(--van-background)! py-6!">
-    <VanCellGroup inset>
+    <DcCellGroup inset>
       <NPopconfirm
         @positive-click="
           $router.force
@@ -204,7 +204,7 @@ const infoFilters = useNativeStore(pluginName, 'favourite.infoFilters', new Arra
         "
       >
         <template #trigger>
-          <VanCell center title="删除收藏夹">
+          <DcCell center title="删除收藏夹">
             <template #icon>
               <NIcon size="1.4rem">
                 <svg
@@ -221,10 +221,10 @@ const infoFilters = useNativeStore(pluginName, 'favourite.infoFilters', new Arra
                 </svg>
               </NIcon>
             </template>
-          </VanCell>
+          </DcCell>
         </template>
         删除后内容不可恢复
       </NPopconfirm>
-    </VanCellGroup>
+    </DcCellGroup>
   </DcPopup>
 </template>

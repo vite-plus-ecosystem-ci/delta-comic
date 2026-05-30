@@ -80,7 +80,7 @@ defineExpose({ isSearching, searchText })
       >
         <VanList class="w-full">
           <template v-if="!isEmpty(filtersHistory)">
-            <VanCell
+            <DcCell
               v-for="filter of filtersHistory"
               :title="filter"
               @click="searchText = filter"

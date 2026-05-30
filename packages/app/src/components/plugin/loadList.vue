@@ -28,17 +28,17 @@ const rebootApp = () => {
     :exit="{ opacity: 0, scale: '50%', translateY: '85px' }"
     :animate="{ opacity: 1, scale: '100%', translateY: '0px' }"
   >
-    <VanCellGroup class="h-80 w-[80vw] shadow-2xl" inset>
+    <DcCellGroup class="h-80 w-[80vw] shadow-2xl" inset>
       <TransitionGroup name="list" tag="ul" class="size-full!">
         <!-- display toy item -->
-        <VanCell title="core" label="载入应用内容..." center key="core">
+        <DcCell title="core" label="载入应用内容..." center key="core">
           <template #right-icon>
             <VanLoading size="25px" />
           </template>
-        </VanCell>
+        </DcCell>
         <!-- acutely item -->
         <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
-          <VanCell
+          <DcCell
             :title="pluginStore.$getPluginDisplayName(plugin)"
             v-if="steps[now.stepsIndex]"
             :key="plugin"
@@ -47,7 +47,7 @@ const rebootApp = () => {
           />
         </template>
       </TransitionGroup>
-    </VanCellGroup>
+    </DcCellGroup>
   </motion.div>
 
   <!-- reload button -->

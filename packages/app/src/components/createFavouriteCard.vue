@@ -42,7 +42,7 @@ defineExpose({ create })
   >
     <div class="my-2 flex h-8 w-full items-center pl-5 font-semibold">创建收藏夹</div>
     <VanForm @submit="onSubmit">
-      <VanCellGroup inset>
+      <DcCellGroup inset>
         <VanField
           v-model="formData.title"
           name="title"
@@ -62,7 +62,7 @@ defineExpose({ create })
             <VanSwitch v-model="formData.isPrivate" />
           </template>
         </VanField>
-      </VanCellGroup>
+      </DcCellGroup>
       <NButton class="m-5! w-30!" strong secondary attr-type="submit" type="primary" size="large">
         提交
       </NButton>

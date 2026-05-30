@@ -1,6 +1,8 @@
 import './index.css'
 import DcAuthorIcon from './components/DcAuthorIcon.vue'
 import DcAwait from './components/DcAwait.vue'
+import DcCell from './components/DcCell.vue'
+import DcCellGroup from './components/DcCellGroup.vue'
 import DcContent from './components/DcContent.vue'
 import DcImage from './components/DcImage.vue'
 import DcImagedIcon from './components/DcImagedIcon.vue'
@@ -19,6 +21,8 @@ export * from './components/form'
 
 export {
   DcAuthorIcon,
+  DcCell,
+  DcCellGroup,
   DcImagedIcon,
   DcAwait,
   DcContent,

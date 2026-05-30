@@ -6,7 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import browserslist from 'browserslist'
 import { browserslistToTargets } from 'lightningcss'
 import MotionResolver from 'motion-v/resolver'
-import { NaiveUiResolver, VantResolver } from 'unplugin-vue-components/resolvers'
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import dtsPlugin from 'vite-plugin-dts'
 import { defineConfig, type UserConfig } from 'vite-plus'
@@ -16,7 +16,7 @@ export default defineConfig({
     dtsPlugin({ include: './lib', tsconfigPath: './tsconfig.app.json', bundleTypes: true }),
     vue(),
     vueJsx(),
-    Components({ dts: true, resolvers: [VantResolver(), MotionResolver(), NaiveUiResolver()] }),
+    Components({ dts: true, resolvers: [MotionResolver(), NaiveUiResolver()] }) as any,
     tailwindcss(),
   ],
   resolve: {
