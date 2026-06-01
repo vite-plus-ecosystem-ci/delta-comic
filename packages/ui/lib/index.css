@@ -3,4 +3,3 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
 @plugin 'tailwindcss-safe-area-capacitor';
-@import 'vant/lib/index.css';

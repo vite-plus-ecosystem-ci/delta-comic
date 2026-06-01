@@ -13,11 +13,11 @@ import { defineConfig, type UserConfig } from 'vite-plus'
 
 export default defineConfig({
   plugins: [
-    dtsPlugin({ include: './lib', tsconfigPath: './tsconfig.app.json', bundleTypes: true }),
     vue(),
     vueJsx(),
     Components({ dts: true, resolvers: [MotionResolver(), NaiveUiResolver()] }) as any,
     tailwindcss(),
+    dtsPlugin({ include: './lib', tsconfigPath: './tsconfig.app.json', bundleTypes: true }),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./lib', import.meta.url)) },
