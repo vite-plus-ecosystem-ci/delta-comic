@@ -352,6 +352,9 @@ importers:
       '@sentry/vue':
         specifier: 'catalog:'
         version: 10.53.1(pinia@3.0.4(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3)))(vue@3.5.34(typescript@6.0.3))
+      es-toolkit:
+        specifier: 'catalog:'
+        version: 1.47.0
       pinia:
         specifier: ^3.0
         version: 3.0.4(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))
@@ -362,6 +365,9 @@ importers:
         specifier: 'catalog:'
         version: 3.5.34(typescript@6.0.3)
     devDependencies:
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260527.1
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@^0.1.22
         version: '@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
@@ -392,15 +398,18 @@ importers:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 14.3.0(vue@3.5.34(typescript@6.0.3))
+      es-toolkit:
+        specifier: 'catalog:'
+        version: 1.47.0
       kysely:
-        specifier: ^0.28
-        version: 0.28.17
+        specifier: ^0.29.2
+        version: 0.29.2
       kysely-dialect-tauri:
         specifier: 'catalog:'
-        version: 1.2.1(@tauri-apps/plugin-sql@2.4.0)(kysely@0.28.17)
+        version: 1.2.1(@tauri-apps/plugin-sql@2.4.0)(kysely@0.29.2)
       kysely-plugin-serialize:
         specifier: 'catalog:'
-        version: 0.8.2(kysely@0.28.17)
+        version: 0.8.2(kysely@0.29.2)
       mitt:
         specifier: 'catalog:'
         version: 3.0.1
@@ -408,6 +417,9 @@ importers:
         specifier: ^3.5
         version: 3.5.34(typescript@6.0.3)
     devDependencies:
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260527.1
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@^0.1.22
         version: '@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
@@ -3551,9 +3563,9 @@ packages:
     peerDependencies:
       kysely: '>=0.26'
 
-  kysely@0.28.17:
-    resolution: {integrity: sha512-nbD8lB9EB3wNdMhOCdx5Li8DxnLbvKByylRLcJ1h+4SkrowVeECAyZlyiKMThF7xFdRz0jSQ2MoJr+wXux2y0Q==}
-    engines: {node: '>=20.0.0'}
+  kysely@0.29.2:
+    resolution: {integrity: sha512-s6WVJyEZrbm6jhBpiKHsGHyePMrVQKJ85wZCFCr9W4QHv6WTjWIrdvTmO9hDEA3bNK0xkrE2DqrHsXMLWuZpQg==}
+    engines: {node: '>=22.0.0'}
 
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
@@ -7573,21 +7585,21 @@ snapshots:
 
   ky@2.0.2: {}
 
-  kysely-dialect-tauri@1.2.1(@tauri-apps/plugin-sql@2.4.0)(kysely@0.28.17):
+  kysely-dialect-tauri@1.2.1(@tauri-apps/plugin-sql@2.4.0)(kysely@0.29.2):
     dependencies:
       '@tauri-apps/plugin-sql': 2.4.0
-      kysely: 0.28.17
-      kysely-generic-sqlite: 1.2.1(kysely@0.28.17)
+      kysely: 0.29.2
+      kysely-generic-sqlite: 1.2.1(kysely@0.29.2)
 
-  kysely-generic-sqlite@1.2.1(kysely@0.28.17):
+  kysely-generic-sqlite@1.2.1(kysely@0.29.2):
     dependencies:
-      kysely: 0.28.17
+      kysely: 0.29.2
 
-  kysely-plugin-serialize@0.8.2(kysely@0.28.17):
+  kysely-plugin-serialize@0.8.2(kysely@0.29.2):
     dependencies:
-      kysely: 0.28.17
+      kysely: 0.29.2
 
-  kysely@0.28.17: {}
+  kysely@0.29.2: {}
 
   lie@3.3.0:
     dependencies:

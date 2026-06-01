@@ -29,7 +29,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack"
+    "build": "vp pack",
+    "typecheck": "tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "es-toolkit": "catalog:"
