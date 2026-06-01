@@ -37,7 +37,7 @@ export const createForm = <T extends FormConfigure>(configs: T) => {
       <DcForm
         configs={configs}
         modelValue={data.value as FormResult<T>}
-        onUpdate:modelValue={v => (data.value = v)}
+        onUpdate:modelValue={(v: any) => (data.value = v)}
       >
         {{
           bottom: () => (
