@@ -334,6 +334,9 @@ importers:
       vue-component-type-helpers:
         specifier: 'catalog:'
         version: 3.3.1
+      vue-tsc:
+        specifier: 'catalog:'
+        version: 3.3.2(typescript@6.0.3)
 
   packages/core:
     dependencies:

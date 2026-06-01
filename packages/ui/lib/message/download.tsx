@@ -4,7 +4,6 @@ import { isUndefined, isError, delay } from 'es-toolkit'
 import { isNumber, toString } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { NIcon, NIconWrapper, NProgress, NButton } from 'naive-ui'
-import { Loading, Icon } from 'vant'
 import {
   type Reactive,
   reactive,
@@ -18,6 +17,7 @@ import {
   nextTick,
 } from 'vue'
 
+import DcLoading from '@/components/DcLoading.vue'
 import { CloseRound, ReloadOutlined, DoneRound, FileDownloadRound } from '@/components/icons'
 
 export interface DownloadMessageProgress extends DownloadMessageLoading {
@@ -106,14 +106,16 @@ export const createDownloadMessage = async <T,>(
         <Transition name='van-fade'>
           {minsize.value ? (
             <div class='relative size-full' onClick={() => (minsize.value = false)}>
-              <Loading class='absolute top-0 left-0 size-full' color='var(--p-color)' />
+              <DcLoading class='absolute top-0 left-0 size-full' color='var(--p-color)' />
               <NIcon
                 class='absolute! top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
                 size='18px'
                 color='var(--p-color)'
               >
                 {messageList.some(v => v.state == 'error') ? (
-                  <Icon name='cross' />
+                  <NIcon>
+                    <CloseRound />
+                  </NIcon>
                 ) : (
                   <FileDownloadRound />
                 )}

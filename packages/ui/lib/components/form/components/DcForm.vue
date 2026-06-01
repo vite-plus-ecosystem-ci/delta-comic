@@ -1,8 +1,9 @@
-<script setup lang="ts" generic="T extends Configure, O extends (keyof T)[] = (keyof T)[]">
+<script setup lang="ts" generic="T extends FormConfigure, O extends (keyof T)[] = (keyof T)[]">
+import type { FormConfigure, FormResult } from '@delta-comic/model'
 import { isArray } from 'es-toolkit/compat'
 import { NForm } from 'naive-ui'
 
-import type { Configure, FormRowSlot, Result } from '../type'
+import type { FormRowSlot } from '../type'
 
 import DcFormItem from './DcFormItem.vue'
 
@@ -13,7 +14,7 @@ defineProps<{
    */
   overrideRow?: boolean | O
 }>()
-const result = defineModel<Result<T>>({ default: {} })
+const result = defineModel<FormResult<T>>({ default: {} })
 
 const slots = defineSlots<{
   row?<K extends O[number]>(args: FormRowSlot<T, O, K>): any

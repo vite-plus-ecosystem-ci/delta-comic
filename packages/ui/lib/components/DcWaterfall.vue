@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="T extends object">
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
-import { useEventListener } from '@vant/use'
-import { useScroll } from '@vueuse/core'
+import { useEventListener, useScroll } from '@vueuse/core'
 import { isArray } from 'es-toolkit/compat'
 import { computed, markRaw, nextTick, onUnmounted, shallowReactive, shallowRef, watch } from 'vue'
 import { useTemplateRef } from 'vue'
@@ -84,7 +83,7 @@ const throttledScroll = () => {
     handleScroll()
   }, 200)
 }
-useEventListener('scroll', throttledScroll, { target: scrollParent })
+useEventListener(scrollParent, 'scroll', throttledScroll)
 
 // ── 下拉刷新状态 ──
 const isPullRefreshHold = shallowRef(false)

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { open } from '@tauri-apps/plugin-shell'
-import { useEventListener } from '@vant/use'
-import { useCssVar } from '@vueuse/core'
+import { useCssVar, useEventListener } from '@vueuse/core'
 import MarkdownIt, { type Options } from 'markdown-it'
 import { computed } from 'vue'
 
@@ -43,7 +42,7 @@ const htmlTemplateUrl = computed(() =>
 )
 
 useEventListener('message', ev => {
-  const event = ev as MessageEvent
+  const event = ev
   const data = event.data as { href: string; type?: string }
   if (data.type != messageKey) return
   open(data.href)

@@ -39,6 +39,7 @@
     "typecheck": "vue-tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
+    "@delta-comic/model": "workspace:*",
     "@lhlyu/vue-virtual-waterfall": "catalog:",
     "@pinia/colada": "catalog:",
     "@tauri-apps/plugin-shell": "catalog:",

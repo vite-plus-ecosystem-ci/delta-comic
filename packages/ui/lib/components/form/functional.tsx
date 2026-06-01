@@ -1,13 +1,12 @@
+import type { FormConfigure, FormResult, FormSingleResult } from '@delta-comic/model'
 import { NButton } from 'naive-ui'
 import { ref } from 'vue'
 
 import DcForm from './components/DcForm.vue'
 
-import type { FormType } from '.'
-
-export const createForm = <T extends FormType.Configure>(configs: T) => {
-  const data = ref<Record<string, FormType.SingleResult<any>>>({})
-  const c = Promise.withResolvers<FormType.Result<T>>()
+export const createForm = <T extends FormConfigure>(configs: T) => {
+  const data = ref<Record<string, FormSingleResult<any>>>({})
+  const c = Promise.withResolvers<FormResult<T>>()
   for (const name in configs) {
     if (!Object.hasOwn(configs, name)) continue
     const config = configs[name]
@@ -37,7 +36,7 @@ export const createForm = <T extends FormType.Configure>(configs: T) => {
     comp: (
       <DcForm
         configs={configs}
-        modelValue={data.value as FormType.Result<T>}
+        modelValue={data.value as FormResult<T>}
         onUpdate:modelValue={v => (data.value = v)}
       >
         {{
@@ -46,8 +45,7 @@ export const createForm = <T extends FormType.Configure>(configs: T) => {
               type='primary'
               onClick={async () => {
                 try {
-                  // await formRef.value?.validate()
-                  c.resolve(data.value as FormType.Result<T>)
+                  c.resolve(data.value as FormResult<T>)
                 } catch (error) {
                   window.$message.error(String(error))
                 }

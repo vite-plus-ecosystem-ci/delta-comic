@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { FormNumber, FormSingleResult } from '@delta-comic/model'
 import { NInputNumber } from 'naive-ui'
 
-import type { SingleResult, Type } from '../type'
+defineProps<{ config: FormNumber }>()
 
-defineProps<{ config: Type.Number }>()
-
-const store = defineModel<SingleResult<Type.Number>>({ required: true })
+const store = defineModel<FormSingleResult<FormNumber>>({ required: true })
 </script>
 
 <template>

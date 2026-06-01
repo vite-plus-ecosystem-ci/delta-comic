@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import type { FormPairs, FormSingleResult } from '@delta-comic/model'
 import { NDynamicInput, NInput } from 'naive-ui'
 import { watch } from 'vue'
 
-import type { SingleResult, Type } from '../type'
-
-const $props = defineProps<{ config: Type.Pairs }>()
+const $props = defineProps<{ config: FormPairs }>()
 
 const createItem = () => ($props.config.defaultValue ?? [{ key: '', value: '' }])[0]
 
-const store = defineModel<SingleResult<Type.Pairs>>({ required: true })
+const store = defineModel<FormSingleResult<FormPairs>>({ required: true })
 watch(store, store => {
   if (!$props.config.noMultiple) return
   if (store.length == 1) return

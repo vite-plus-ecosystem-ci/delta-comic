@@ -9,8 +9,8 @@
     "build:web": "vp build",
     "dev": "tauri dev",
     "dev:web": "vp dev",
-    "publish": "echo \"No need to publish to npm.\"",
-    "tauri": "vp exec tauri"
+    "tauri": "vp exec tauri",
+    "typecheck": "vue-tsc"
   },
   "dependencies": {
     "@delta-comic/core": "workspace:",
@@ -55,7 +55,8 @@
     "vite-plugin-vue-devtools": "^8.0.7",
     "vite-plugin-wasm": "^3.5.0",
     "vite-plus": "catalog:",
-    "vue-component-type-helpers": "catalog:"
+    "vue-component-type-helpers": "catalog:",
+    "vue-tsc": "catalog:"
   },
   "readme": "../../README.md"
 }

@@ -22,5 +22,4 @@ export {
   DcFormSwitch,
 }
 
-export * as FormType from './type'
 export * from './functional'

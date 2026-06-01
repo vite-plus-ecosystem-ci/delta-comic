@@ -15,7 +15,6 @@ import {
 } from 'vue'
 
 import { cn } from '@/utils'
-import { showImagePreview } from '@/utils/image'
 
 import DcLoading from './DcLoading.vue'
 import DcVar from './DcVar.vue'
@@ -50,7 +49,7 @@ const src = computedAsync(async () => {
   return ''
 }, '')
 
-const $emit = defineEmits<{ load: any[]; click: []; error: [] }>()
+const $emit = defineEmits<{ load: any[]; click: [e: Event]; error: [] }>()
 
 let reloadTime = 0
 let isForkEmpty = false
@@ -102,12 +101,8 @@ const fallbackSrc = computedAsync(async () => {
   return ''
 }, '')
 
-const handleClickImage = (e: Event) => {
-  $emit('click')
-  if (!$props.previewable) return
-  e.stopPropagation()
-  showImagePreview([src.value], { closeable: true })
-}
+const handleClickImage = (e: Event) => $emit('click', e)
+
 const handleImageLoad = (...e: Event[]) => {
   $emit('load', ...e)
   images.loaded.add(src.value)
@@ -126,7 +121,7 @@ const NImg = window.$api.NImage as typeof NImage
       :="$props"
       @error="handleFail"
       :objectFit="fit"
-      previewDisabled
+      :previewDisabled="!previewable"
       :alt
       ref="img"
       :imgProps="{
@@ -147,7 +142,7 @@ const NImg = window.$api.NImage as typeof NImage
       v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"
       :class="cn('items-center justify-center', cls)"
       :style
-      @click="$emit('click')"
+      @click="$emit('click', $event)"
     >
       <slot name="loading" v-if="$slots.loading"></slot>
       <DcLoading v-else />

@@ -1,8 +1,7 @@
-<script setup lang="ts" generic="T extends SingleConfigure">
+<script setup lang="ts" generic="T extends FormSingleConfigure">
+import type { FormSingleConfigure, FormSingleResult } from '@delta-comic/model'
 import { NFormItem } from 'naive-ui'
 import type { ModelRef } from 'vue'
-
-import type { SingleConfigure, SingleResult } from '../type'
 
 import DcFormCheckbox from './DcFormCheckbox.vue'
 import DcFormDate from './DcFormDate.vue'
@@ -14,7 +13,7 @@ import DcFormString from './DcFormString.vue'
 import DcFormSwitch from './DcFormSwitch.vue'
 
 defineProps<{ config: T; path: string }>()
-const store: ModelRef<any> = defineModel<SingleResult<T>>({ required: true })
+const store: ModelRef<any> = defineModel<FormSingleResult<T>>({ required: true })
 </script>
 
 <template>

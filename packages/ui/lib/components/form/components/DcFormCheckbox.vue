@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { FormCheckbox, FormSingleResult } from '@delta-comic/model'
 import { NCheckbox, NCheckboxGroup, NSelect, NSpace } from 'naive-ui'
 
-import type { SingleResult, Type } from '../type'
+defineProps<{ config: FormCheckbox }>()
 
-defineProps<{ config: Type.Checkbox }>()
-
-const store = defineModel<SingleResult<Type.Checkbox>>({ required: true })
+const store = defineModel<FormSingleResult<FormCheckbox>>({ required: true })
 </script>
 
 <template>

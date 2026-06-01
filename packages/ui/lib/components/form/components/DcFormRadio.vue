@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { FormRadio, FormSingleResult } from '@delta-comic/model'
 import { NRadio, NRadioGroup, NSelect, NSpace } from 'naive-ui'
 
-import type { SingleResult, Type } from '../type'
+defineProps<{ config: FormRadio }>()
 
-defineProps<{ config: Type.Radio }>()
-
-const store = defineModel<SingleResult<Type.Radio>>({ required: true })
+const store = defineModel<FormSingleResult<FormRadio>>({ required: true })
 </script>
 
 <template>

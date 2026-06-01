@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { FormSingleResult, FormSwitch } from '@delta-comic/model'
 import { NSwitch } from 'naive-ui'
 
-import type { SingleResult, Type } from '../type'
+defineProps<{ config: FormSwitch }>()
 
-defineProps<{ config: Type.Switch }>()
-
-const store = defineModel<SingleResult<Type.Switch>>({ required: true })
+const store = defineModel<FormSingleResult<FormSwitch>>({ required: true })
 </script>
 
 <template>

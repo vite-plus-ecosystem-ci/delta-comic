@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { FormDate, FormSingleResult } from '@delta-comic/model'
 import { NDatePicker } from 'naive-ui'
 
-import type { SingleResult, Type } from '../type'
+defineProps<{ config: FormDate }>()
 
-defineProps<{ config: Type.Date }>()
-
-const store = defineModel<SingleResult<Type.Date>>({ required: true })
+const store = defineModel<FormSingleResult<FormDate>>({ required: true })
 </script>
 
 <template>
