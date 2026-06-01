@@ -66,11 +66,12 @@ const handleFail = async () => {
       handleFail()
       return
     }
-    if (!$props.src.localChangeFork()) {
+    if ($props.src.localChangeFork()) {
       isForkEmpty = true
       handleFail()
       return
     }
+    reloadTime = 0
   }
   await nextTick()
   show.value = true

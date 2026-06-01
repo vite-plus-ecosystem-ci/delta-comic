@@ -19,14 +19,6 @@ declare module 'vue' {
     NResult: typeof import('naive-ui')['NResult']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VanFloatingPanel: typeof import('vant/es')['FloatingPanel']
-    VanIcon: typeof import('vant/es')['Icon']
-    VanLoading: typeof import('vant/es')['Loading']
-    VanOverlay: typeof import('vant/es')['Overlay']
-    VanPopup: typeof import('vant/es')['Popup']
-    VanPullRefresh: typeof import('vant/es')['PullRefresh']
-    VanTab: typeof import('vant/es')['Tab']
-    VanTabs: typeof import('vant/es')['Tabs']
   }
 }
 
@@ -39,12 +31,4 @@ declare global {
   const NResult: typeof import('naive-ui')['NResult']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
-  const VanFloatingPanel: typeof import('vant/es')['FloatingPanel']
-  const VanIcon: typeof import('vant/es')['Icon']
-  const VanLoading: typeof import('vant/es')['Loading']
-  const VanOverlay: typeof import('vant/es')['Overlay']
-  const VanPopup: typeof import('vant/es')['Popup']
-  const VanPullRefresh: typeof import('vant/es')['PullRefresh']
-  const VanTab: typeof import('vant/es')['Tab']
-  const VanTabs: typeof import('vant/es')['Tabs']
 }
