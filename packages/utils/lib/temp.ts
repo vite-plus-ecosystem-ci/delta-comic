@@ -1,6 +1,7 @@
-import { useGlobalVar } from '@delta-comic/utils'
 import { defineStore } from 'pinia'
 import { reactive, shallowReactive, type Reactive } from 'vue'
+
+import { useGlobalVar } from './var'
 
 const _useTemp = useGlobalVar(
   defineStore('core:temp', helper => {

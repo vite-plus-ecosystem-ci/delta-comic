@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useFullscreen } from '@delta-comic/core'
 import { HistoryDB } from '@delta-comic/db'
 import { uni } from '@delta-comic/model'
 import { usePreventBack } from '@delta-comic/ui'
+import { useFullscreen } from '@delta-comic/utils'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 

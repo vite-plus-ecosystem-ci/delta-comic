@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { SharedFunction } from '@delta-comic/core'
 import type { uni } from '@delta-comic/model'
+import { SharedFunction } from '@delta-comic/utils'
 
 import { Icons } from '@/icons'
 import { createDateString } from '@/utils/date'

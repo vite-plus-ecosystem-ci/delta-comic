@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { SharedFunction } from '@delta-comic/core'
 import { Global } from '@delta-comic/plugin'
+import { SharedFunction } from '@delta-comic/utils'
 import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { useIntervalFn } from '@vueuse/core'
 import { Mutex } from 'es-toolkit'

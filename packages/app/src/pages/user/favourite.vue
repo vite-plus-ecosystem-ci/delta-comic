@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTemp } from '@delta-comic/core'
 import { DBUtils, FavouriteDB, useNativeStore } from '@delta-comic/db'
 import { type uni } from '@delta-comic/model'
 import { usePluginStore } from '@delta-comic/plugin'
 import { createDownloadMessage, DcState } from '@delta-comic/ui'
+import { useTemp } from '@delta-comic/utils'
 import { isNumber, uniqBy } from 'es-toolkit/compat'
 import { computed, shallowRef, useTemplateRef } from 'vue'
 

@@ -1,8 +1,8 @@
-import { useGlobalVar } from '@delta-comic/utils'
 import Database from '@tauri-apps/plugin-sql'
-import { CamelCasePlugin, Kysely, Migrator, type Migration } from 'kysely'
+import { CamelCasePlugin, Kysely } from 'kysely'
 import { TauriSqliteDialect } from 'kysely-dialect-tauri'
 import { SerializePlugin } from 'kysely-plugin-serialize'
+import { Migrator, type Migration } from 'kysely/migration'
 
 import type * as FavouriteDB from './favourite'
 export * as PluginArchiveDB from './plugin'
@@ -33,28 +33,25 @@ export interface DB {
 }
 
 console.log('[db] loading')
-const database = useGlobalVar(await Database.load(`sqlite:app.db`), 'core/db/raw')
+const database = await Database.load(`sqlite:app.db`)
 
-export const db = useGlobalVar(
-  await (async () => {
-    const db = new Kysely<DB>({
-      dialect: new TauriSqliteDialect({ database }),
-      plugins: [new CamelCasePlugin(), new SerializePlugin()],
-    })
+export const db = await (async () => {
+  const db = new Kysely<DB>({
+    dialect: new TauriSqliteDialect({ database }),
+    plugins: [new CamelCasePlugin(), new SerializePlugin()],
+  })
 
-    const migrator = new Migrator({
-      db,
-      provider: {
-        async getMigrations() {
-          return migrations
-        },
+  const migrator = new Migrator({
+    db,
+    provider: {
+      async getMigrations() {
+        return migrations
       },
-    })
-    await migrator.migrateToLatest()
-    return db
-  })(),
-  'core/db/ins',
-)
+    },
+  })
+  await migrator.migrateToLatest()
+  return db
+})()
 
 export * as DBUtils from './utils'
 

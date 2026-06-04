@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useConfig } from '@delta-comic/plugin'
+import { DcCell, DcCellGroup } from '@delta-comic/ui'
 
 const config = useConfig()
 </script>
@@ -8,8 +9,15 @@ const config = useConfig()
   <VanNavBar title="设置" left-arrow @click-left="$router.back()" class="pt-safe" />
   <NScrollbar class="h-[calc(100%-46px)] w-full">
     <DcCellGroup
-      v-for="[plugin, { form, value: store }] of config.form.entries()"
-      :title="plugin.description?.split('|')[1] ?? plugin.description"
+      v-for="[
+        _,
+        {
+          form,
+          value: { value: store },
+          name: title,
+        },
+      ] of config.form.entries()"
+      :title
     >
       <template v-for="[name, config] of Object.entries(form)">
         <DcCell center v-if="config.type == 'switch'" :title="config.info">

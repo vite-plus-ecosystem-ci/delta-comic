@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTemp } from '@delta-comic/core'
 import { uni } from '@delta-comic/model'
+import { useTemp } from '@delta-comic/utils'
 import { computedAsync } from '@vueuse/core'
 import { isString } from 'es-toolkit/compat'
-import { type ImageProps, NImage } from 'naive-ui'
+import { type ImageProps, NIcon, NImage } from 'naive-ui'
 import {
   type ImgHTMLAttributes,
   type StyleValue,
@@ -110,7 +110,7 @@ const handleImageLoad = (...e: Event[]) => {
 }
 const img = useTemplateRef('img')
 defineExpose({ isLoaded, imageEl: computed(() => img.value?.imageRef), imageIns: img })
-const NImg = window.$api.NImage as typeof NImage
+const NImg = (window.$api.NImage as typeof NImage) ?? NImage
 </script>
 
 <template>

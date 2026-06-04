@@ -1,4 +1,3 @@
-import { useGlobalVar } from '@delta-comic/utils'
 import { type Component } from 'vue'
 
 import { SourcedKeyMap, type StreamQuery, type SourcedKeyType } from '../struct'
@@ -28,14 +27,11 @@ export type LayoutComponent = Component<
 >
 
 export abstract class ContentPage {
-  public static layouts = useGlobalVar(
-    SourcedKeyMap.createReactive<ContentType, LayoutComponent>(),
-    'uni/contentPage/layouts',
-  )
-  public static contentPages = useGlobalVar(
-    SourcedKeyMap.createReactive<[plugin: string, name: string], ContentPageLike>(),
-    'uni/contentPage/contentPages',
-  )
+  public static layouts = SourcedKeyMap.createReactive<ContentType, LayoutComponent>()
+  public static contentPages = SourcedKeyMap.createReactive<
+    [plugin: string, name: string],
+    ContentPageLike
+  >()
 
   constructor(
     public preload: item.Item | undefined,

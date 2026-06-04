@@ -1,4 +1,3 @@
-import { useGlobalVar } from '@delta-comic/utils'
 import { isEmpty, isString } from 'es-toolkit/compat'
 import { shallowReactive } from 'vue'
 
@@ -25,19 +24,16 @@ export interface RawResource extends Metadatable {
   processSteps?: ProcessStep_[]
 }
 export class Resource extends Struct<RawResource> implements RawResource {
-  public static processInstances = useGlobalVar(
-    SourcedKeyMap.createReactive<[plugin: string, referenceName: string], ProcessInstance>(),
-    'uni/resource/processInstances',
-  )
+  public static processInstances = SourcedKeyMap.createReactive<
+    [plugin: string, referenceName: string],
+    ProcessInstance
+  >()
 
-  public static fork = useGlobalVar(
-    SourcedKeyMap.createReactive<[plugin: string, type: string], ResourceType>(),
-    'uni/resource/fork',
-  )
-  public static precedenceFork = useGlobalVar(
-    SourcedKeyMap.createReactive<[plugin: string, type: string], string>(),
-    'uni/resource/precedenceFork',
-  )
+  public static fork = SourcedKeyMap.createReactive<[plugin: string, type: string], ResourceType>()
+  public static precedenceFork = SourcedKeyMap.createReactive<
+    [plugin: string, type: string],
+    string
+  >()
 
   public static is(value: unknown): value is Resource {
     return value instanceof this

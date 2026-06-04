@@ -1,6 +1,5 @@
-import { SharedFunction } from '@delta-comic/core'
 import { uni } from '@delta-comic/model'
-import { useGlobalVar } from '@delta-comic/utils'
+import { SharedFunction } from '@delta-comic/utils'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 
 import { appConfig } from '@/config'
@@ -9,6 +8,7 @@ import { definePlugin, type PluginExpose } from '@/plugin'
 
 import { OfflineShareRound, TagOutlined } from './icon'
 import { usePluginStore } from './store'
+
 export const getCorePluginConfig = () =>
   definePlugin({
     name: coreName,
@@ -105,7 +105,4 @@ interface CorePluginTokenShareMeta {
 }
 
 export const coreName = 'core'
-export const core = useGlobalVar(
-  declareDepType<PluginExpose<ReturnType<typeof getCorePluginConfig>>>(coreName),
-  'core/plugin/coreFlag',
-)
+export const core = declareDepType<PluginExpose<ReturnType<typeof getCorePluginConfig>>>(coreName)

@@ -1,5 +1,6 @@
-import { useGlobalVar } from '@delta-comic/utils'
-import { shallowRef } from 'vue'
+import { shallowRef, type ShallowRef } from 'vue'
+
+import { useGlobalVar } from './var'
 
 const isFullscreen = useGlobalVar(
   (() => {
@@ -13,14 +14,14 @@ const isFullscreen = useGlobalVar(
 )
 
 export const useFullscreen = () => ({
-  isFullscreen,
-  entry() {
+  isFullscreen: isFullscreen as ShallowRef<boolean>,
+  entry(): void {
     isFullscreen.value = true
   },
-  exit() {
+  exit(): void {
     isFullscreen.value = false
   },
-  toggle() {
+  toggle(): void {
     isFullscreen.value = !isFullscreen.value
   },
 })

@@ -9,13 +9,13 @@ declare module 'vue-router' {
 }
 
 import 'core-js'
-import * as DcCore from '@delta-comic/core'
 import * as DcDb from '@delta-comic/db'
 import * as DcModel from '@delta-comic/model'
 import * as DcPlugin from '@delta-comic/plugin'
+import * as DcUi from '@delta-comic/ui'
 
 import './logger'
-import * as DcUi from '@delta-comic/ui'
+import * as DcCore from '@delta-comic/utils'
 import * as DcUtils from '@delta-comic/utils'
 import * as Pc from '@pinia/colada'
 import { reactiveComputed, useCssVar, useDark } from '@vueuse/core'

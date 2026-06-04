@@ -1,4 +1,3 @@
-import { useGlobalVar } from '@delta-comic/utils'
 import { type Component } from 'vue'
 
 import { SourcedKeyMap, Struct, type Metadatable } from '../struct'
@@ -89,10 +88,7 @@ export abstract class Item extends Struct<RawItem> implements RawItem {
     Component
   >()
 
-  public static itemCards = useGlobalVar(
-    SourcedKeyMap.createReactive<ContentType, ItemCardComponent>(),
-    'uni/item/itemCards',
-  )
+  public static itemCards = SourcedKeyMap.createReactive<ContentType, ItemCardComponent>()
 
   public abstract like(): Promise<any>
   public abstract report(): Promise<any>

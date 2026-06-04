@@ -1,5 +1,4 @@
 import { SourcedKeyMap } from '@delta-comic/model'
-import { useGlobalVar } from '@delta-comic/utils'
 import { shallowReactive, type Component, type Raw } from 'vue'
 
 import type { Search, Share, Subscribe, User } from '@/plugin'
@@ -60,4 +59,4 @@ class _Global {
   public envExtends = shallowReactive(new Set<GlobalInjectionsConfig>())
 }
 
-export const Global = useGlobalVar(new _Global(), 'core/global')
+export const Global = new _Global()

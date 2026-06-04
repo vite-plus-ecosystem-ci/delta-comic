@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { SharedFunction } from '@delta-comic/core'
 import { uni } from '@delta-comic/model'
 import { appConfig, useConfig, usePluginStore, type Search } from '@delta-comic/plugin'
+import { SharedFunction } from '@delta-comic/utils'
 import { useInfiniteQuery } from '@pinia/colada'
 import { isEmpty } from 'es-toolkit/compat'
 import { computed, shallowRef } from 'vue'

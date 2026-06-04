@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { SharedFunction, useTemp } from '@delta-comic/core'
 import { uni } from '@delta-comic/model'
+import { SharedFunction, useTemp } from '@delta-comic/utils'
 import { useInfiniteQuery } from '@pinia/colada'
 import { until, useResizeObserver } from '@vueuse/core'
 import { isEmpty } from 'es-toolkit/compat'

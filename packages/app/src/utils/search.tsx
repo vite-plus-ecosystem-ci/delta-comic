@@ -1,5 +1,5 @@
-import { SharedFunction } from '@delta-comic/core'
 import { Global, type Search, usePluginStore } from '@delta-comic/plugin'
+import { SharedFunction } from '@delta-comic/utils'
 import { Cell } from 'vant'
 
 export type ThinkList = Awaited<ReturnType<Search.SearchMethod['getAutoComplete']>>

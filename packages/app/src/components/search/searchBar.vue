@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { SharedFunction } from '@delta-comic/core'
 import { useNativeStore } from '@delta-comic/db'
 import { usePluginStore } from '@delta-comic/plugin'
 import { useZIndex } from '@delta-comic/ui'
+import { SharedFunction } from '@delta-comic/utils'
 import { ReuseableAbortController } from '@delta-comic/utils'
 import { computedAsync } from '@vueuse/core'
 import { uniq } from 'es-toolkit'

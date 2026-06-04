@@ -40,7 +40,6 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@delta-comic/utils": "workspace:*",
     "vue": "^3.5"
   }
 }

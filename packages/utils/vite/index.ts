@@ -1,9 +1,10 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { extendsDepends } from '@delta-comic/utils'
 import { merge } from 'es-toolkit'
 import type { Plugin, PluginOption } from 'vite'
 import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
+
+import { extendsDepends } from '@/env'
 
 export const deltaComic = (
   meta: PluginArchiveDB.Meta,

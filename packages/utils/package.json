@@ -16,13 +16,17 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/lib/index.mjs",
+  "module": "./dist/lib/index.mjs",
+  "types": "./dist/lib/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "types": "./dist/lib/index.d.mts",
+      "import": "./dist/lib/index.mjs"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.mts",
+      "import": "./dist/vite/index.mjs"
     }
   },
   "publishConfig": {
@@ -33,13 +37,26 @@
     "typecheck": "tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
+    "@aptabase/tauri": "catalog:",
+    "@sentry/vue": "catalog:",
+    "@vue/language-core": "^3.3.2",
+    "es-toolkit": "catalog:",
     "mitt": "catalog:",
     "naive-ui": "catalog:",
+    "pinia": "catalog:",
+    "tauri-plugin-sentry-api": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@delta-comic/db": "workspace:*",
+    "vite-plugin-externals": "catalog:",
+    "vite-plugin-monkey": "catalog:"
   }
 }

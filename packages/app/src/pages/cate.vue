@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { SharedFunction } from '@delta-comic/core'
 import { Global, usePluginStore } from '@delta-comic/plugin'
+import { SharedFunction } from '@delta-comic/utils'
 
 const pluginStore = usePluginStore()
 </script>

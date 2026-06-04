@@ -2,7 +2,8 @@
 import type { UseInfiniteQueryReturn, UseQueryReturn } from '@pinia/colada'
 import { omit } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
-import { motion, type VariantType } from 'motion-v'
+import { AnimatePresence, motion, type VariantType } from 'motion-v'
+import { NButton, NEmpty, NIcon, NResult } from 'naive-ui'
 import { type StyleValue, computed, useTemplateRef } from 'vue'
 
 import { cn, type StyleProps } from '../utils'
@@ -192,9 +193,9 @@ defineSlots<{ default(data: { data?: T }): any }>()
               :description="source.error?.message ?? '未知原因'"
             >
               <template #footer>
-                <NButton v-if="source.refetch" @click="source.refetch()" type="primary"
-                  >重试</NButton
-                >
+                <NButton v-if="source.refetch" @click="source.refetch()" type="primary">
+                  重试
+                </NButton>
               </template>
               <template #icon>
                 <NIcon size="10rem" color="var(--nui-error-color)">

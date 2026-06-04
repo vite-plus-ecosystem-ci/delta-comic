@@ -6,12 +6,5 @@
     "composite": true,
     "paths": { "@/*": ["./lib/*"] }
   },
-  "include": [
-    "env.d.ts",
-    "components.d.ts",
-    "lib/**/*.ts",
-    "lib/**/*.tsx",
-    "lib/**/*.vue",
-    "./package.json"
-  ]
+  "include": ["env.d.ts", "lib/**/*", "./package.json"]
 }

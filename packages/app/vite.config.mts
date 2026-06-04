@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import { DeltaComicUiResolver } from '@delta-comic/ui/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -33,7 +34,7 @@ export default defineConfig({
         VantResolver(),
         MotionResolver(),
         NaiveUiResolver(),
-        trueBuild && (await import('@delta-comic/ui/vite')).DeltaComicUiResolver(),
+        trueBuild ? DeltaComicUiResolver() : [],
       ],
       dtsTsx: false,
     }),

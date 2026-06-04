@@ -1,6 +1,6 @@
-import { SharedFunction } from '@delta-comic/core'
 import { uni } from '@delta-comic/model'
 import { useConfig } from '@delta-comic/plugin'
+import { SharedFunction } from '@delta-comic/utils'
 import type {} from '@delta-comic/utils'
 import { M3 } from 'tauri-plugin-m3'
 import { toValue } from 'vue'

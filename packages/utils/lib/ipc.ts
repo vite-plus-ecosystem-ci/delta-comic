@@ -1,26 +1,8 @@
-import type { uni } from '@delta-comic/model'
-import { useGlobalVar } from '@delta-comic/utils'
 import { random } from 'es-toolkit/compat'
 
-export interface SharedFunctions {
-  getRandomProvide(signal?: AbortSignal): PromiseLike<uni.item.Item[]>
+import { useGlobalVar } from './var'
 
-  routeToContent(
-    contentType_: uni.content.ContentType_,
-    id: string,
-    ep: string,
-    preload?: uni.item.Item,
-  ): PromiseLike<any>
-  routeToSearch(
-    input: string,
-    source?: [plugin: string, name: string],
-    sort?: string,
-  ): PromiseLike<any>
-
-  triggerSharePopup(page: uni.content.ContentPage): PromiseLike<void>
-  triggerShareToken(token: string): PromiseLike<void>
-  pushShareToken(token: string): PromiseLike<void>
-}
+export interface SharedFunctions {}
 
 export class SharedFunction {
   private static sharedFunctions = useGlobalVar(

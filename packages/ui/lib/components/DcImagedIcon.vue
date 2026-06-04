@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { uni } from '@delta-comic/model'
+import { NIcon } from 'naive-ui'
 import type { Component } from 'vue'
 
 import { cn, type StyleProps } from '../utils'

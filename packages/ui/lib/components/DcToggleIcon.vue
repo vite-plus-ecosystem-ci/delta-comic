@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onLongPress } from '@vueuse/core'
+import { NIcon } from 'naive-ui'
 import { type Component as _Component, watch } from 'vue'
 import { useTemplateRef } from 'vue'
 
