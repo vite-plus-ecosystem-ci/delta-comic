@@ -22,26 +22,18 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Rust
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.33.0
-
       - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 25
+          node-version-file: .node-version
           cache: true
-
-      - name: Install dependencies
-        run: vp install
+      - run: vp install
+      - run: vp check
 
       - name: JDK 23
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -49,13 +41,11 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Android SDK
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         uses: android-actions/setup-android@v3.2.2
         with:
           log-accepted-android-sdk-licenses: false
 
       - name: Setup Android NDK
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         uses: nttld/setup-ndk@v1.5.0
         id: setup-ndk
         with:
@@ -65,7 +55,6 @@ jobs:
           add-to-path: true
 
       - name: Init android project
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
@@ -92,15 +81,13 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
-          vp run npm-build
-          vp pm publish -r --no-git-checks || pnpm publish -r --no-git-checks || echo "no need to publish"
+          vp run lib-build
+          vp run pub:all || echo "no need to publish"
 
       - name: Make gradlew executable
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         run: chmod +x ./packages/app/src-tauri/gen/android/gradlew
 
       - name: Build Android App
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         id: build
         uses: tauri-apps/tauri-action@dev
         env:
@@ -118,7 +105,6 @@ jobs:
           node ./script/set-version.mts ${{ steps.set-version.outputs.old_version }}
 
       - name: Restore keystore (decode + verify)
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         env:
           KEYSTORE_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -143,11 +129,9 @@ jobs:
           printf 'keyAlias=%s\n' "${{ secrets.ANDROID_KEY_ALIAS }}" >> keystore.properties
 
       - name: Install apksigner
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         run: sudo apt-get update && sudo apt-get install -y apksigner
 
       - name: Sign APK
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         env:
           KEYSTORE_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -175,13 +159,11 @@ jobs:
           ls -la ./dist
 
       - name: Configure git author
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         run: |
           git config user.name "delta-comic-bot"
           git config user.email "delta-comic-bot@proton.me"
 
       - name: Run semantic-release
-        if: ${{ !contains(github.event.head_commit.message, '[only-lib]') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
