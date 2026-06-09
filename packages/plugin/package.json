@@ -16,13 +16,17 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/lib/index.mjs",
+  "module": "./dist/lib/index.mjs",
+  "types": "./dist/lib/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "types": "./dist/lib/index.d.mts",
+      "import": "./dist/lib/index.mjs"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.mts",
+      "import": "./dist/vite/index.mjs"
     }
   },
   "publishConfig": {
@@ -51,5 +55,10 @@
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
     "vue-component-type-helpers": "catalog:"
+  },
+  "peerDependencies": {
+    "@delta-comic/db": "workspace:*",
+    "vite-plugin-externals": "catalog:",
+    "vite-plugin-monkey": "catalog:"
   }
 }
