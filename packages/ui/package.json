@@ -75,9 +75,9 @@
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",
     "@delta-comic/utils": "workspace:*",
-    "naive-ui": "^2",
-    "pinia": "^3",
-    "vue": "^3.5",
-    "vue-router": "^5"
+    "naive-ui": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   }
 }

@@ -47,7 +47,7 @@
     "@tauri-apps/plugin-fs": "catalog:",
     "es-toolkit": "catalog:",
     "jszip": "catalog:",
-    "ky": "^2.0.1",
+    "ky": "catalog:",
     "lz-string": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:"

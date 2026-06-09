@@ -35,19 +35,29 @@
   "dependencies": {
     "@aptabase/tauri": "catalog:",
     "@sentry/vue": "catalog:",
-    "@vue/language-core": "^3.3.2",
+    "@vue/language-core": "catalog:",
     "es-toolkit": "catalog:",
     "mitt": "catalog:",
-    "naive-ui": "catalog:",
-    "pinia": "catalog:",
     "tauri-plugin-sentry-api": "catalog:",
     "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devDependencies": {
+    "@pinia/colada": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "naive-ui": "catalog:",
+    "pinia": "catalog:",
+    "vant": "catalog:",
     "vite-plus": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
-  "devDependencies": {
-    "@typescript/native-preview": "catalog:",
-    "vite-plus": "catalog:"
+  "peerDependencies": {
+    "@pinia/colada": "catalog:",
+    "naive-ui": "catalog:",
+    "pinia": "catalog:",
+    "vant": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   }
 }

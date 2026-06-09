@@ -49,7 +49,7 @@
   },
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",
-    "kysely": "^0.29.2",
-    "vue": "^3.5"
+    "kysely": "catalog:",
+    "vue": "catalog:"
   }
 }
