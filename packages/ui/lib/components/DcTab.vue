@@ -4,14 +4,13 @@
   generic="T extends { name: string; title: string; route?: RouteLocationRaw }"
 >
 import { Mutex } from 'es-toolkit'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { FreeMode } from 'swiper/modules'
+import type { Swiper as SwiperInstance } from 'swiper/types'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/free-mode'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
-
-import type { Swiper as SwiperInstance } from 'swiper/types'
 
 import { cn } from '@/utils'
 

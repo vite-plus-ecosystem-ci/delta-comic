@@ -1,0 +1,20 @@
+"$schema" = "schemas/schema.json"
+
+[default]
+description = """
+Enables the Delta Comic plugin runtime integration.
+
+#### Granted Permissions
+
+Allows plugin installers and loaders to offload file-system heavy work
+to the native runtime.
+"""
+
+permissions = [
+  "allow-decode-dev-meta",
+  "allow-decode-zip-meta",
+  "allow-install-dev",
+  "allow-install-zip",
+  "allow-prepare-dev-script",
+  "allow-read-local-file",
+]

@@ -4,27 +4,16 @@ import * as fs from '@tauri-apps/plugin-fs'
 
 import type { PluginConfigFactory } from '@/plugin'
 
+import { decodeDevMeta, installDev } from '../native'
 import { PluginLoader } from '../utils'
 import { getPluginFsPath } from '../utils'
 
 export default new (class extends PluginLoader {
   public override name = 'dev'
 
-  public decodeMetaFromCode(code: string) {
-    const key = '@description'
-    const beginPos = code.indexOf(key) + key.length + 1
-    return JSON.parse(
-      code.slice(beginPos, code.indexOf('\n// @', beginPos)),
-    ) as PluginArchiveDB.Meta
-  }
-
   public override async install(file: File): Promise<PluginArchiveDB.Meta> {
     const code = await file.text()
-    const meta = this.decodeMetaFromCode(code)
-    const path = await getPluginFsPath(meta.name.id)
-    await fs.mkdir(path, { recursive: true })
-    await fs.writeTextFile(await join(path, 'us.js'), code, { create: true })
-    return meta
+    return await installDev(code)
   }
   public override canInstall(file: File): boolean {
     return file.name.endsWith('.js')
@@ -46,7 +35,6 @@ export default new (class extends PluginLoader {
   }
   public override async decodeMeta(file: File): Promise<PluginArchiveDB.Meta> {
     const code = await file.text()
-    const meta = this.decodeMetaFromCode(code)
-    return meta
+    return await decodeDevMeta(code)
   }
 })()

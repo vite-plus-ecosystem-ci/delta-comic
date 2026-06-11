@@ -1,85 +1,41 @@
 [package]
 name = "delta-comic"
 description = "Per Aspera, Ad Astra"
-authors = ["wenxig"]
-license = "AGPL-3.0-only"
-repository = "https://github.com/delta-comic/delta-comic"
-edition = "2024"
-rust-version = "1.94.0"
-version = "2.3.1"
-
-[profile.dev]
-opt-level = 0
-debug = true
-overflow-checks = true
-incremental = true
-
-[profile.dev.package."*"]
-opt-level = 0
-
-[profile.release]
-codegen-units = 1
-lto = true
-opt-level = 3
-strip = true
-debug = false
-incremental = true
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = { workspace = true }
 
 [lib]
 name = "delta_comic"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
-serde_json = "1.0.149"
-tauri-plugin-clipboard-manager = "2.3.2"
-tauri-plugin-persisted-scope = "2.3.5"
-tauri-plugin-fs = "2.4.5"
-tauri-plugin-m3 = "0.3.1"
-tokio = "1.50.0"
-mime_guess = "2.0.5"
-percent-encoding = "2.3.2"
-log = "0.4.29"
-tauri-runtime-wry = "2.10.1"
-tauri-plugin-shell = "2"
-
-[dependencies.tauri-plugin-sentry]
-git = "https://github.com/delta-comic/sentry-tauri-new"
-branch = "master"
-
-[dependencies.tauri-plugin-log]
-version = "2.8.0"
-features = ["colored"]
-
-[dependencies.tauri-plugin-better-cors-fetch]
-git = "https://github.com/wenxig/tauri-plugin-better-cors-fetch"
-branch = "main"
-features = ["multipart", "blocking", "native-tls-vendored"]
-
-[dependencies.serde]
-version = "1.0.228"
-features = ["derive"]
-
-[dependencies.tauri]
-version = "2.10.3"
-features = []
-
-[dependencies.sentry]
-version = "0.46.2"
-default-features = false
-features = ["backtrace", "contexts", "debug-images", "panic", "release-health", "reqwest", "rustls"]
-
-[dependencies.tauri-plugin-sql]
-git = "https://github.com/tauri-apps/plugins-workspace"
-features = ["sqlite"]
-branch = "v2"
-
-[dependencies.tauri-plugin-aptabase]
-git = "https://github.com/delta-comic/tauri-plugin-aptabase-rustls"
-branch = "main"
+log = { workspace = true }
+mime_guess = { workspace = true }
+percent-encoding = { workspace = true }
+sentry = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = { workspace = true }
+tauri-plugin-aptabase = { workspace = true }
+tauri-plugin-better-cors-fetch = { workspace = true }
+tauri-plugin-clipboard-manager = { workspace = true }
+tauri-plugin-fs = { workspace = true }
+tauri-plugin-log = { workspace = true }
+tauri-plugin-m3 = { workspace = true }
+tauri-plugin-persisted-scope = { workspace = true }
+tauri-plugin-plugin = { workspace = true }
+tauri-plugin-sentry = { workspace = true }
+tauri-plugin-shell = { workspace = true }
+tauri-plugin-sql = { workspace = true }
+tauri-runtime-wry = { workspace = true }
+tokio = { workspace = true }
 
 [build-dependencies.tauri-build]
-version = "2.5.6"
-features = []
+workspace = true
 
 [features]
 default = []

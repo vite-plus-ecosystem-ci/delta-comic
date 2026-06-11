@@ -23,9 +23,21 @@ export abstract class PluginLoader {
   public abstract load(
     pluginMeta: PluginArchiveDB.Archive,
   ): Promise<PluginConfigFactory | undefined>
-  public abstract install(file: File): Promise<PluginArchiveDB.Meta>
+  public abstract install(
+    file: File,
+    context?: PluginLoaderInstallContext,
+  ): Promise<PluginArchiveDB.Meta>
   public abstract decodeMeta(file: File): Promise<PluginArchiveDB.Meta>
   public abstract canInstall(file: File): boolean
+}
+
+export interface PluginLoaderInstallContext {
+  report: (progress: PluginLoaderInstallProgress) => void
+}
+
+export interface PluginLoaderInstallProgress {
+  description?: string
+  progress?: number
 }
 
 export type PluginBooterSetMeta = (

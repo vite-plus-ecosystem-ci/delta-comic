@@ -14,14 +14,15 @@ pub async fn run() {
     tauri::Builder::default()
       .plugin(tauri_plugin_fs::init())
       .plugin(sentry::init())
-      .plugin(logger::init())
+      .plugin(logger::init()),
   );
   let builder = builder
-      .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_m3::init())
     .plugin(tauri_plugin_better_cors_fetch::init())
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_persisted_scope::init())
+    .plugin(tauri_plugin_plugin::init())
     .plugin(tauri_plugin_aptabase::Builder::new("A-US-9793062880").build())
     .plugin(db::init())
     .setup(|_app| {

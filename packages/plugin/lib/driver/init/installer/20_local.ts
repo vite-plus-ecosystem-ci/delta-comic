@@ -1,7 +1,6 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { convertFileSrc } from '@tauri-apps/api/core'
-import { readFile } from '@tauri-apps/plugin-fs'
 
+import { readLocalFile } from '../native'
 import { PluginInstaller, type PluginInstallerDescription } from '../utils'
 
 export class _PluginInstallByLocal extends PluginInstaller {
@@ -11,10 +10,8 @@ export class _PluginInstallByLocal extends PluginInstaller {
   }
   public override name = 'local'
   private async installer(input: string): Promise<File> {
-    const path = decodeURIComponent(convertFileSrc(input.replace(/^local:/, ''), 'local'))
-    const name = path.split(/\\|\//).at(-1) ?? 'us.js'
-    const buffer = await readFile(path)
-    return new File([buffer], name)
+    const path = decodeURIComponent(input.replace(/^local:/, ''))
+    return await readLocalFile(path)
   }
   public override async download(input: string): Promise<File> {
     const file = await this.installer(input)

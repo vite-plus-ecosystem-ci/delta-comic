@@ -1,6 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import ky from 'ky'
 
+import { prepareDevScript } from '../native'
 import { PluginInstaller, type PluginInstallerDescription } from '../utils'
 
 export class _PluginInstallByDev extends PluginInstaller {
@@ -15,9 +16,7 @@ export class _PluginInstallByDev extends PluginInstaller {
         `http://${/:\d+$/.test(input) ? input : input + ':6173'}/__vite-plugin-monkey.install.user.js?origin=http%3A%2F%2F${input}%3A6173`,
       )
       .text()
-    const noPort = input.replace(/:\d+$/, '')
-
-    const processed = res.replaceAll('localhost', noPort).replaceAll('127.0.0.1', noPort)
+    const processed = await prepareDevScript(input, res)
     return new File([processed], 'us.js')
   }
   public override async download(input: string): Promise<File> {

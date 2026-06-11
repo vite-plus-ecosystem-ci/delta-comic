@@ -15,7 +15,7 @@ export class _PluginInstallByNormalUrl extends PluginInstaller {
   public override name = 'github'
   private async installer(input: string): Promise<File> {
     try {
-      var config = useConfig().$load(appConfig).value.githubToken
+      var config = useConfig().$load(appConfig).value.value.githubToken
     } catch (error) {
       console.error('fail to get github token', error)
       var config = ''

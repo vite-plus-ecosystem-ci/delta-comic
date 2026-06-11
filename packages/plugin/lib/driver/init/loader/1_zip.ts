@@ -2,41 +2,30 @@ import type { PluginArchiveDB } from '@delta-comic/db'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { join } from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
-import { loadAsync, type JSZipObject } from 'jszip'
 
 import type { PluginConfigFactory } from '@/plugin'
 
-import { PluginLoader } from '../utils'
+import { createNativeOperationId, decodeZipMeta, installZip, writeNativeTempFile } from '../native'
+import { PluginLoader, type PluginLoaderInstallContext } from '../utils'
 import { getPluginFsPath } from '../utils'
 
 export default new (class extends PluginLoader {
   public override name = 'zip'
-  public override async install(file: File): Promise<PluginArchiveDB.Meta> {
+  public override async install(
+    file: File,
+    context?: PluginLoaderInstallContext,
+  ): Promise<PluginArchiveDB.Meta> {
     console.log('[loader zip] begin:', file)
-    const temp = await getPluginFsPath('__temp__')
-    await fs.mkdir(temp, { recursive: true })
-    await fs.writeFile(await join(temp, 'temp.zip'), new Uint8Array(await file.arrayBuffer()))
-    console.log('[loader zip] temp:', temp)
-    const zip = await loadAsync(file)
-    console.log(zip.files)
-    const meta = <PluginArchiveDB.Meta>(
-      JSON.parse((await zip.file('manifest.json')?.async('string')) ?? '{}')
-    )
-    const root = await getPluginFsPath(meta.name.id)
-    try {
-      await fs.remove(root, { recursive: true })
-    } catch {}
-    await fs.mkdir(root, { recursive: true })
-    const files = new Array<{ path: string; file: JSZipObject }>()
-    zip.forEach((zipFilePath, file) => {
-      files.push({ path: zipFilePath, file })
+    const zipPath = await writeNativeTempFile(file)
+    console.log('[loader zip] temp:', zipPath)
+    const opId = createNativeOperationId()
+    return await installZip(zipPath, opId, progress => {
+      const percent = progress.total > 0 ? (progress.current / progress.total) * 90 : 0
+      context?.report({
+        description: progress.path ? `解压: ${progress.path}` : '解压插件',
+        progress: percent,
+      })
     })
-    for (const { file, path } of files) {
-      if (file.dir) await fs.mkdir(await join(root, path), { recursive: true })
-      else
-        await fs.writeFile(await join(root, path), await file.async('uint8array'), { create: true })
-    }
-    return meta
   }
   public override canInstall(file: File): boolean {
     return file.name.endsWith('.zip')
@@ -80,11 +69,6 @@ export default new (class extends PluginLoader {
     return result
   }
   public override async decodeMeta(file: File): Promise<PluginArchiveDB.Meta> {
-    const zip = await loadAsync(file)
-    console.log(zip.files)
-    const meta = <PluginArchiveDB.Meta>(
-      JSON.parse((await zip.file('manifest.json')?.async('string')) ?? '{}')
-    )
-    return meta
+    return await decodeZipMeta(await writeNativeTempFile(file))
   }
 })()

@@ -7,6 +7,8 @@ import { coreName } from './core'
 import type { PluginInstaller } from './init/utils'
 import { loaders } from './loader'
 
+const clampProgress = (progress: number) => Math.min(100, Math.max(0, progress))
+
 const rawInstallers = import.meta.glob<PluginInstaller>('./init/installer/*_*.ts', {
   eager: true,
   import: 'default',
@@ -57,15 +59,22 @@ const installPluginFile = async (
   installInput: string,
   __installedPlugins?: Set<string>,
 ) => {
-  const meta = await m.createLoading('安装插件', async v => {
+  const meta = await m.createProgress('安装插件', async v => {
     v.retryable = true
     const loader = loaders.filter(ins => ins.canInstall(file)).at(-1)
     if (!loader) throw new Error('没有符合的安装器')
     v.description = loader.name
+    v.progress = 0
 
-    const meta = await loader.install(file)
+    const meta = await loader.install(file, {
+      report(progress) {
+        if (progress.description) v.description = progress.description
+        if (typeof progress.progress === 'number') v.progress = clampProgress(progress.progress)
+      },
+    })
 
     v.description = '写入数据库'
+    v.progress = 95
     const { upsert } = PluginArchiveDB.useUpsert()
     await upsert({
       archives: [
@@ -80,6 +89,7 @@ const installPluginFile = async (
         },
       ],
     })
+    v.progress = 100
     return meta
   })
   console.log(`安装插件成功: ${meta.name.id} ->`, meta)
@@ -128,11 +138,20 @@ export const updatePlugin = async (
       }
     })
 
-    const meta = await m.createLoading('安装插件', async v => {
+    const meta = await m.createProgress('安装插件', async v => {
       v.retryable = true
       const loader = loaders.find(v => v.name == pluginMeta.loaderName)
       if (!loader) throw new Error('没有符合的安装器')
-      return await loader.install(file)
+      v.description = loader.name
+      v.progress = 0
+      const meta = await loader.install(file, {
+        report(progress) {
+          if (progress.description) v.description = progress.description
+          if (typeof progress.progress === 'number') v.progress = clampProgress(progress.progress)
+        },
+      })
+      v.progress = 100
+      return meta
     })
 
     const { upsert } = PluginArchiveDB.useUpsert()
