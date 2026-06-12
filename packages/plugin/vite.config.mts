@@ -1,4 +1,8 @@
+import { fileURLToPath } from 'node:url'
+
 import { defineConfig } from 'vite-plus'
+
+const root = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   pack: {
@@ -7,4 +11,6 @@ export default defineConfig({
     dts: { tsconfig: './tsconfig.app.json', tsgo: true },
     sourcemap: true,
   },
+  root,
+  test: { environment: 'node', include: ['lib/**/*.test.ts'] },
 })

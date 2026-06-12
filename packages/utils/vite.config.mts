@@ -6,4 +6,5 @@ export default defineConfig({
     sourcemap: true,
     dts: { tsgo: true, tsconfig: './tsconfig.app.json' },
   },
+  test: { environment: 'node', include: ['lib/**/*.test.ts'] },
 })

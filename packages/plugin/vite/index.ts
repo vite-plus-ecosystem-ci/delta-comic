@@ -1,17 +1,28 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
+import { extendsDepends } from '@delta-comic/utils'
 import { merge } from 'es-toolkit'
-import type { Plugin, PluginOption } from 'vite'
 import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
 
-import { extendsDepends } from '@/env'
+type DeltaComicPluginContext = {
+  emitFile(file: { type: 'asset'; fileName: string; source: string }): unknown
+}
+
+type DeltaComicPlugin = {
+  name: string
+  config?(config: unknown): unknown
+  generateBundle?(this: DeltaComicPluginContext): void
+}
+
+type DeltaComicPluginOption = DeltaComicPlugin | DeltaComicPluginOption[] | false | null | undefined
 
 export const deltaComic = (
   meta: PluginArchiveDB.Meta,
   command: 'build' | 'serve',
-): PluginOption => {
+): DeltaComicPluginOption[] => {
+  const externalGlobals = extendsDepends as Record<string, string>
   const isServer = command == 'serve'
-  const plugin: Plugin = {
+  const plugin: DeltaComicPlugin = {
     name: 'delta-comic-helper',
     config(config: any) {
       return merge(config, {
@@ -34,21 +45,23 @@ export const deltaComic = (
       })
     },
   }
-  return [
-    external(
-      Object.fromEntries(
-        Object.entries(extendsDepends).map(([key, val]) => [key, val.split('.').slice(1)]),
-      ),
-      { disableInServe: false },
+  const externals = external(
+    Object.fromEntries(
+      Object.entries(externalGlobals).map(([key, val]) => [key, val.split('.').slice(1)]),
     ),
+    { disableInServe: false },
+  ) as DeltaComicPluginOption
+
+  return [
+    externals,
     ...(isServer
       ? [
           monkey({
             entry: meta.entry?.jsPath ?? 'src/main.ts',
             userscript: { description: JSON.stringify(meta) },
-            build: { externalGlobals: isServer ? {} : extendsDepends },
+            build: { externalGlobals: isServer ? {} : externalGlobals },
             server: { mountGmApi: false, open: false, prefix: '[DEV] ' },
-          }),
+          }) as DeltaComicPluginOption,
         ]
       : [plugin]),
   ]

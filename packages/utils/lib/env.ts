@@ -1,6 +1,13 @@
 import type { useDialog, useLoadingBar, useMessage } from 'naive-ui'
 import type { MaybeRefOrGetter } from 'vue'
-import type { Router } from 'vue-router'
+import type { _RouterClassic, RouteLocationRaw } from 'vue-router'
+
+export interface DeltaRouterForce {
+  push: (to: RouteLocationRaw) => ReturnType<_RouterClassic['push']>
+  replace: (to: RouteLocationRaw) => ReturnType<_RouterClassic['replace']>
+}
+
+export type DeltaRouter = _RouterClassic & { force: DeltaRouterForce }
 
 declare global {
   interface Window {
@@ -10,7 +17,7 @@ declare global {
     $api: Record<string, any>
     $$lib$$: Record<ExternalLibKey[keyof ExternalLibKey], any>
     $$safe$$: boolean
-    $router: Router
+    $router: DeltaRouter
     $isDev: boolean
   }
 }
@@ -48,8 +55,9 @@ export const extendsDepends: ExternalLib = {
 }
 
 declare module 'vue-router' {
-  interface Router {
-    force: { push: Router['push']; replace: Router['replace'] }
+  interface TypesConfig {
+    Router: DeltaRouter
+    $router: DeltaRouter
   }
   interface RouteMeta {
     statusBar?: MaybeRefOrGetter<'dark' | 'light' | 'auto'>

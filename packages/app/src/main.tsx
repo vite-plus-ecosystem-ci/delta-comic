@@ -1,12 +1,3 @@
-declare module 'vue-router' {
-  interface Router {
-    force: { push: Router['push']; replace: Router['replace'] }
-  }
-  interface RouteMeta {
-    statusBar?: Vue.MaybeRefOrGetter<'dark' | 'light' | 'auto'>
-    force?: boolean
-  }
-}
 import 'core-js'
 import * as DcDb from '@delta-comic/db'
 import * as DcModel from '@delta-comic/model'
