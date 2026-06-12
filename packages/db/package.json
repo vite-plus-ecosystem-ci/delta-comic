@@ -34,9 +34,8 @@
   },
   "dependencies": {
     "@pinia/colada": "catalog:",
+    "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-sql": "catalog:",
-    "@tauri-apps/plugin-store": "catalog:",
-    "@vueuse/core": "catalog:",
     "es-toolkit": "catalog:",
     "kysely-dialect-tauri": "catalog:",
     "kysely-plugin-serialize": "catalog:",

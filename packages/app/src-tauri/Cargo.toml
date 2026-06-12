@@ -23,6 +23,7 @@ tauri = { workspace = true }
 tauri-plugin-aptabase = { workspace = true }
 tauri-plugin-better-cors-fetch = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
+tauri-plugin-db = { workspace = true }
 tauri-plugin-fs = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-m3 = { workspace = true }
@@ -30,6 +31,7 @@ tauri-plugin-persisted-scope = { workspace = true }
 tauri-plugin-plugin = { workspace = true }
 tauri-plugin-sentry = { workspace = true }
 tauri-plugin-shell = { workspace = true }
+# Keep direct so Tauri discovers sql:* permissions used by capabilities/default.json.
 tauri-plugin-sql = { workspace = true }
 tauri-runtime-wry = { workspace = true }
 tokio = { workspace = true }

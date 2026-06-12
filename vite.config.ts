@@ -7,7 +7,7 @@ export default defineConfig({
       'vp exec cspell --no-exit-code --no-must-find-files',
   },
   fmt: {
-    ignorePatterns: ['*.md', 'components.d.ts', 'typed-router.d.ts'],
+    ignorePatterns: ['*.md', 'components.d.ts', 'typed-router.d.ts', '**/permissions/**'],
     endOfLine: 'lf',
     semi: false,
     useTabs: false,

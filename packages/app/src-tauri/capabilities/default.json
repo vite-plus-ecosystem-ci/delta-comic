@@ -21,6 +21,7 @@
     "sentry:default",
     "log:default",
     "plugin:default",
+    "db:default",
     "cors-fetch:default",
     "shell:default"
   ]

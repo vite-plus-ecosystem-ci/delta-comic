@@ -2,7 +2,6 @@ import Database from '@tauri-apps/plugin-sql'
 import { CamelCasePlugin, Kysely } from 'kysely'
 import { TauriSqliteDialect } from 'kysely-dialect-tauri'
 import { SerializePlugin } from 'kysely-plugin-serialize'
-import { Migrator, type Migration } from 'kysely/migration'
 
 import type * as FavouriteDB from './favourite'
 export * as PluginArchiveDB from './plugin'
@@ -16,11 +15,6 @@ import type * as RecentDB from './recentView'
 export * as SubscribeDB from './subscribe'
 import type * as SubscribeDB from './subscribe'
 export * as RecentDB from './recentView'
-
-const migrations = import.meta.glob<Migration>('./migrations/*.ts', {
-  eager: true,
-  import: 'default',
-})
 
 export interface DB {
   itemStore: ItemStoreDB.Table
@@ -36,21 +30,10 @@ console.log('[db] loading')
 const database = await Database.load(`sqlite:app.db`)
 
 export const db = await (async () => {
-  const db = new Kysely<DB>({
+  return new Kysely<DB>({
     dialect: new TauriSqliteDialect({ database }),
     plugins: [new CamelCasePlugin(), new SerializePlugin()],
   })
-
-  const migrator = new Migrator({
-    db,
-    provider: {
-      async getMigrations() {
-        return migrations
-      },
-    },
-  })
-  await migrator.migrateToLatest()
-  return db
 })()
 
 export * as DBUtils from './utils'

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["packages/app/src-tauri", "packages/plugin"]
+members = ["packages/app/src-tauri", "packages/db", "packages/plugin"]
 
 [workspace.package]
 authors = ["wenxig"]
@@ -35,6 +35,7 @@ tauri-plugin-better-cors-fetch = { git = "https://github.com/wenxig/tauri-plugin
   "native-tls-vendored",
 ] }
 tauri-plugin-clipboard-manager = "2.3.2"
+tauri-plugin-db = { path = "packages/db" }
 tauri-plugin-fs = "2.4.5"
 tauri-plugin-log = { version = "2.8.0", features = ["colored"] }
 tauri-plugin-m3 = "0.3.1"

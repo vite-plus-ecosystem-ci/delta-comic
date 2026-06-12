@@ -37,7 +37,8 @@
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "vue": "catalog:"

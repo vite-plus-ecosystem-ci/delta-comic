@@ -1,4 +1,3 @@
-mod db;
 mod fs_scheme;
 mod logger;
 mod sentry;
@@ -23,10 +22,9 @@ pub async fn run() {
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_persisted_scope::init())
     .plugin(tauri_plugin_plugin::init())
-    .plugin(tauri_plugin_aptabase::Builder::new("A-US-9793062880").build())
-    .plugin(db::init())
-    .setup(|_app| {
-      let logo = r#"
+    .plugin(tauri_plugin_aptabase::Builder::new("A-US-9793062880").build());
+  let builder = tauri_plugin_db::init(builder).setup(|_app| {
+    let logo = r#"
 _____   _________________ ____        __________________ _____   ______
 |  __ \|  ____|| |__   __| __ \      / ______\   |  \/  |_   _| / _____\
 | |  | | |__   | |  | |  | | \ \    | |    _____ | \  / | | |  | /
@@ -37,9 +35,9 @@ _____   _________________ ____        __________________ _____   ______
   Per Aspera, Ad Astra.                              Copyright © Wenxig
 "#;
 
-      log::error!("{}", logo);
-      Ok(())
-    });
+    log::error!("{}", logo);
+    Ok(())
+  });
 
   match builder.build(tauri::generate_context!()) {
     Ok(builder) => builder.run(|handler, event| match event {
