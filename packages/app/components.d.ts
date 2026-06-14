@@ -69,6 +69,7 @@ declare module 'vue' {
     SubCard: typeof import('./src/components/subscribe/subCard.vue')['default']
     SubList: typeof import('./src/components/subscribe/subList.vue')['default']
     UpdateChecker: typeof import('./src/components/updateChecker.vue')['default']
+    UserFavouriteSelect: typeof import('./src/components/user/userFavouriteSelect.vue')['default']
     UserLayout: typeof import('./src/components/user/userLayout.vue')['default']
     VanButton: typeof import('vant/es')['Button']
     VanCell: typeof import('vant/es')['Cell']

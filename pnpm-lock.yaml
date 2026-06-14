@@ -172,8 +172,8 @@ catalogs:
       specifier: ^0.5.1
       version: 0.5.1
     tauri-plugin-better-cors-fetch:
-      specifier: 1.6.0
-      version: 1.6.0
+      specifier: 1.8.0
+      version: 1.8.0
     tauri-plugin-m3:
       specifier: ^0.3.1
       version: 0.3.2
@@ -329,7 +329,7 @@ importers:
         version: 7.8.1
       tauri-plugin-better-cors-fetch:
         specifier: 'catalog:'
-        version: 1.6.0
+        version: 1.8.0
       tauri-plugin-m3:
         specifier: 'catalog:'
         version: 0.3.2
@@ -4359,8 +4359,8 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
-  tauri-plugin-better-cors-fetch@1.6.0:
-    resolution: {integrity: sha512-z++y2GhSktWhQpeD9OCdBKpT5ow1jlEeWegOw9516Bq8ezB51gku88SXCAet8W+O8u8oESpEo3hNJcB/Q3srGw==}
+  tauri-plugin-better-cors-fetch@1.8.0:
+    resolution: {integrity: sha512-xCfPYJnpsRoY2U/KLaj0YCBxk/L9SemDWSufjMhL8iiqNPfPTvKEl9K+gNdLJpFD+0UTtCnKoNN0Imv5AZkXGg==}
 
   tauri-plugin-m3@0.3.2:
     resolution: {integrity: sha512-njST2lCa8Lpv0DBjfUR1DkfNuB5GR7oxSYLYEF6lNhQQnQPICXLBcI0KXY8ix08pEOUVQIewWinJklVbUEH8mA==}
@@ -6302,46 +6302,6 @@ snapshots:
 
   '@voidzero-dev/vite-plus-linux-x64-musl@0.1.24':
     optional: true
-
-  '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.2)(@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)':
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-      '@types/chai': 5.2.3
-      '@voidzero-dev/vite-plus-core': 0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
-      es-module-lexer: 1.7.0
-      obug: 2.1.2
-      pixelmatch: 7.2.0
-      pngjs: 7.0.0
-      sirv: 3.0.2
-      std-env: 4.1.0
-      tinybench: 2.9.0
-      tinyexec: 1.2.4
-      tinyglobby: 0.2.17
-      vite: '@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
-      ws: 8.21.0
-    optionalDependencies:
-      '@types/node': 25.9.2
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@vitejs/devtools'
-      - bufferutil
-      - esbuild
-      - jiti
-      - less
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
-      - utf-8-validate
-      - yaml
 
   '@voidzero-dev/vite-plus-test@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.14(@types/node@25.9.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)':
     dependencies:
@@ -8373,7 +8333,7 @@ snapshots:
 
   tapable@2.3.3: {}
 
-  tauri-plugin-better-cors-fetch@1.6.0:
+  tauri-plugin-better-cors-fetch@1.8.0:
     dependencies:
       '@tauri-apps/api': 2.11.0
       es-toolkit: 1.47.0
@@ -8669,7 +8629,7 @@ snapshots:
       '@oxc-project/types': 0.133.0
       '@oxlint/plugins': 1.61.0
       '@voidzero-dev/vite-plus-core': 0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
-      '@voidzero-dev/vite-plus-test': 0.1.24(@types/node@25.9.2)(@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)
+      '@voidzero-dev/vite-plus-test': 0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.14(@types/node@25.9.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
       oxfmt: 0.52.0(vite-plus@0.1.24(@types/node@25.9.2)(@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
       oxlint: 1.67.0(oxlint-tsgolint@0.23.0)(vite-plus@0.1.24(@types/node@25.9.2)(@voidzero-dev/vite-plus-core@0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
       oxlint-tsgolint: 0.23.0

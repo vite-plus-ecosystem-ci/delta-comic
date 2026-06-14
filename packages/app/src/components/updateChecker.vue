@@ -41,14 +41,14 @@ watch(markdown, markdown => (isShow.value = Boolean(markdown.length)), { immedia
       :markdown="markdown.map(v => v[1]).join('------\n\n')"
       class="h-[60vh]! w-full pt-3"
     />
-    <VanButton
+    <NButton
       type="primary"
-      class="absolute bottom-2 left-1/2 w-[calc(100%-24px)] -translate-x-1/2"
+      class="absolute! bottom-2 left-1/2 w-[calc(100%-24px)]! -translate-x-1/2"
       size="small"
       block
       @click="open('https://github.com/delta-comic/delta-comic/releases/latest')"
     >
       在github打开
-    </VanButton>
+    </NButton>
   </DcPopup>
 </template>

@@ -101,18 +101,24 @@ pub fn all() -> Vec<Migration> {
   vec![
     Migration {
       version: 1,
+      description: "create_file",
+      sql: "",
+      kind: MigrationKind::Up,
+    },
+    Migration {
+      version: 2,
       description: "initial_schema",
       sql: INITIAL,
       kind: MigrationKind::Up,
     },
     Migration {
-      version: 2,
+      version: 3,
       description: "fix_display_name",
       sql: FIX_DISPLAY_NAME,
       kind: MigrationKind::Up,
     },
     Migration {
-      version: 3,
+      version: 4,
       description: "fix_favourite_item_foreign_key",
       sql: FIX_FAVOURITE_ITEM_FOREIGN_KEY,
       kind: MigrationKind::Up,
