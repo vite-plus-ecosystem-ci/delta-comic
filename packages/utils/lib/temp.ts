@@ -1,42 +1,47 @@
-import { defineStore } from 'pinia'
 import { reactive, shallowReactive, type Reactive } from 'vue'
 
 import { useGlobalVar } from './var'
 
-const _useTemp = useGlobalVar(
-  defineStore('core:temp', helper => {
-    const tempBase = shallowReactive(new Map<string, any>())
-    const $apply = <T extends object>(id: string, def: () => T) => {
-      id = `reactive:${id}`
-      if (!tempBase.has(id)) tempBase.set(id, reactive(def()))
-      const store: Reactive<T> = tempBase.get(id)
-      return store
-    }
-    const $has = helper.action((id: string): boolean => {
-      id = `reactive:${id}`
-      return tempBase.has(id)
-    }, 'has')
-    const $onlyGet = helper.action(<T extends object>(id: string): Reactive<T> => {
-      id = `reactive:${id}`
-      return tempBase.get(id)
-    }, 'onlyGet')
-    const $applyRaw = helper.action(<T extends object>(id: string, def: () => T) => {
-      id = `raw:${id}`
-      if (!tempBase.has(id)) tempBase.set(id, def())
-      const store: T = tempBase.get(id)
-      return store
-    }, 'applyRaw')
-    const $hasRaw = helper.action((id: string): boolean => {
-      id = `raw:${id}`
-      return tempBase.has(id)
-    }, 'hasRaw')
-    const $onlyGetRaw = helper.action(<T extends object>(id: string): Reactive<T> => {
-      id = `raw:${id}`
-      return tempBase.get(id)
-    }, 'onlyGetRaw')
-    return { $apply, $has, $onlyGet, $applyRaw, $hasRaw, $onlyGetRaw }
-  }),
-  'store/temp',
-)
+class TempStore {
+  private readonly tempBase = shallowReactive(new Map<string, unknown>())
 
-export const useTemp = () => _useTemp(window.$api.piniaInstance)
+  $apply<T extends object>(id: string, def: () => T): Reactive<T> {
+    const key = this.getReactiveKey(id)
+    if (!this.tempBase.has(key)) this.tempBase.set(key, reactive(def()))
+    return this.tempBase.get(key) as Reactive<T>
+  }
+
+  $has(id: string): boolean {
+    return this.tempBase.has(this.getReactiveKey(id))
+  }
+
+  $onlyGet<T extends object>(id: string): Reactive<T> | undefined {
+    return this.tempBase.get(this.getReactiveKey(id)) as Reactive<T> | undefined
+  }
+
+  $applyRaw<T extends object>(id: string, def: () => T): T {
+    const key = this.getRawKey(id)
+    if (!this.tempBase.has(key)) this.tempBase.set(key, def())
+    return this.tempBase.get(key) as T
+  }
+
+  $hasRaw(id: string): boolean {
+    return this.tempBase.has(this.getRawKey(id))
+  }
+
+  $onlyGetRaw<T extends object>(id: string): T | undefined {
+    return this.tempBase.get(this.getRawKey(id)) as T | undefined
+  }
+
+  private getReactiveKey(id: string): string {
+    return `reactive:${id}`
+  }
+
+  private getRawKey(id: string): string {
+    return `raw:${id}`
+  }
+}
+
+const temp = useGlobalVar(new TempStore(), 'store/temp')
+
+export const useTemp = () => temp
