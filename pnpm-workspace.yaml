@@ -67,7 +67,7 @@ catalog:
   tailwind-merge: ^3.6.0
   tailwindcss: ^4.3.0
   tailwindcss-safe-area-capacitor: ^0.5.1
-  tauri-plugin-better-cors-fetch: 1.8.0
+  tauri-plugin-better-cors-fetch: ^1.8.0
   tauri-plugin-m3: ^0.3.1
   tauri-plugin-sentry-api: ^0.5.0
   tlds: ^1.261.0
@@ -87,6 +87,9 @@ catalog:
   vue-component-type-helpers: ^3.3.3
   vue-router: ^5.1.0
 
+minimumReleaseAgeExclude:
+  - tauri-plugin-better-cors-fetch@1.8.0
+
 overrides:
   vite: 'catalog:'
   vitest: 'catalog:'
@@ -98,19 +101,3 @@ peerDependencyRules:
   allowedVersions:
     vite: '*'
     vitest: '*'
-
-onlyBuiltDependencies:
-  - 'core-js'
-  - 'tauri-plugin-better-cors-fetch'
-
-minimumReleaseAgeExclude:
-  - '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-darwin-x64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-linux-arm64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-linux-arm@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-linux-x64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-win32-arm64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview-win32-x64@7.0.0-dev.20260527.1'
-  - '@typescript/native-preview@7.0.0-dev.20260527.1'
-  - tauri-plugin-better-cors-fetch@1.6.0
-  - tauri-plugin-better-cors-fetch@1.8.0

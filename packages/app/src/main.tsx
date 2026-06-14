@@ -38,7 +38,7 @@ import AppSetup from './AppSetup.vue'
 import { router } from './router'
 CORSFetch.init({ request: { danger: { acceptInvalidCerts: true, acceptInvalidHostnames: true } } })
 
-window.$$lib$$ = { Vue, Vant, Naive, VR, Pinia, DcModel, DcUi, DcCore, DcPlugin, DcUtils, DcDb, Pc }
+window.$$lib$$ = { Vue, Vant, Naive, VR, Pinia, DcModel, DcUi, DcPlugin, DcUtils, DcDb, Pc }
 window.$api.NImage = Naive.NImage
 window.$api.showImagePreview = Vant.showImagePreview
 window.$api.M3 = M3

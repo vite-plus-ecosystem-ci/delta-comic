@@ -17,7 +17,6 @@ import { defineConfig } from 'vite-plus'
 import VueRouter from 'vue-router/vite'
 
 const host = process.env.TAURI_DEV_HOST
-const trueBuild = process.env.TRUE_BUILD_MAIN_APP == 'true'
 
 export default defineConfig({
   plugins: [
@@ -30,12 +29,7 @@ export default defineConfig({
     vueJsx(),
     Components({
       dts: true,
-      resolvers: [
-        VantResolver(),
-        MotionResolver(),
-        NaiveUiResolver(),
-        trueBuild ? DeltaComicUiResolver() : [],
-      ],
+      resolvers: [VantResolver(), MotionResolver(), NaiveUiResolver(), DeltaComicUiResolver()],
       dtsTsx: false,
     }),
     tailwindcss(),

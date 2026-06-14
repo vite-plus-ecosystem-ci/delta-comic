@@ -18,6 +18,7 @@ import { cn } from '@/utils'
 
 import DcLoading from './DcLoading.vue'
 import DcVar from './DcVar.vue'
+import { WarningRound } from './icons'
 const $props = withDefaults(
   defineProps<{
     src?: uni.image.Image_
@@ -110,7 +111,6 @@ const handleImageLoad = (...e: Event[]) => {
 }
 const img = useTemplateRef('img')
 defineExpose({ isLoaded, imageEl: computed(() => img.value?.imageRef), imageIns: img })
-const NImg = (window.$api.NImage as typeof NImage) ?? NImage
 </script>
 
 <template>
@@ -118,7 +118,7 @@ const NImg = (window.$api.NImage as typeof NImage) ?? NImage
     :value="cn(round && 'rounded-full!', inline ? 'inline-flex' : 'flex', $props.class)"
     v-slot="{ value: cls }"
   >
-    <NImg
+    <NImage
       :="$props"
       @error="handleFail"
       :objectFit="fit"
@@ -138,7 +138,7 @@ const NImg = (window.$api.NImage as typeof NImage) ?? NImage
       @click="handleClickImage"
       :src
     >
-    </NImg>
+    </NImage>
     <div
       v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"
       :class="cn('items-center justify-center', cls)"
@@ -149,7 +149,7 @@ const NImg = (window.$api.NImage as typeof NImage) ?? NImage
       <DcLoading v-else />
     </div>
     <template v-if="images.error.has(src) && !hideError">
-      <NImg
+      <NImage
         v-if="fallback"
         :="$props"
         @error="handleFail"
@@ -178,21 +178,7 @@ const NImg = (window.$api.NImage as typeof NImage) ?? NImage
         <slot name="loading" v-if="$slots.loading"></slot>
         <template v-else>
           <NIcon size="2.5rem" color="var(--van-text-color-2)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
-              viewBox="0 0 32 32"
-            >
-              <path
-                d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm0 26a12 12 0 1 1 12-12a12 12 0 0 1-12 12z"
-                fill="currentColor"
-              ></path>
-              <path d="M15 8h2v11h-2z" fill="currentColor"></path>
-              <path
-                d="M16 22a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 22z"
-                fill="currentColor"
-              ></path>
-            </svg>
+            <WarningRound />
           </NIcon>
           <div class="text-sm text-(--van-text-color-2)">点击重试</div>
         </template>

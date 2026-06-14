@@ -21,7 +21,7 @@
     "log:default",
     "plugin:default",
     "db:default",
-    "cors-fetch:default",
+    "better-cors-fetch:default",
     "shell:default"
   ]
 }
