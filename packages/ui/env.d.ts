@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="@delta-comic/utils" />
 
 declare module '*.css' {}
 

@@ -33,13 +33,13 @@
     "typecheck": "tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "@pinia/colada": "catalog:",
     "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-sql": "catalog:",
     "es-toolkit": "catalog:",
     "kysely-dialect-tauri": "catalog:",
     "kysely-plugin-serialize": "catalog:",
-    "mitt": "catalog:"
+    "mitt": "catalog:",
+    "kysely": "catalog:"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
@@ -48,7 +48,7 @@
   },
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",
-    "kysely": "catalog:",
+    "@pinia/colada": "catalog:",
     "vue": "catalog:"
   }
 }

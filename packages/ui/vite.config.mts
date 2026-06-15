@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import { extendsDepends } from '@delta-comic/utils/vite'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -34,7 +35,11 @@ export default defineConfig({
   },
   base: '/',
   // builds
-  build: { lib: { entry: 'lib/index.ts', fileName: 'index', formats: ['es'] }, sourcemap: true },
+  build: {
+    lib: { entry: 'lib/index.ts', fileName: 'index', formats: ['es'] },
+    sourcemap: true,
+    rolldownOptions: { external: Object.keys(extendsDepends), output: { globals: extendsDepends } },
+  },
   pack: {
     entry: './vite/index.ts',
     outDir: 'dist-vite',

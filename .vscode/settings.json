@@ -1,7 +1,7 @@
 {
   "editor.defaultFormatter": "oxc.oxc-vscode",
-  "oxc.fmt.configPath": "./vite.config.ts",
-  "oxc.configPath": "./vite.config.ts",
+  "oxc.path.oxfmt": "node_modules/vite-plus/bin/oxfmt",
+  "oxc.path.oxlint": "node_modules/vite-plus/bin/oxlint",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "editor.codeActionsOnSave": { "source.fixAll.oxc": "explicit" },
@@ -9,10 +9,9 @@
   "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "[vue]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "DavidAnson.vscode-markdownlint" },
   "vue.suggest.componentNameCasing": "alwaysPascalCase",
   "vue.suggest.propNameCasing": "alwaysCamelCase",
   "tailwindCSS.classFunctions": ["twMerge", "cn"],
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", ":class"],
-  "[markdown]": { "editor.defaultFormatter": "DavidAnson.vscode-markdownlint" },
-  "cSpell.words": ["Strs"]
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", ":class"]
 }

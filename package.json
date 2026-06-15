@@ -21,7 +21,7 @@
   "type": "module",
   "scripts": {
     "dev": "vp run --filter app dev",
-    "lib-build": "vp run -r build",
+    "lib-build": "vp run -t app#build",
     "lint": "vp lint",
     "pub:all": "vp run pub:npm && vp run pub:github",
     "pub:github": "vp run lib-build && pnpm -r publish --no-git-checks --registry https://npm.pkg.github.com/",

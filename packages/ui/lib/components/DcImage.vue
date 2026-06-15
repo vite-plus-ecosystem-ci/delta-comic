@@ -19,6 +19,7 @@ import { cn } from '@/utils'
 import DcLoading from './DcLoading.vue'
 import DcVar from './DcVar.vue'
 import { WarningRound } from './icons'
+
 const $props = withDefaults(
   defineProps<{
     src?: uni.image.Image_

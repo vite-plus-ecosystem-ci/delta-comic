@@ -7,6 +7,7 @@ allowBuilds:
 
 catalog:
   vue-tsc: ^3.3.3
+  vue-tsgo: ^0.2.2
   'vite-plugin-dts': '^5.0.2'
   '@commitlint/cli': ^21.0.2
   '@commitlint/config-conventional': ^21.0.2

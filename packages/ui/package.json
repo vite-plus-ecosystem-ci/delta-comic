@@ -36,12 +36,10 @@
   },
   "scripts": {
     "build": "vp build && vp pack",
-    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit"
+    "typecheck": "vue-tsgo -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "@delta-comic/model": "workspace:*",
     "@lhlyu/vue-virtual-waterfall": "catalog:",
-    "@pinia/colada": "catalog:",
     "@tauri-apps/plugin-shell": "catalog:",
     "@vueuse/core": "catalog:",
     "dayjs": "catalog:",
@@ -61,6 +59,7 @@
     "@tailwindcss/vite": "catalog:",
     "@types/linkify-it": "catalog:",
     "@types/markdown-it": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
     "browserslist": "catalog:",
@@ -71,11 +70,13 @@
     "vite-plugin-dts": "catalog:",
     "vite-plus": "catalog:",
     "vue-component-type-helpers": "catalog:",
+    "vue-tsgo": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",
     "@delta-comic/utils": "workspace:*",
+    "@pinia/colada": "catalog:",
     "naive-ui": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",

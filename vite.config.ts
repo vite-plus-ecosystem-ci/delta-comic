@@ -1,80 +1,15 @@
 import { defineConfig } from 'vite-plus'
 
+import fmt from './oxfmt.config'
+import lint from './oxlint.config'
+
 export default defineConfig({
   staged: {
     '*': 'vp check --fix',
     '*.{md,json,toml,rs,js,jsx,ts,tsx,mts,cts,mjs,cjs,vue,html}':
       'vp exec cspell --no-exit-code --no-must-find-files',
   },
-  fmt: {
-    ignorePatterns: ['*.md', 'components.d.ts', 'typed-router.d.ts', '**/permissions/**'],
-    endOfLine: 'lf',
-    semi: false,
-    useTabs: false,
-    printWidth: 100,
-    tabWidth: 2,
-    singleQuote: true,
-    sortPackageJson: { sortScripts: true },
-    arrowParens: 'avoid',
-    jsxSingleQuote: true,
-    singleAttributePerLine: false,
-    vueIndentScriptAndStyle: false,
-    sortTailwindcss: {
-      preserveDuplicates: true,
-      preserveWhitespace: true,
-      stylesheet: './packages/app/src/index.css',
-      attributes: ['overlayClass', ':class', 'Class'],
-      functions: ['twMerge', 'cn'],
-    },
-    bracketSameLine: false,
-    bracketSpacing: true,
-    embeddedLanguageFormatting: 'auto',
-    insertFinalNewline: false,
-    proseWrap: 'always',
-    htmlWhitespaceSensitivity: 'css',
-    objectWrap: 'collapse',
-    quoteProps: 'consistent',
-    trailingComma: 'all',
-    sortImports: {
-      groups: [
-        ['builtin'],
-        ['external', 'type-external'],
-        ['internal', 'type-internal'],
-        ['parent', 'type-parent'],
-        ['sibling', 'type-sibling'],
-        ['index', 'type-index'],
-      ],
-    },
-  },
-  lint: {
-    plugins: ['unicorn', 'typescript', 'oxc', 'vue'],
-    categories: { correctness: 'error' },
-    rules: {
-      // 'no-unused-expressions': 'allow',
-      // 'no-useless-escape': 'allow',
-      // 'no-non-null-asserted-optional-chain': 'allow',
-      'no-thenable': 'allow',
-      // 'tsconfig-error': 'allow'
-    },
-    settings: {
-      'jsx-a11y': { components: {}, attributes: {} },
-      'next': { rootDir: [] },
-      'jsdoc': {
-        ignorePrivate: false,
-        ignoreInternal: false,
-        ignoreReplacesDocs: true,
-        overrideReplacesDocs: true,
-        augmentsExtendsReplacesDocs: false,
-        implementsReplacesDocs: false,
-        exemptDestructuredRootsFromChecks: false,
-        tagNamePreference: {},
-      },
-      'vitest': { typecheck: false },
-    },
-    env: { builtin: true },
-    globals: {},
-    ignorePatterns: ['.vscode', './package.json'],
-    options: { typeAware: false, typeCheck: false },
-  },
+  fmt,
+  lint,
   run: { cache: { tasks: true, scripts: true } },
 })

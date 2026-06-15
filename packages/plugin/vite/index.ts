@@ -1,5 +1,5 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { extendsDepends } from '@delta-comic/utils'
+import { extendsDepends } from '@delta-comic/utils/vite'
 import { merge } from 'es-toolkit'
 import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
