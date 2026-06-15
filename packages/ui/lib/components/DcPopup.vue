@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { NDrawer } from 'naive-ui'
+import { NDrawer, NModal } from 'naive-ui'
 import { computed } from 'vue'
 
 import { usePreventBack, useZIndex } from '@/utils/layout'
 
-import { cn, type StyleProps } from '../utils'
+import { type StyleProps } from '../utils'
 
 const $props = withDefaults(
   defineProps<
@@ -40,8 +40,6 @@ const emit = defineEmits<{ closed: [] }>()
 defineSlots<{ default(): void }>()
 defineExpose({ zIndex })
 
-const isCenter = computed(() => $props.position === 'center')
-
 /** NDrawer 用 v-if 实现 destroyOnClose */
 const drawerShow = computed(() => ($props.destroyOnClose ? isShow.value : true))
 const drawerVisible = computed(() => ($props.destroyOnClose ? true : isShow.value))
@@ -71,41 +69,19 @@ const closeable = computed(
 
 <template>
   <!-- Center 模式：自建 overlay + 居中卡片 -->
-  <Teleport v-if="isCenter" :to="teleport">
-    <Transition name="van-fade" :appear="transitionAppear" @after-leave="emit('closed')">
-      <div
-        v-if="isShow"
-        class="dc-popup-overlay fixed inset-0 flex items-center justify-center"
-        :style="{ zIndex }"
-        @click.self="[
-          closeOnClickOverlay && (isShow = false),
-          closeable && destroyOnClose && (isShow = false),
-        ]"
-      >
-        <div
-          :class="cn('dc-popup-card relative', round && 'rounded-xl', $props.class)"
-          :style="$props.style"
-        >
-          <button
-            v-if="closeable"
-            class="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full text-(--van-text-color-2) hover:bg-black/5"
-            @click="isShow = false"
-            aria-label="关闭"
-          >
-            ✕
-          </button>
-          <slot />
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  <template v-if="position === 'center'" :to="teleport">
+    <NModal >
+      <slot />
+    </NModal>
+  </template>
 
   <!-- 其他方向：NDrawer -->
   <template v-else>
     <NDrawer
       v-if="drawerShow"
       :show="drawerVisible"
-      :placement="position as 'top' | 'bottom' | 'left' | 'right'"
+      :showMask="overlay"
+      :placement="position"
       :to="teleport"
       :z-index="zIndex"
       :mask-closable="closeOnClickOverlay"
@@ -125,15 +101,3 @@ const closeable = computed(
     </NDrawer>
   </template>
 </template>
-
-<style scoped>
-.dc-popup-overlay {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.dc-popup-card {
-  background: var(--van-background-2, #fff);
-  max-height: 80vh;
-  overflow-y: auto;
-}
-</style>

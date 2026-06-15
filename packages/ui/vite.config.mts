@@ -28,11 +28,15 @@ export default defineConfig({
     },
   },
   base: '/',
+  oxc: { exclude: [/\.js$/, /\.d\.[cm]?ts$/] },
   // builds
   build: {
     lib: { entry: 'lib/index.ts', fileName: 'index', formats: ['es'] },
     sourcemap: true,
-    rolldownOptions: { external: Object.keys(extendsDepends), output: { globals: extendsDepends } },
+    rolldownOptions: {
+      external: [...Object.keys(extendsDepends), 'highlight.js'],
+      output: { globals: extendsDepends },
+    },
   },
   pack: {
     entry: './vite/index.ts',
