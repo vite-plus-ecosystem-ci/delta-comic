@@ -4,7 +4,9 @@ import { computed } from 'vue'
 
 import { usePreventBack, useZIndex } from '@/utils/layout'
 
-import { type StyleProps } from '../utils'
+import { cn, type StyleProps } from '../utils'
+
+import { CloseRound } from './icons'
 
 const $props = withDefaults(
   defineProps<
@@ -40,6 +42,11 @@ const emit = defineEmits<{ closed: [] }>()
 defineSlots<{ default(): void }>()
 defineExpose({ zIndex })
 
+const handleUpdateShow = (val: boolean) => {
+  if (!val && $props.beforeClose && !$props.beforeClose()) return
+  isShow.value = val
+}
+
 /** NDrawer 用 v-if 实现 destroyOnClose */
 const drawerShow = computed(() => ($props.destroyOnClose ? isShow.value : true))
 const drawerVisible = computed(() => ($props.destroyOnClose ? true : isShow.value))
@@ -68,10 +75,41 @@ const closeable = computed(
 </script>
 
 <template>
-  <!-- Center 模式：自建 overlay + 居中卡片 -->
-  <template v-if="position === 'center'" :to="teleport">
-    <NModal >
-      <slot />
+  <!-- Center 模式：NModal + 居中卡片 -->
+  <template v-if="position === 'center'">
+    <NModal
+      :show="isShow"
+      :show-mask="overlay"
+      :mask-closable="closeOnClickOverlay"
+      :to="teleport"
+      :z-index="zIndex"
+      :display-directive="destroyOnClose ? 'if' : 'show'"
+      transform-origin="center"
+      :internal-appear="transitionAppear"
+      @after-leave="emit('closed')"
+      @update:show="handleUpdateShow"
+    >
+      <div
+        :class="
+          cn(
+            'dc-popup-card relative max-h-screen overflow-x-hidden overflow-y-auto',
+            round && 'rounded-xl',
+            $props.class,
+          )
+        "
+        :style="$props.style"
+      >
+        <button
+          v-if="closeable"
+          type="button"
+          class="absolute top-2 right-2 z-1 flex size-6 items-center justify-center rounded-full text-(--van-text-color-2) hover:bg-black/5"
+          aria-label="关闭"
+          @click="handleUpdateShow(false)"
+        >
+          <CloseRound class="size-4" />
+        </button>
+        <slot />
+      </div>
     </NModal>
   </template>
 
@@ -90,14 +128,15 @@ const closeable = computed(
       :class="$props.class"
       :style="$props.style"
       @after-leave="emit('closed')"
-      @update:show="
-        (val: boolean) => {
-          if (!val && beforeClose && !beforeClose()) return
-          isShow = val
-        }
-      "
+      @update:show="handleUpdateShow"
     >
       <slot />
     </NDrawer>
   </template>
 </template>
+
+<style scoped>
+.dc-popup-card {
+  background: var(--van-background-2, #fff);
+}
+</style>
