@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, useSlots } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { cn } from '@/utils'
 
@@ -38,8 +37,7 @@ const vm = getCurrentInstance()!.proxy!
 
 function navigate() {
   if ($props.to && vm.$router) {
-    const router = vm.$router as ReturnType<typeof useRouter>
-    router[$props.replace ? 'replace' : 'push']($props.to)
+    vm.$router[$props.replace ? 'replace' : 'push']($props.to)
   } else if ($props.url) {
     if ($props.replace) {
       location.replace($props.url)

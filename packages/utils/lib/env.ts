@@ -9,7 +9,8 @@ export interface DeltaRouterForce {
   replace: (to: RouteLocationRaw) => ReturnType<_RouterClassic['replace']>
 }
 
-export type DeltaRouter = _RouterClassic & { force: DeltaRouterForce }
+type RouterClassicPublicKey = Extract<keyof _RouterClassic, string>
+export type DeltaRouter = Pick<_RouterClassic, RouterClassicPublicKey> & { force: DeltaRouterForce }
 
 declare global {
   interface Window {

@@ -64,14 +64,14 @@
     "@vitejs/plugin-vue-jsx": "catalog:",
     "browserslist": "catalog:",
     "lightningcss": "catalog:",
+    "rolldown-plugin-dts": "catalog:",
     "tailwindcss": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vite-plus": "catalog:",
     "vue-component-type-helpers": "catalog:",
-    "vue-tsgo": "catalog:",
-    "vue-tsc": "catalog:"
+    "vue-tsc": "catalog:",
+    "vue-tsgo": "catalog:"
   },
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",

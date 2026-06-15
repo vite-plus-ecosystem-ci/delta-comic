@@ -34,7 +34,7 @@ export const toUnionSource = <T>(source: RawSource<T>): UnionSource<T> => {
         refresh() {
           return source.value.refresh(false)
         },
-        next: source.next ?? noop,
+        next: () => Promise.try(source.next ?? noop),
       }
     case 'stream':
       return {

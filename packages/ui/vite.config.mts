@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
 import { extendsDepends } from '@delta-comic/utils/vite'
@@ -6,7 +7,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import browserslist from 'browserslist'
 import { browserslistToTargets } from 'lightningcss'
-import dtsPlugin from 'vite-plugin-dts'
+import { dts } from 'rolldown-plugin-dts'
 import { defineConfig, type UserConfig } from 'vite-plus'
 
 export default defineConfig({
@@ -14,14 +15,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
     tailwindcss(),
-    dtsPlugin({
-      processor: 'vue',
-      include: ['env.d.ts', 'components.d.ts', 'lib/**/*'],
-      entryRoot: 'lib',
-      tsconfigPath: './tsconfig.app.json',
-      cleanVueFileName: true,
-      bundleTypes: true,
-    }),
+    dts({ vue: true, tsconfig: resolve(import.meta.dirname, './tsconfig.app.json') }),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./lib', import.meta.url)) },
