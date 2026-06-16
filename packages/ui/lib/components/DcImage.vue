@@ -17,7 +17,6 @@ import {
 import { cn } from '@/utils'
 
 import DcLoading from './DcLoading.vue'
-import DcVar from './DcVar.vue'
 import { WarningRound } from './icons'
 
 const $props = withDefaults(
@@ -95,14 +94,14 @@ defineSlots<{ loading?(): any; fail?(): any }>()
 const isLoaded = computed(() => images.loaded.has(src.value))
 const fallbackSrc = computedAsync(async () => {
   try {
-    if (!$props.fallback) return ''
+    if (!$props.fallback) return
     if (isString($props.fallback)) return $props.fallback
     return await $props.fallback.getUrl()
   } catch (error) {
     console.error(error)
   }
-  return ''
-}, '')
+  return
+}, undefined)
 
 const handleClickImage = (e: Event) => $emit('click', e)
 
@@ -115,66 +114,35 @@ defineExpose({ isLoaded, imageEl: computed(() => img.value?.imageRef), imageIns:
 </script>
 
 <template>
-  <DcVar
-    :value="cn(round && 'rounded-full!', inline ? 'inline-flex' : 'flex', $props.class)"
-    v-slot="{ value: cls }"
+  <NImage
+    :="$props"
+    @error="handleFail"
+    :objectFit="fit"
+    :previewDisabled="!previewable"
+    :alt
+    ref="img"
+    :imgProps="{
+      ...imgProp,
+      class: cn(imgProp?.class, 'w-full'),
+      fetchpriority: $props.fetchpriority,
+    }"
+    :class="cn(round && 'rounded-full!', inline ? 'inline-flex' : 'flex', $props.class)"
+    :style
+    v-if="show"
+    @load="handleImageLoad"
+    @click="handleClickImage"
+    :src
+    :fallbackSrc
   >
-    <NImage
-      :="$props"
-      @error="handleFail"
-      :objectFit="fit"
-      :previewDisabled="!previewable"
-      :alt
-      ref="img"
-      :imgProps="{
-        ...imgProp,
-        class: cn(imgProp?.class, 'w-full'),
-        fetchpriority: $props.fetchpriority,
-      }"
-      :class="cls"
-      :style
-      v-show="!images.error.has(src) && images.loaded.has(src)"
-      v-if="show"
-      @load="handleImageLoad"
-      @click="handleClickImage"
-      :src
-    >
-    </NImage>
-    <div
-      v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"
-      :class="cn('items-center justify-center', cls)"
-      :style
-      @click="$emit('click', $event)"
-    >
-      <slot name="loading" v-if="$slots.loading"></slot>
-      <DcLoading v-else />
-    </div>
-    <template v-if="images.error.has(src) && !hideError">
-      <NImage
-        v-if="fallback"
-        :="$props"
-        @error="handleFail"
-        :objectFit="fit"
-        previewDisabled
-        :alt
-        :imgProps="{
-          ...imgProp,
-          class: cn(imgProp?.class, 'w-full'),
-          fetchpriority: $props.fetchpriority,
-        }"
-        :class="cls"
-        :style
-        :src="fallbackSrc"
-      />
+    <template #error v-if="!hideError">
       <div
-        v-else
         @click.stop="
           () => {
             images.error.delete(src)
             beginReload()
           }
         "
-        :class="cn('flex-col items-center justify-center', cls)"
+        class="size-full flex-col items-center justify-center"
       >
         <slot name="loading" v-if="$slots.loading"></slot>
         <template v-else>
@@ -185,5 +153,20 @@ defineExpose({ isLoaded, imageEl: computed(() => img.value?.imageRef), imageIns:
         </template>
       </div>
     </template>
-  </DcVar>
+    <template #placeholder>
+      <div
+        v-if="!hideLoading"
+        :class="[
+          'size-full items-center justify-center',
+          round && 'rounded-full!',
+          inline ? 'inline-flex' : 'flex',
+        ]"
+        :style
+        @click="$emit('click', $event)"
+      >
+        <slot name="loading" v-if="$slots.loading"></slot>
+        <DcLoading v-else />
+      </div>
+    </template>
+  </NImage>
 </template>

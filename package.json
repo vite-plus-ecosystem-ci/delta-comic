@@ -38,6 +38,7 @@
     "@semantic-release/git": "catalog:",
     "@semantic-release/github": "catalog:",
     "@semantic-release/release-notes-generator": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "@types/iarna__toml": "catalog:",
     "commitlint-plugin-cspell": "catalog:",
     "cspell": "catalog:",

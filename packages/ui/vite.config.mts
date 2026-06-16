@@ -15,7 +15,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
     tailwindcss(),
-    dts({ vue: true, tsconfig: resolve(import.meta.dirname, './tsconfig.app.json') }),
+    dts({ vue: true, tsconfig: resolve(import.meta.dirname, './tsconfig.app.json') ,}),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./lib', import.meta.url)) },

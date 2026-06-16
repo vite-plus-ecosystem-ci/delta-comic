@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useNativeStore } from '@delta-comic/db'
 import { usePluginStore } from '@delta-comic/plugin'
-import { useZIndex } from '@delta-comic/ui'
+import { usePreventBack } from '@delta-comic/ui'
 import { SharedFunction } from '@delta-comic/utils'
 import { ReuseableAbortController } from '@delta-comic/utils'
 import { computedAsync } from '@vueuse/core'
@@ -18,7 +18,7 @@ import { searchSourceKey } from './source'
 const $props = defineProps<{ source: string }>()
 
 const isSearching = shallowRef(false)
-const [zIndex] = useZIndex(isSearching)
+usePreventBack(isSearching)
 
 const searchText = defineModel<string>('searchText', { required: true })
 const source = computed(() => {

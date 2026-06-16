@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useNativeStore } from '@delta-comic/db'
-import { useZIndex } from '@delta-comic/ui'
 import { SharedFunction } from '@delta-comic/utils'
 import { ReuseableAbortController } from '@delta-comic/utils'
 import { computedAsync } from '@vueuse/core'
@@ -11,8 +10,11 @@ import { useTemplateRef } from 'vue'
 
 import { pluginName } from '@/symbol'
 import { getBarcodeList, type ThinkList } from '@/utils/search'
+import { usePreventBack } from '@delta-comic/ui'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
+usePreventBack(isSearching)
+
 const text = defineModel<string>('text', { default: '' })
 
 const handleSearch = (text: string) => {
@@ -23,8 +25,6 @@ const handleSearch = (text: string) => {
 const inputEl = useTemplateRef('inputEl')
 
 defineExpose({ inputEl, isSearching })
-
-const [zIndex] = useZIndex(isSearching)
 
 const history = useNativeStore(pluginName, 'search.history', new Array<string>())
 const thinkListAbort = new ReuseableAbortController()
@@ -82,41 +82,37 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
     </div>
   </div>
 
-  <Teleport to="#popups">
-    <AnimatePresence>
-      <motion.div
-        @click="isSearching = false"
-        v-if="isSearching"
-        :style="{ zIndex }"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }"
-        class="fixed top-safe-offset-[54px] left-0 h-screen w-screen bg-(--van-black)"
-      >
-      </motion.div>
-      <motion.div
-        :style="{ zIndex }"
-        :initial="{ height: 0, opacity: 0.3 }"
-        :animate="{ height: 'auto', opacity: 1 }"
-        :exit="{ height: 0, opacity: 0.3 }"
-        v-if="isSearching"
-        layout
-        :transition="{ duration: 0.1 }"
-        class="fixed top-safe-offset-[54px] flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
-      >
-        <DcCellGroup class="w-full">
-          <template v-if="!isEmpty(thinkList)">
-            <template v-for="think of thinkList">
-              <DcCell
-                v-if="'text' in think"
-                :title="think.text"
-                @click="handleSearch((text = think.value))"
-                class="van-haptics-feedback w-full"
-              />
-              <component v-else :is="think" />
-            </template>
+  <AnimatePresence>
+    <motion.div
+      @click="isSearching = false"
+      v-if="isSearching"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 0.5 }"
+      class="fixed top-safe-offset-[54px] left-0 z-10 h-screen w-screen bg-(--van-black)"
+    >
+    </motion.div>
+    <motion.div
+      :initial="{ height: 0, opacity: 0.3 }"
+      :animate="{ height: 'auto', opacity: 1 }"
+      :exit="{ height: 0, opacity: 0.3 }"
+      v-if="isSearching"
+      layout
+      :transition="{ duration: 0.1 }"
+      class="fixed top-safe-offset-[54px] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
+    >
+      <DcCellGroup class="w-full">
+        <template v-if="!isEmpty(thinkList)">
+          <template v-for="think of thinkList">
+            <DcCell
+              v-if="'text' in think"
+              :title="think.text"
+              @click="handleSearch((text = think.value))"
+              class="van-haptics-feedback w-full"
+            />
+            <component v-else :is="think" />
           </template>
-        </DcCellGroup>
-      </motion.div>
-    </AnimatePresence>
-  </Teleport>
+        </template>
+      </DcCellGroup>
+    </motion.div>
+  </AnimatePresence>
 </template>

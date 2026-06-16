@@ -40,23 +40,22 @@
     "@octokit/rest": "catalog:",
     "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-fs": "catalog:",
-    "vite-plugin-externals": "catalog:",
-    "vite-plugin-monkey": "catalog:",
     "es-toolkit": "catalog:",
     "ky": "catalog:",
-    "lz-string": "catalog:"
+    "lz-string": "catalog:",
+    "vite-plugin-externals": "catalog:",
+    "vite-plugin-monkey": "catalog:"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "vue-component-type-helpers": "catalog:"
   },
   "peerDependencies": {
-    "pinia": "catalog:",
     "@delta-comic/db": "workspace:*",
     "@delta-comic/model": "workspace:*",
     "@delta-comic/ui": "workspace:*",
     "@delta-comic/utils": "workspace:*",
     "@pinia/colada": "catalog:",
+    "pinia": "catalog:",
     "vue": "catalog:"
   }
 }

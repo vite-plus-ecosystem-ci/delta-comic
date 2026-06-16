@@ -61,7 +61,7 @@ const $message = useMessage()
     v-model:show="show"
     position="bottom"
     round
-    class="h-[80vh]"
+  overlay
     :beforeClose="() => !bootingSteps"
   >
     <NSpin :show="!!bootingSteps" class="relative size-full" contentClass="size-full">

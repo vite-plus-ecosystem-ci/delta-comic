@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useZIndex } from '@delta-comic/ui'
+import { usePreventBack } from '@delta-comic/ui'
 import { isEmpty, uniq } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { shallowRef } from 'vue'
@@ -7,8 +7,9 @@ import { shallowRef } from 'vue'
 const filtersHistory = defineModel<string[]>('filtersHistory', { required: true })
 
 const isSearching = shallowRef(false)
+usePreventBack(isSearching)
+
 const searchText = shallowRef('')
-const [zIndex] = useZIndex(isSearching)
 
 defineExpose({ isSearching, searchText })
 </script>
@@ -18,7 +19,7 @@ defineExpose({ isSearching, searchText })
     <div
       :class="[
         isSearching
-          ? 'right-1 w-[calc(100%-8px)] rounded-lg'
+          ? 'right-1 w-[calc(100%-8px)]! rounded-lg'
           : isEmpty(searchText)
             ? 'pointer-events-none right-10.25 w-1/2 rounded-full opacity-0!'
             : 'right-10.25 ml-3 w-1/2 rounded-full',
@@ -57,38 +58,34 @@ defineExpose({ isSearching, searchText })
     </div>
   </AnimatePresence>
 
-  <Teleport to="#popups">
-    <AnimatePresence>
-      <motion.div
-        @click="isSearching = false"
-        v-if="isSearching"
-        :style="{ zIndex }"
-        :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }"
-        class="fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] left-0 h-screen w-screen bg-(--van-black)"
-      >
-      </motion.div>
-      <motion.div
-        :style="{ zIndex }"
-        :initial="{ height: 0, opacity: 0.3 }"
-        :animate="{ height: 'auto', opacity: 1 }"
-        :exit="{ height: 0, opacity: 0.3 }"
-        v-if="isSearching"
-        layout
-        :transition="{ duration: 0.1 }"
-        class="fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
-      >
-        <VanList class="w-full">
-          <template v-if="!isEmpty(filtersHistory)">
-            <DcCell
-              v-for="filter of filtersHistory"
-              :title="filter"
-              @click="searchText = filter"
-              class="van-haptics-feedback w-full"
-            />
-          </template>
-        </VanList>
-      </motion.div>
-    </AnimatePresence>
-  </Teleport>
+  <AnimatePresence>
+    <motion.div
+      @click="isSearching = false"
+      v-if="isSearching"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 0.5 }"
+      class="fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] left-0 z-10 h-screen w-screen bg-(--van-black)"
+    >
+    </motion.div>
+    <motion.div
+      :initial="{ height: 0, opacity: 0.3 }"
+      :animate="{ height: 'auto', opacity: 1 }"
+      :exit="{ height: 0, opacity: 0.3 }"
+      v-if="isSearching"
+      layout
+      :transition="{ duration: 0.1 }"
+      class="fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
+    >
+      <VanList class="w-full">
+        <template v-if="!isEmpty(filtersHistory)">
+          <DcCell
+            v-for="filter of filtersHistory"
+            :title="filter"
+            @click="searchText = filter"
+            class="van-haptics-feedback w-full"
+          />
+        </template>
+      </VanList>
+    </motion.div>
+  </AnimatePresence>
 </template>

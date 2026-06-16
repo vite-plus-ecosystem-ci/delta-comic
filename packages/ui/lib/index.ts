@@ -9,7 +9,6 @@ import DcImagedIcon from './components/DcImagedIcon.vue'
 import DcList from './components/DcList.vue'
 import DcLoading from './components/DcLoading.vue'
 import DcMarkdown from './components/DcMarkdown'
-import DcPopup from './components/DcPopup.vue'
 import DcPullRefresh from './components/DcPullRefresh.vue'
 import DcState from './components/DcState.vue'
 import DcTab from './components/DcTab.vue'
@@ -29,7 +28,6 @@ export {
   DcImage,
   DcList,
   DcLoading,
-  DcPopup,
   DcTab,
   DcText,
   DcToggleIcon,

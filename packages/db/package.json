@@ -36,13 +36,12 @@
     "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-sql": "catalog:",
     "es-toolkit": "catalog:",
+    "kysely": "catalog:",
     "kysely-dialect-tauri": "catalog:",
     "kysely-plugin-serialize": "catalog:",
-    "mitt": "catalog:",
-    "kysely": "catalog:"
+    "mitt": "catalog:"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
