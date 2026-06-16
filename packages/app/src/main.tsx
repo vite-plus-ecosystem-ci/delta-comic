@@ -142,9 +142,3 @@ meta.name = 'naive-ui-style'
 document.head.appendChild(meta)
 
 app.mount('#app')
-
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $router: DcUtils.DeltaRouter
-  }
-}
