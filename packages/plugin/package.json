@@ -55,6 +55,7 @@
     "@delta-comic/ui": "workspace:*",
     "@delta-comic/utils": "workspace:*",
     "@pinia/colada": "catalog:",
+    "naive-ui": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:"
   }

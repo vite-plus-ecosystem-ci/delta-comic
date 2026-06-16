@@ -1,5 +1,6 @@
-import { createDialog, createForm, DcPopup } from '@delta-comic/ui'
+import { createForm } from '@delta-comic/ui'
 import { Mutex } from 'es-toolkit'
+import { NModal, useDialog } from 'naive-ui'
 import { defineComponent, h, markRaw, ref } from 'vue'
 
 import { usePluginStore } from '@/driver/store'
@@ -24,7 +25,7 @@ class _PluginAuth extends PluginBooter {
       setMeta('等待其他插件鉴权结束...')
       if (!isPass) {
         setMeta('选择鉴权方式')
-        void createDialog({
+        void useDialog().create({
           type: 'default',
           positiveText: '登录',
           negativeText: '注册',
@@ -55,25 +56,9 @@ class _PluginAuth extends PluginBooter {
                 void formInstance.data.then(() => (show.value = false))
                 return () =>
                   h(
-                    DcPopup,
-                    {
-                      show: show.value,
-                      position: 'center',
-                      round: true,
-                      style: 'width: 95vw !important; padding: 24px; padding-top: 16px',
-                      transitionAppear: true,
-                    },
-                    [
-                      h(
-                        'div',
-                        {
-                          style:
-                            'width: 100%; padding-block: 4px; padding-left: 4px; font-size: 18px; line-height: 1.5;',
-                        },
-                        [pluginName],
-                      ),
-                      formInstance.comp,
-                    ],
+                    NModal,
+                    { show: show.value, position: 'center', preset: 'dialog', title: pluginName },
+                    formInstance.comp,
                   )
               }),
             ),
