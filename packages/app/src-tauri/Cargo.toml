@@ -14,8 +14,6 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
 log = { workspace = true }
-mime_guess = { workspace = true }
-percent-encoding = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tauri = { workspace = true }
@@ -24,6 +22,7 @@ tauri-plugin-better-cors-fetch = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-db = { workspace = true }
 tauri-plugin-fs = { workspace = true }
+# Keep direct so Tauri discovers log:* permissions used by capabilities/default.json.
 tauri-plugin-log = { workspace = true }
 tauri-plugin-m3 = { workspace = true }
 tauri-plugin-persisted-scope = { workspace = true }
@@ -31,7 +30,7 @@ tauri-plugin-plugin = { workspace = true }
 tauri-plugin-shell = { workspace = true }
 # Keep direct so Tauri discovers sql:* permissions used by capabilities/default.json.
 tauri-plugin-sql = { workspace = true }
-tauri-runtime-wry = { workspace = true }
+tauri-plugin-utils = { workspace = true }
 tokio = { workspace = true }
 
 [build-dependencies.tauri-build]

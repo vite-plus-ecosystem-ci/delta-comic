@@ -1,6 +1,3 @@
-mod fs_scheme;
-mod logger;
-
 use tauri_plugin_aptabase::EventTracker;
 
 #[tokio::main]
@@ -8,11 +5,7 @@ use tauri_plugin_aptabase::EventTracker;
 pub async fn run() {
   log::debug!("app started");
 
-  let builder = fs_scheme::init(
-    tauri::Builder::default()
-      .plugin(tauri_plugin_fs::init())
-      .plugin(logger::init()),
-  );
+  let builder = tauri_plugin_utils::init(tauri::Builder::default().plugin(tauri_plugin_fs::init()));
   let builder = builder
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_m3::init())

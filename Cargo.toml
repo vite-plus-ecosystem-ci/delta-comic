@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["packages/app/src-tauri", "packages/db", "packages/plugin"]
+members = ["packages/app/src-tauri", "packages/db", "packages/plugin", "packages/utils"]
 
 [workspace.package]
 authors = ["wenxig"]
@@ -36,11 +36,10 @@ tauri-plugin-shell = "2"
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2", features = [
   "sqlite",
 ] }
+tauri-plugin-utils = { path = "packages/utils" }
 tauri-runtime-wry = "2.11.2"
 tokio = "1.52.3"
-zip = { version = "8.6.0", default-features = false, features = [
-  "deflate-flate2",
-] }
+zip = { version = "8.6.0", default-features = false, features = ["deflate-flate2"] }
 
 [profile.dev]
 opt-level = 0
