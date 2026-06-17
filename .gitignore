@@ -35,3 +35,5 @@ release
 target
 dist-vite
 *.tsbuildinfo
+packages/*/android/.tauri
+packages/*/android/.gradle

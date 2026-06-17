@@ -1,10 +1,14 @@
 use tauri::{
-  Runtime,
+  Manager, Runtime,
   plugin::{Builder as PluginBuilder, TauriPlugin},
 };
 use tauri_plugin_log::{RotationStrategy, fern::colors::ColoredLevelConfig, log::LevelFilter};
 
+mod commands;
 mod local_scheme;
+#[cfg(target_os = "android")]
+mod mobile;
+mod webview_registry;
 
 /// Builds the Delta Comic utility runtime integration.
 pub struct Builder {
@@ -56,7 +60,7 @@ impl Builder {
 
     builder
       .plugin(self.log_plugin())
-      .plugin(PluginBuilder::<R>::new("utils").build())
+      .plugin(self.utils_plugin())
   }
 
   fn log_plugin<R: Runtime>(&self) -> TauriPlugin<R> {
@@ -70,6 +74,36 @@ impl Builder {
       .level(LevelFilter::Info)
       .rotation_strategy(RotationStrategy::KeepAll)
       .with_colors(ColoredLevelConfig::default())
+      .build()
+  }
+
+  fn utils_plugin<R: Runtime>(&self) -> TauriPlugin<R> {
+    let registry = webview_registry::WebviewRegistry::default();
+    let setup_registry = registry.clone();
+    let ready_registry = registry.clone();
+
+    PluginBuilder::<R>::new("utils")
+      .invoke_handler(tauri::generate_handler![
+        commands::page::webview_close_current_page,
+        commands::page::webview_close_page,
+        commands::page::webview_inject_code,
+        commands::page::webview_open_page,
+        commands::storage::webview_auth_data,
+        commands::storage::webview_auth_data_all,
+        commands::storage::webview_auth_data_current,
+        commands::storage::webview_iframe_auth_data,
+      ])
+      .setup(move |app, api| {
+        app.manage(setup_registry);
+        #[cfg(target_os = "android")]
+        app.manage(mobile::init(app, api)?);
+        #[cfg(not(target_os = "android"))]
+        let _ = api;
+        Ok(())
+      })
+      .on_webview_ready(move |webview| {
+        ready_registry.insert(webview.label().to_string());
+      })
       .build()
   }
 }

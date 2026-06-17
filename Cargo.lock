@@ -5112,6 +5112,8 @@ dependencies = [
  "log",
  "mime_guess",
  "percent-encoding",
+ "serde",
+ "serde_json",
  "tauri",
  "tauri-plugin",
  "tauri-plugin-log",

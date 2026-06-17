@@ -167,11 +167,11 @@ packages/app/src-tauri (delta_comic)
 
 ### 2. `packages/utils` — 通用工具层（@delta-comic/utils）
 
-**职责**：提供共享工具函数，集成 Sentry（错误监控）、mitt（事件总线）。依赖 `naive-ui`、`pinia`、`vue-router`、`@vue/language-core`。
+**职责**：提供共享工具函数与 Tauri 工具插件，集成 Sentry（错误监控）、mitt（事件总线）、日志、本地 `local://` scheme、WebView 外链鉴权辅助命令。依赖 `naive-ui`、`pinia`、`vue-router`、`@vue/language-core`。
 
 | 文件 | 说明 |
 |------|------|
-| `packages/utils/lib/index.ts` | 总入口，聚合导出 env/var/fullscreen/net/ipc/temp |
+| `packages/utils/lib/index.ts` | 总入口，聚合导出 env/var/fullscreen/net/ipc/temp/webviewAuth |
 | `packages/utils/lib/env.ts` | 环境检测（`isTauri`、`isMobile`、`isDesktop`、`getPlatform`） |
 | `packages/utils/lib/var.ts` | 全局变量/常量 API |
 | `packages/utils/lib/var.test.ts` | var 模块单元测试 |
@@ -182,8 +182,28 @@ packages/app/src-tauri (delta_comic)
 | `packages/utils/lib/ipc.ts` | Tauri IPC 通信封装 |
 | `packages/utils/lib/ipc.test.ts` | IPC 通信单元测试 |
 | `packages/utils/lib/temp.ts` | 临时文件管理 |
+| `packages/utils/lib/webviewAuth.ts` | WebView 外链鉴权命令 TS wrapper（打开/关闭 page、读取 cookie/storage/iframe 快照） |
 | `packages/utils/lib/test/setup.ts` | 测试环境 Memory DOM 模拟 |
 | `packages/utils/vite/index.ts` | Vite 构建插件，定义 ExternalLib 映射 |
+| `packages/utils/src/lib.rs` | `tauri-plugin-utils` 入口：注册日志、`local://` scheme、WebView auth commands |
+| `packages/utils/src/commands/` | Rust command 分模块：page/storage/cookies/eval/scripts/types |
+| `packages/utils/src/webview_registry.rs` | WebView label registry 与临时 auth page label 生成 |
+| `packages/utils/src/mobile.rs` | Android mobile plugin bridge 注册 |
+| `packages/utils/android/src/main/java/UtilsPlugin.kt` | Android Kotlin 插件：通过 `CookieManager` 读取 WebView cookie header |
+| `packages/utils/permissions/` | `utils:default` 权限与自动生成的 command 权限 schema |
+
+**Rust 端暴露的 WebView auth 命令**：
+
+| 命令 | 功能 |
+|------|------|
+| `webview_open_page` | 打开临时 WebView page（支持外链 URL），注入 CSS/JS 和 all-frames auth bridge |
+| `webview_inject_code` | 向当前或指定 page 注入 CSS/JS auth bridge |
+| `webview_close_current_page` | 关闭当前 WebView page |
+| `webview_close_page` | 关闭指定 label 的 WebView page |
+| `webview_auth_data_current` | 获取当前 WebView 的 cookie/localStorage/sessionStorage 快照 |
+| `webview_auth_data` | 获取指定 WebView 的 cookie/localStorage/sessionStorage 快照 |
+| `webview_auth_data_all` | 获取 registry 中所有 WebView 的 cookie/localStorage/sessionStorage 快照 |
+| `webview_iframe_auth_data` | 请求指定 WebView 中 iframe 回传并收集 cookie/localStorage/sessionStorage 快照 |
 
 ---
 
@@ -344,7 +364,7 @@ packages/app/src-tauri (delta_comic)
 | `src-tauri/capabilities/default.json` | 能力声明（权限白名单） |
 | `src-tauri/build.rs` | Cargo 构建脚本 |
 
-**Tauri 插件注册顺序**（在 `lib.rs` 中）：`tauri-plugin-fs` > Sentry > Logger > `local://` scheme > `tauri-plugin-shell` > `tauri-plugin-m3` > `tauri-plugin-better-cors-fetch` > `tauri-plugin-clipboard-manager` > `tauri-plugin-persisted-scope` > `tauri-plugin-aptabase` > `tauri-plugin-db`（SQLite + native_store） > `tauri-plugin-plugin`
+**Tauri 插件注册顺序**（在 `lib.rs` 中）：`tauri-plugin-fs` > `tauri-plugin-utils`（Logger + `local://` scheme + WebView auth commands） > `tauri-plugin-shell` > `tauri-plugin-m3` > `tauri-plugin-better-cors-fetch` > `tauri-plugin-clipboard-manager` > `tauri-plugin-persisted-scope` > `tauri-plugin-plugin` > `tauri-plugin-aptabase` > `tauri-plugin-db`（SQLite + native_store）
 
 ---
 
@@ -414,6 +434,8 @@ packages/app/src-tauri (delta_comic)
 | 修改 Rust 后端逻辑 | `packages/app/src-tauri/src/` 对应文件 |
 | 修改 Tauri 权限 | `packages/app/src-tauri/tauri.conf.json` + `capabilities/` |
 | 修改工具函数 | `packages/utils/lib/` |
+| 修改 WebView 外链鉴权命令 | `packages/utils/src/commands/` + `packages/utils/lib/webviewAuth.ts` |
+| 修改 Android WebView cookie 兼容层 | `packages/utils/android/src/main/java/UtilsPlugin.kt` + `packages/utils/src/mobile.rs` |
 | 修改样式 | `packages/ui/lib/index.css` 或各组件内的 `<style>` |
 | 修改图标 | `packages/app/src/icons.tsx` |
 | 修改构建配置 | 各包的 `vite.config.mts` |

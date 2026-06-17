@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@aptabase/tauri": "catalog:",
+    "@tauri-apps/api": "catalog:",
     "@vue/language-core": "catalog:",
     "es-toolkit": "catalog:",
     "mitt": "catalog:"

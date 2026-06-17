@@ -20,6 +20,7 @@
     "aptabase:allow-track-event",
     "log:default",
     "plugin:default",
+    "utils:default",
     "db:default",
     "better-cors-fetch:default",
     "shell:default"
