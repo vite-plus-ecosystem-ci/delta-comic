@@ -6,9 +6,8 @@ import { ref, type Ref } from 'vue'
 import type { PluginConfigFactory } from '@/plugin'
 
 import { bootPlugin } from './booter'
-import { coreName } from './core'
 import type { PluginLoader } from './init/utils'
-import { createCorePseudoArchive, formatPluginLoadPlanError, planPluginLoadOrder } from './loadPlan'
+import { formatPluginLoadPlanError, planPluginLoadOrder } from './loadPlan'
 
 const rawLoaders = import.meta.glob<PluginLoader>('./init/loader/*_*.ts', {
   eager: true,
@@ -68,23 +67,18 @@ export const loadAllPlugins = () => {
   const progress = ref<Record<string, PluginLoadingInfo>>({})
 
   const promise = (async () => {
-    // 1. 通过 core loader 获取 config factory 并 boot
-    const coreLoader = loaders[0]
-    const coreConfigFactory = await coreLoader.load(createCorePseudoArchive(coreName))
-    if (coreConfigFactory) await bootConfig(coreConfigFactory, progress)
-
     const plugins = await db.selectFrom('plugin').where('enable', 'is', true).selectAll().execute()
 
-    // 2. 通过 Kahn 拓扑排序将插件分层
-    const loadPlan = planPluginLoadOrder(plugins, coreName)
+    // 1. 通过 Kahn 拓扑排序将插件分层
+    const loadPlan = planPluginLoadOrder(plugins)
 
-    // 3. 检测无效依赖，输出具体路径
+    // 2. 检测无效依赖，输出具体路径
     const planError = formatPluginLoadPlanError(loadPlan)
     if (planError) {
       throw new Error(planError)
     }
 
-    // 4. 按层级加载，失败时终止后续
+    // 3. 按层级加载，失败时终止后续
     for (const level of loadPlan.levels) {
       const results = await Promise.allSettled(level.map(p => loadPlugin(p, progress)))
 

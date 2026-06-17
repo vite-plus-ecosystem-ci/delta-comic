@@ -11,8 +11,8 @@ export interface PluginLoadPlan {
   cycles: string[][]
 }
 
-const getDependencyNames = (plugin: PluginArchiveDB.Archive, corePluginName: string) =>
-  plugin.meta.require.map(dep => dep.id).filter(id => id !== corePluginName)
+const getDependencyNames = (plugin: PluginArchiveDB.Archive) =>
+  plugin.meta.require.map(dep => dep.id)
 
 const canonicalCycleKey = (cycle: string[]) => {
   const nodes = cycle.slice(0, -1)
@@ -21,15 +21,12 @@ const canonicalCycleKey = (cycle: string[]) => {
   return rotations[0].join('\0')
 }
 
-export const findCyclePaths = (
-  plugins: PluginArchiveDB.Archive[],
-  corePluginName: string,
-): string[][] => {
+export const findCyclePaths = (plugins: PluginArchiveDB.Archive[]): string[][] => {
   const pluginNames = new Set(plugins.map(plugin => plugin.pluginName))
   const dependencies = new Map(
     plugins.map(plugin => [
       plugin.pluginName,
-      getDependencyNames(plugin, corePluginName).filter(dep => pluginNames.has(dep)),
+      getDependencyNames(plugin).filter(dep => pluginNames.has(dep)),
     ]),
   )
 
@@ -71,17 +68,14 @@ export const findCyclePaths = (
   return cycles
 }
 
-export const planPluginLoadOrder = (
-  plugins: PluginArchiveDB.Archive[],
-  corePluginName: string,
-): PluginLoadPlan => {
+export const planPluginLoadOrder = (plugins: PluginArchiveDB.Archive[]): PluginLoadPlan => {
   const nameToPlugin = new Map(plugins.map(plugin => [plugin.pluginName, plugin]))
   const inDegree = new Map<string, number>()
   const adjacency = new Map<string, string[]>()
   const missing: PluginDependencyMissing[] = []
 
   for (const plugin of plugins) {
-    const dependencies = getDependencyNames(plugin, corePluginName)
+    const dependencies = getDependencyNames(plugin)
     const installedDependencies = dependencies.filter(dependencyName => {
       const isInstalled = nameToPlugin.has(dependencyName)
       if (!isInstalled) missing.push({ pluginName: plugin.pluginName, dependencyName })
@@ -123,7 +117,7 @@ export const planPluginLoadOrder = (
   }
 
   const unresolved = plugins.filter(plugin => (inDegree.get(plugin.pluginName) ?? 0) > 0)
-  const cycles = findCyclePaths(unresolved, corePluginName)
+  const cycles = findCyclePaths(unresolved)
 
   return { levels, missing, cycles }
 }
@@ -145,19 +139,3 @@ export const formatPluginLoadPlanError = (plan: Pick<PluginLoadPlan, 'missing' |
 
   return sections.join('\n\n')
 }
-
-export const createCorePseudoArchive = (corePluginName: string): PluginArchiveDB.Archive => ({
-  pluginName: corePluginName,
-  loaderName: corePluginName,
-  installerName: '',
-  enable: true,
-  installInput: '',
-  displayName: '系统核心',
-  meta: {
-    name: { display: 'Core', id: corePluginName },
-    version: { plugin: '', supportCore: '' },
-    author: '',
-    description: '',
-    require: [],
-  },
-})

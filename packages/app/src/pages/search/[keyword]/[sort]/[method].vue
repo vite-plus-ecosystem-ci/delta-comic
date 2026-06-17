@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { uni } from '@delta-comic/model'
-import { appConfig, useConfig, usePluginStore, type Search } from '@delta-comic/plugin'
+import { useConfig, usePluginStore, type Search } from '@delta-comic/plugin'
 import { SharedFunction } from '@delta-comic/utils'
 import { useInfiniteQuery } from '@pinia/colada'
 import { isEmpty } from 'es-toolkit/compat'
@@ -13,7 +13,7 @@ import { Icons } from '@/icons'
 
 const route = useRoute<'/search/[keyword]/[sort]/[method]'>()
 const pluginStore = usePluginStore()
-const config = useConfig().$load(appConfig)
+const config = useConfig().$loadApp()
 
 const allSearchSource = computed(() =>
   Array.from(pluginStore.plugins.values())
@@ -38,7 +38,7 @@ const query = useInfiniteQuery({
       keyword: route.params.keyword,
       sort: route.params.sort,
       method: route.params.method,
-      showAI: config.value.value.showAIProject,
+      showAI: config.data.value.showAIProject,
     },
   ],
   initialPageParam: method.value.fetchSearchResult.initPage,
@@ -50,7 +50,7 @@ const query = useInfiniteQuery({
         signal,
       )
       .then(item =>
-        config.value.value.showAIProject
+        config.data.value.showAIProject
           ? item
           : { ...item, data: item.data.filter(item => !item.$isAi) },
       )
@@ -127,7 +127,7 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
           </NButton>
         </NPopselect>
         <div class="van-haptics-feedback flex h-full items-center justify-start text-sm">
-          <NSwitch v-model:value="config.value.value.showAIProject" />展示AI作品
+          <NSwitch v-model:value="config.data.value.showAIProject" />展示AI作品
         </div>
       </div>
       <VanIcon

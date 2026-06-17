@@ -13,7 +13,7 @@ const config = useConfig()
         _,
         {
           form,
-          value: { value: store },
+          data: { value: store },
           name: title,
         },
       ] of config.form.entries()"

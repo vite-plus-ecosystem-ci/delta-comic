@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HistoryDB, useNativeStore } from '@delta-comic/db'
-import { appConfig, useConfig } from '@delta-comic/plugin'
+import { useConfig } from '@delta-comic/plugin'
 import { DcState } from '@delta-comic/ui'
 import { useDialog } from 'naive-ui'
 import { shallowRef, useTemplateRef } from 'vue'
@@ -22,7 +22,7 @@ const { state: historiesState } = HistoryDB.useQuery(
   [],
   () => [],
 )
-const config = useConfig().$load(appConfig)
+const config = useConfig().$loadApp()
 const searcher = useTemplateRef('searcher')
 
 const showConfig = shallowRef(false)
@@ -152,10 +152,10 @@ const $dialog = useDialog()
         center
         title="追踪历史记录"
         label="记录并展示新的历史足迹"
-        @click="config.value.value.recordHistory = !config.value.value.recordHistory"
+        @click="config.data.value.recordHistory = !config.data.value.recordHistory"
       >
         <template #right-icon>
-          <VanSwitch size="large" v-model="config.value.value.recordHistory" />
+          <VanSwitch size="large" v-model="config.data.value.recordHistory" />
         </template>
       </DcCell>
     </DcCellGroup>

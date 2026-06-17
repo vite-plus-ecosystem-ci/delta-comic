@@ -1,9 +1,10 @@
-import { PluginArchiveDB, useNativeStore, db } from '@delta-comic/db'
+import { PluginArchiveDB, db } from '@delta-comic/db'
 import { createDownloadMessage, type DownloadMessageBind } from '@delta-comic/ui'
 import { isString } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
 
-import { coreName } from './core'
+import { useConfig } from '@/config'
+
 import type { PluginInstaller } from './init/utils'
 import { loaders } from './loader'
 
@@ -19,15 +20,6 @@ export const installers = sortBy(Object.entries(rawInstallers), ([fname]) =>
   .map(v => v[1])
   .reverse()
 
-export interface SourceOverrideConfig {
-  id: string
-  install: string
-  enabled: boolean
-}
-
-export const usePluginConfig = () =>
-  useNativeStore(coreName, 'pluginInstallSourceOverrides', new Array<SourceOverrideConfig>())
-
 export const installDepends = (
   m: DownloadMessageBind,
   meta: PluginArchiveDB.Meta,
@@ -39,15 +31,13 @@ export const installDepends = (
     const plugins =
       installedPlugins ??
       new Set((await db.selectFrom('plugin').select('pluginName').execute()).map(v => v.pluginName))
-    const overrides = usePluginConfig()
+    const overrides = useConfig().$loadApp().data.value.installOverride
     for (const { id, download } of meta.require) {
       const isDownloaded = plugins.has(id)
       if (isDownloaded || !download) continue
       console.log(`从 ${meta.name.id} 发现未安装依赖: ${id} ->`, download)
       v.description = `安装: ${id}`
-      let downloadCommend =
-        overrides.value.find((c: SourceOverrideConfig) => c.id == id && c.enabled)?.install ??
-        download
+      let downloadCommend = overrides.find(c => c.key == id)?.value ?? download
       await installPlugin(downloadCommend)
       count++
     }

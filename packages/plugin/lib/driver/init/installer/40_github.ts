@@ -3,7 +3,7 @@ import { Octokit } from '@octokit/rest'
 import { isEmpty } from 'es-toolkit/compat'
 import ky from 'ky'
 
-import { appConfig, useConfig } from '@/config'
+import { useConfig } from '@/config'
 
 import { PluginInstaller, type PluginInstallerDescription } from '../utils'
 
@@ -15,7 +15,7 @@ export class _PluginInstallByNormalUrl extends PluginInstaller {
   public override name = 'github'
   private async installer(input: string): Promise<File> {
     try {
-      var config = useConfig().$load(appConfig).value.value.githubToken
+      var config = useConfig().$loadApp().data.value.githubToken
     } catch (error) {
       console.error('fail to get github token', error)
       var config = ''

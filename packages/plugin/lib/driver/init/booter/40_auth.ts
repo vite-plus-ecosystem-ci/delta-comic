@@ -66,9 +66,9 @@ class _PluginAuth extends PluginBooter {
           const data = await formInstance.data
           return data
         },
-        website(_url) {
-          return window
-        },
+        async website(_url, _injectCode) {
+          throw new Error('暂不支持网站鉴权')
+        }
       }
       if (method == 'logIn') {
         await cfg.auth.logIn(by)

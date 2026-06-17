@@ -25,6 +25,6 @@ export interface InitiativeItem {
   name: string
   icon: Component | uni.image.Image
   bgColor?: string
-  call(page: uni.content.ContentPage): Promise<any>
+  call(page: uni.content.ContentPage): Promise<{ token?: string } | void>
   filter(page: uni.content.ContentPage): boolean
 }

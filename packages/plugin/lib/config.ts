@@ -19,7 +19,7 @@ export class ConfigPointer<T extends ConfigDescription = ConfigDescription> {
   public readonly key: symbol
 }
 
-export const appConfig = new ConfigPointer(
+const appConfig = new ConfigPointer(
   'core',
   {
     recordHistory: { type: 'switch', defaultValue: true, info: '记录历史记录' },
@@ -47,11 +47,12 @@ export const appConfig = new ConfigPointer(
       defaultValue: false,
       info: '接受预发布版本更新(可能不稳定)',
     },
+    installOverride: { type: 'pairs', defaultValue: [], info: '安装源覆盖配置', required: true },
   },
   '核心',
 )
 
-export type ConfigSave<T> = { form: ConfigDescription; value: Ref<T>; name: string }
+export type ConfigSave<T> = { form: ConfigDescription; data: Ref<T>; name: string }
 
 export const useConfig = defineStore('config', helper => {
   const configDescription = shallowReactive(new Map<symbol, ConfigSave<any>>())
@@ -65,19 +66,20 @@ export const useConfig = defineStore('config', helper => {
     'load',
   )
 
+  const $loadApp = helper.action(() => $load(appConfig), 'loadApp')
+
   const isSystemDark = matchMedia('(prefers-color-scheme: dark)').matches
   const isDark = computed(() => {
     if (!$isExistConfig(appConfig)) return isSystemDark
-    const cfg = $load(appConfig).value.value
+    const cfg = $load(appConfig).data.value
     switch (cfg.darkMode) {
       case 'light':
         return false
       case 'dark':
         return true
       case 'system':
-        return isSystemDark
       default:
-        return false
+        return isSystemDark
     }
   })
   const $isExistConfig = helper.action(
@@ -85,13 +87,19 @@ export const useConfig = defineStore('config', helper => {
     'isExistConfig',
   )
   const $resignerConfig = helper.action((pointer: ConfigPointer) => {
-    const cfg = useConfig()
     const store = useNativeStore(
       pointer.pluginName,
       'config',
       fromPairs(Object.entries(pointer.config).map(([name, desc]) => [name, desc.defaultValue])),
     )
-    cfg.form.set(pointer.key, { form: pointer.config, value: store, name: pointer.pluginName })
+    configDescription.set(pointer.key, {
+      form: pointer.config,
+      data: store,
+      name: pointer.pluginName,
+    })
   }, 'resignerConfig')
-  return { isDark, form: configDescription, $load, $isExistConfig, $resignerConfig }
+
+  $resignerConfig(appConfig) // important: register core config first, because app depend on it
+
+  return { isDark, form: configDescription, $loadApp, $load, $isExistConfig, $resignerConfig }
 })

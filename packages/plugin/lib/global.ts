@@ -1,8 +1,12 @@
-import { SourcedKeyMap } from '@delta-comic/model'
+import { SourcedKeyMap, uni } from '@delta-comic/model'
+import { SharedFunction } from '@delta-comic/utils'
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { shallowReactive, type Component, type Raw } from 'vue'
 
 import type { Search, Share, Subscribe, User } from '@/plugin'
 
+import { usePluginStore } from './driver'
+import { OfflineShareRound, TagOutlined } from './driver/icon'
 import type { GlobalInjectionsConfig } from './env'
 
 class _Global {
@@ -60,3 +64,91 @@ class _Global {
 }
 
 export const Global = new _Global()
+
+// share
+
+interface CorePluginTokenShareMeta {
+  item: { name: string; contentType: string; ep: string }
+  plugin: string
+  id: string
+}
+
+Global.share.set(['core', 'token'], {
+  filter: page => !!page.preload,
+  icon: TagOutlined,
+  key: 'token',
+  name: '复制口令',
+  async call(page) {
+    const item = page.preload?.toJSON()
+    if (!item) throw new Error('Not found preload in content. Maybe not fetch detail?')
+
+    const compressed = compressToEncodedURIComponent(
+      JSON.stringify(<CorePluginTokenShareMeta>{
+        item: {
+          contentType: uni.content.ContentPage.contentPages.key.toString(item.contentType),
+          ep: item.thisEp.id,
+          name: item.title,
+        },
+        plugin: page.plugin,
+        id: page.id,
+      }),
+    )
+    return { token: `[${item.title}](复制这条口令，打开Delta Comic)${compressed}` }
+  },
+})
+
+Global.share.set(['core', 'native'], {
+  filter: page => !!page.preload,
+  icon: OfflineShareRound,
+  key: 'native',
+  name: '原生分享',
+  async call(page) {
+    const item = page.preload?.toJSON()
+    if (!item) throw new Error('Not found preload in content. Maybe not fetch detail?')
+
+    const compressed = compressToEncodedURIComponent(
+      JSON.stringify(<CorePluginTokenShareMeta>{
+        item: {
+          contentType: uni.content.ContentPage.contentPages.key.toString(item.contentType),
+          ep: item.thisEp.id,
+          name: item.title,
+        },
+        plugin: page.plugin,
+        id: page.id,
+      }),
+    )
+    const token = `[${item.title}](复制这条口令，打开Delta Comic)${compressed}`
+    await navigator.share({ title: 'Delta Comic内容分享', text: token })
+
+    return { token }
+  },
+})
+
+Global.shareToken.set(['core', 'token'], {
+  key: 'token',
+  name: '默认口令',
+  patten(chipboard) {
+    return /^\[.+\]\(复制这条口令，打开Delta Comic\).+/.test(chipboard)
+  },
+  show(chipboard) {
+    const pluginStore = usePluginStore()
+    const meta: CorePluginTokenShareMeta = JSON.parse(
+      decompressFromEncodedURIComponent(
+        chipboard.replace(/^\[.+\]/, '').replaceAll('(复制这条口令，打开Delta Comic)', ''),
+      ),
+    )
+    return {
+      title: '口令',
+      detail: `发现分享的内容: ${meta.item.name}，需要的插件: ${pluginStore.$getI18nName(meta.plugin)}`,
+      onNegative() {},
+      onPositive() {
+        return SharedFunction.call(
+          'routeToContent',
+          uni.content.ContentPage.contentPages.key.toJSON(meta.item.contentType),
+          meta.id,
+          meta.item.ep,
+        )
+      },
+    }
+  },
+})

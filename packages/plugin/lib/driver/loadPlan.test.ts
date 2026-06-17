@@ -1,12 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import { describe, expect, it } from 'vite-plus/test'
 
-import {
-  createCorePseudoArchive,
-  findCyclePaths,
-  formatPluginLoadPlanError,
-  planPluginLoadOrder,
-} from './loadPlan'
+import { findCyclePaths, formatPluginLoadPlanError, planPluginLoadOrder } from './loadPlan'
 
 const archive = (pluginName: string, dependencies: string[] = []): PluginArchiveDB.Archive => ({
   pluginName,
@@ -29,15 +24,12 @@ const levelNames = (levels: PluginArchiveDB.Archive[][]) =>
 
 describe('planPluginLoadOrder', () => {
   it('groups plugins by dependency level and ignores core dependencies', () => {
-    const plan = planPluginLoadOrder(
-      [
-        archive('reader', ['source']),
-        archive('source', ['core']),
-        archive('theme', ['source']),
-        archive('offline', ['reader', 'theme']),
-      ],
-      'core',
-    )
+    const plan = planPluginLoadOrder([
+      archive('reader', ['source']),
+      archive('source', []),
+      archive('theme', ['source']),
+      archive('offline', ['reader', 'theme']),
+    ])
 
     expect(levelNames(plan.levels)).toEqual([['source'], ['reader', 'theme'], ['offline']])
     expect(plan.missing).toEqual([])
@@ -45,7 +37,7 @@ describe('planPluginLoadOrder', () => {
   })
 
   it('reports missing dependencies separately from cycles', () => {
-    const plan = planPluginLoadOrder([archive('reader', ['missing-source'])], 'core')
+    const plan = planPluginLoadOrder([archive('reader', ['missing-source'])])
 
     expect(levelNames(plan.levels)).toEqual([['reader']])
     expect(plan.missing).toEqual([{ pluginName: 'reader', dependencyName: 'missing-source' }])
@@ -56,20 +48,11 @@ describe('planPluginLoadOrder', () => {
   it('detects dependency cycle paths', () => {
     const plugins = [archive('a', ['b']), archive('b', ['c']), archive('c', ['a'])]
 
-    expect(findCyclePaths(plugins, 'core')).toEqual([['a', 'b', 'c', 'a']])
+    expect(findCyclePaths(plugins)).toEqual([['a', 'b', 'c', 'a']])
 
-    const plan = planPluginLoadOrder(plugins, 'core')
+    const plan = planPluginLoadOrder(plugins)
     expect(plan.levels).toEqual([])
     expect(plan.cycles).toEqual([['a', 'b', 'c', 'a']])
     expect(formatPluginLoadPlanError(plan)).toBe('插件循环引用:\na -> b -> c -> a')
-  })
-
-  it('creates a core pseudo archive for the loader pipeline', () => {
-    expect(createCorePseudoArchive('core')).toMatchObject({
-      pluginName: 'core',
-      loaderName: 'core',
-      displayName: '系统核心',
-      meta: { name: { display: 'Core', id: 'core' }, require: [] },
-    })
   })
 })

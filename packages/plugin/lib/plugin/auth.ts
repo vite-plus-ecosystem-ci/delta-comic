@@ -14,7 +14,21 @@ export type Method = {
     [x in keyof T]: FormSingleResult<T[x]>
   }>
   /**
-   * sandbox: "allow-forms allow-modals allow-orientation-lock allow-popups-to-escape-sandbox  allow-pointer-lock"
+   * @param injectCode 你可以在js调用`callback(...)`来完成鉴权，传值为你给的回调
    */
-  website(url: string): Window
+  website<T>(url: string, injectCode: InjectCode): Promise<CallbackResult<T>>
+}
+
+export interface InjectCode {
+  js: string
+  css: string
+}
+
+export interface CallbackResult<T> {
+  callbackValue: T
+  cookie: string
+  localStorage: Record<string, string>
+  sessionStorage: Record<string, string>
+  href: string
+  title: string
 }
