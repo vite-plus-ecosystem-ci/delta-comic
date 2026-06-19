@@ -91,15 +91,21 @@ For GitHub Actions, consider using [`voidzero-dev/setup-vp`](https://github.com/
 
 **注意改动后不要忘记更新该索引(AGENT.md)**
 
+## 开发思想
+
+- **模块**：使用文件系统分割模块来保证结构工整；对于按步骤流程运行不同模块的，或许可以使用glob引入执行实现由文件驱动模块
+- **思想**：优先使用oop(面向对象)思想编写代码，但要避免过度封装，继承链最好不要超过5层
+- **格式**：使用类似"条件反转"等技巧减少代码嵌套，但不要过度的不加分辨的使用
+
 ## 项目概览
 
-**delta-comic** (v2.3.1) 是基于 **Tauri 2.x** 的跨平台漫画阅读应用，支持 Android 和桌面端。采用 **pnpm monorepo** 架构，以 **AGPL-3.0** 协议开源。
+**delta-comic** 是基于 **Tauri 2.x** 的跨平台漫画阅读应用，支持 Android 和桌面端。采用 **pnpm monorepo** 架构，以 **AGPL-3.0** 协议开源。
 
 - **前端**：Vue 3 + TypeScript 6 + Vite + NaiveUI + Vant + Pinia + Vue Router
 - **后端**：Rust (Tauri 2.x, edition 2024) + SQLite + Kysely ORM
 - **数据库**：本地 SQLite，由 `tauri-plugin-sql` 提供 Rust 驱动，Kysely 做类型安全查询
 - **插件系统**：分级可扩展架构，Rust 端提供命令 API，TS 端通过 Composition API 注入页面和功能
-- **线上仓库**：https://github.com/delta-comic/delta-comic.git
+- **线上仓库**：<https://github.com/delta-comic/delta-comic.git>
 - **依赖管理**：使用 pnpm catalog 统一管理所有依赖版本（见 `pnpm-workspace.yaml`）
 
 ---
@@ -182,7 +188,7 @@ packages/app/src-tauri (delta_comic)
 | `packages/utils/lib/ipc.ts` | Tauri IPC 通信封装 |
 | `packages/utils/lib/ipc.test.ts` | IPC 通信单元测试 |
 | `packages/utils/lib/temp.ts` | 临时文件管理 |
-| `packages/utils/lib/webviewAuth.ts` | WebView 外链鉴权命令 TS wrapper（打开/关闭 page、读取 cookie/storage/iframe 快照） |
+| `packages/utils/lib/webviewAuth.ts` | WebView 外链鉴权 TS API：底层 command wrapper + `PageWebviewAuth`/`IframeWebviewAuth` 类封装（打开/关闭 page、注入代码、读取 cookie/storage/iframe 快照、等待回调并自动关闭） |
 | `packages/utils/lib/test/setup.ts` | 测试环境 Memory DOM 模拟 |
 | `packages/utils/vite/index.ts` | Vite 构建插件，定义 ExternalLib 映射 |
 | `packages/utils/src/lib.rs` | `tauri-plugin-utils` 入口：注册日志、`local://` scheme、WebView auth commands |

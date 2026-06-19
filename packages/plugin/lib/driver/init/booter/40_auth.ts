@@ -1,10 +1,5 @@
 import { createForm } from '@delta-comic/ui'
-import {
-  closeWebviewPage,
-  getWebviewAuthData,
-  openWebviewPage,
-  storageEntriesToRecord,
-} from '@delta-comic/utils'
+import { PageWebviewAuth } from '@delta-comic/utils'
 import { Mutex } from 'es-toolkit'
 import { NModal, useDialog } from 'naive-ui'
 import { defineComponent, h, markRaw, ref } from 'vue'
@@ -16,7 +11,6 @@ import type { Auth, PluginConfig } from '@/plugin'
 import { PluginBooter, type PluginBooterSetMeta } from '../utils'
 
 const authPopupMutex = new Mutex()
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 class _PluginAuth extends PluginBooter {
   public override name = '登录'
@@ -80,42 +74,8 @@ class _PluginAuth extends PluginBooter {
           url: string,
           injectCode: Auth.InjectCode,
         ): Promise<Auth.CallbackResult<T>> {
-          const page = await openWebviewPage({
-            allFrames: true,
-            css: injectCode.css,
-            js: injectCode.js,
-            title: pluginName,
-            url,
-          })
-          try {
-            for (;;) {
-              const data = await getWebviewAuthData(page.label)
-              const callback = data.storage.callback
-              if (callback) {
-                return {
-                  callbackValue: callback.value as T,
-                  cookie: callback.cookie || data.storage.cookie,
-                  href: callback.href || data.storage.href,
-                  localStorage: storageEntriesToRecord(
-                    callback.localStorage.length
-                      ? callback.localStorage
-                      : data.storage.localStorage,
-                  ),
-                  sessionStorage: storageEntriesToRecord(
-                    callback.sessionStorage.length
-                      ? callback.sessionStorage
-                      : data.storage.sessionStorage,
-                  ),
-                  title: callback.title || data.storage.title,
-                }
-              }
-              await wait(300)
-            }
-          } finally {
-            void closeWebviewPage(page.label).catch((error: unknown) => {
-              console.warn('[plugin auth] failed to close auth page', page.label, error)
-            })
-          }
+          const auth = new PageWebviewAuth<T>(url, injectCode, { title: pluginName })
+          return auth.mount()
         },
       }
       if (method == 'logIn') {
