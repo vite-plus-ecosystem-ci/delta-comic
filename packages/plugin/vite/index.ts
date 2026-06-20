@@ -1,17 +1,31 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import { extendsDepends } from '@delta-comic/utils/vite'
 import { merge } from 'es-toolkit'
+import JSZip from 'jszip'
 import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
 
+type DeltaComicBundleAssetSource = string | Uint8Array
+
 type DeltaComicPluginContext = {
-  emitFile(file: { type: 'asset'; fileName: string; source: string }): unknown
+  emitFile(file: { type: 'asset'; fileName: string; source: DeltaComicBundleAssetSource }): unknown
 }
+
+type DeltaComicBundleItem =
+  | { type: 'asset'; fileName: string; source: DeltaComicBundleAssetSource }
+  | { type: 'chunk'; fileName: string; code: string }
+
+type DeltaComicOutputBundle = Record<string, DeltaComicBundleItem>
 
 type DeltaComicPlugin = {
   name: string
+  enforce?: 'post' | 'pre'
   config?(config: unknown): unknown
-  generateBundle?(this: DeltaComicPluginContext): void
+  generateBundle?(
+    this: DeltaComicPluginContext,
+    options: unknown,
+    bundle: DeltaComicOutputBundle,
+  ): void | Promise<void>
 }
 
 type DeltaComicPluginOption = DeltaComicPlugin | DeltaComicPluginOption[] | false | null | undefined
@@ -24,6 +38,7 @@ export const deltaComic = (
   const isServer = command == 'serve'
   const plugin: DeltaComicPlugin = {
     name: 'delta-comic-helper',
+    enforce: 'post',
     config(config: any) {
       return merge(config, {
         build: {
@@ -37,12 +52,25 @@ export const deltaComic = (
         },
       })
     },
-    generateBundle() {
-      this.emitFile({
-        type: 'asset',
-        fileName: 'manifest.json',
-        source: JSON.stringify(meta, null, 2),
-      })
+    async generateBundle(_options, bundle) {
+      const archiveName = 'plugin.zip'
+      const manifest = JSON.stringify(meta, null, 2)
+      const zip = new JSZip()
+
+      for (const item of Object.values(bundle)) {
+        if (item.fileName == archiveName) continue
+        if (item.type == 'chunk') {
+          zip.file(item.fileName, item.code)
+          continue
+        }
+        zip.file(item.fileName, item.source)
+      }
+
+      zip.file('manifest.json', manifest)
+      const archive = await zip.generateAsync({ compression: 'DEFLATE', type: 'uint8array' })
+
+      this.emitFile({ type: 'asset', fileName: archiveName, source: archive })
+      this.emitFile({ type: 'asset', fileName: 'manifest.json', source: manifest })
     },
   }
   const externals = external(

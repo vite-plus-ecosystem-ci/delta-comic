@@ -6,7 +6,7 @@ import { PluginInstaller, type PluginInstallerDescription } from '../utils'
 export class _PluginInstallByFallbackUrl extends PluginInstaller {
   public override description: PluginInstallerDescription = {
     title: '通过任意URL安装插件',
-    description: '从任何你给定的url获取内容，无论内容是什么',
+    description: '从你给定的url下载插件文件，并假设其为userscript',
   }
   public override name = 'fallbackUrl'
   private async installer(input: string): Promise<File> {
@@ -23,6 +23,11 @@ export class _PluginInstallByFallbackUrl extends PluginInstaller {
     const file = await this.installer(pluginMeta.installInput)
     return file
   }
+  public override async fetchPluginMetaFile(input: string): Promise<File | string> {
+    const file = await this.installer(input)
+    return file
+  }
+
   public override isMatched(input: string): boolean {
     return URL.canParse(input)
   }

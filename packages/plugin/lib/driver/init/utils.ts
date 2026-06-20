@@ -11,8 +11,19 @@ export interface PluginInstallerDescription {
   description: string
 }
 export abstract class PluginInstaller {
+  /**
+   * @returns string mean redirect
+   */
   public abstract download(input: string): Promise<File | string>
+  /**
+   * @returns string mean redirect
+   */
   public abstract update(pluginMeta: PluginArchiveDB.Archive): Promise<File | string>
+  /**
+   * @returns string mean redirect
+   */
+  public abstract fetchPluginMetaFile(input: string): Promise<File | string>
+
   public abstract isMatched(input: string): boolean
   public abstract name: string
   public abstract description: PluginInstallerDescription
@@ -27,8 +38,13 @@ export abstract class PluginLoader {
     file: File,
     context?: PluginLoaderInstallContext,
   ): Promise<PluginArchiveDB.Meta>
-  public abstract decodeMeta(file: File): Promise<PluginArchiveDB.Meta>
   public abstract canInstall(file: File): boolean
+
+  /** need full download */
+  public abstract decodeMeta(file: File): Promise<PluginArchiveDB.Meta>
+  /** no need full download */
+  public abstract decodeMetaFile(file: File): Promise<PluginArchiveDB.Meta | string>
+  public abstract isMetaFile(file: File): boolean
 }
 
 export interface PluginLoaderInstallContext {

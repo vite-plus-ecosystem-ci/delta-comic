@@ -21,6 +21,10 @@ export class _PluginInstallByLocal extends PluginInstaller {
     const file = await this.installer(pluginMeta.installInput)
     return file
   }
+  public override async fetchPluginMetaFile(input: string): Promise<File | string> {
+    const file = await this.installer(input)
+    return file
+  }
   public override isMatched(input: string): boolean {
     return input.startsWith('local:')
   }

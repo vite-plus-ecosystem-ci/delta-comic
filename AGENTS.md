@@ -283,7 +283,8 @@ packages/app/src-tauri (delta_comic)
 | `lib/global.ts` | 全局插件状态管理（`Global.plugins`、`Global.config` 等） |
 | `lib/driver/` | 插件驱动（各数据源适配器） |
 | `lib/plugin/` | 内置 comic 插件实现 |
-| `vite/index.ts` | Vite 构建插件 |
+| `vite/index.ts` | Vite 构建插件：配置 deltaComic 插件构建、输出 manifest.json，并生成包含完整构建产物与 manifest.json 的 zip 归档 |
+| `vite/index.test.ts` | deltaComic Vite 构建插件单元测试 |
 
 **核心概念**：每个插件是一个提供页面/功能注入点的 Vue composable，包括 `searchPages`、`userActionPages`、`categories` 等。
 

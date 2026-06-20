@@ -12,5 +12,5 @@ export default defineConfig({
     sourcemap: true,
   },
   root,
-  test: { environment: 'node', include: ['lib/**/*.test.ts'] },
+  test: { environment: 'node', include: ['lib/**/*.test.ts', 'vite/**/*.test.ts'] },
 })

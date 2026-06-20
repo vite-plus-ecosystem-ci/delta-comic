@@ -37,4 +37,11 @@ export default new (class extends PluginLoader {
     const code = await file.text()
     return await decodeDevMeta(code)
   }
+
+  public override isMetaFile(file: File): boolean {
+    return file.name.endsWith('.js')
+  }
+  public override async decodeMetaFile(file: File): Promise<PluginArchiveDB.Meta | string> {
+    return this.decodeMeta(file)
+  }
 })()

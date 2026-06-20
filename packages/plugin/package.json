@@ -1,6 +1,6 @@
 {
   "name": "@delta-comic/plugin",
-  "version": "1.7.0",
+  "version": "2.3.0",
   "description": "空阙虱楼",
   "homepage": "https://github.com/delta-comic/delta-comic",
   "license": "AGPL-3.0-only",
@@ -34,13 +34,14 @@
   },
   "scripts": {
     "build": "vp pack",
-    "typecheck": "tsgo -p tsconfig.app.json --noEmit"
+    "typecheck": "tsgo -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
   "dependencies": {
     "@octokit/rest": "catalog:",
     "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-fs": "catalog:",
     "es-toolkit": "catalog:",
+    "jszip": "catalog:",
     "ky": "catalog:",
     "lz-string": "catalog:",
     "vite-plugin-externals": "catalog:",

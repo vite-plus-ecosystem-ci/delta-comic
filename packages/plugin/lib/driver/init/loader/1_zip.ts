@@ -2,6 +2,7 @@ import type { PluginArchiveDB } from '@delta-comic/db'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { join } from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
+import JSZip from 'jszip'
 
 import type { PluginConfigFactory } from '@/plugin'
 
@@ -70,5 +71,16 @@ export default new (class extends PluginLoader {
   }
   public override async decodeMeta(file: File): Promise<PluginArchiveDB.Meta> {
     return await decodeZipMeta(await writeNativeTempFile(file))
+  }
+
+  public override isMetaFile(file: File): boolean {
+    return file.name.endsWith('.zip') || file.name == 'manifest.json'
+  }
+  public override async decodeMetaFile(file: File): Promise<PluginArchiveDB.Meta | string> {
+    if (file.name == 'manifest.json') return JSON.parse(await file.text())
+    const jszip = new JSZip()
+    const zip = await jszip.loadAsync(file)
+    const mFile = await zip.filter(p => p == 'manifest.json')[0].async('text')
+    return JSON.parse(mFile)
   }
 })()
