@@ -1,41 +1,81 @@
 [package]
 name = "delta-comic"
 description = "Per Aspera, Ad Astra"
-authors = { workspace = true }
-license = { workspace = true }
-repository = { workspace = true }
-edition = { workspace = true }
-rust-version = { workspace = true }
-version = { workspace = true }
+version = "1.7.0"
+
+  [package.authors]
+  workspace = true
+
+  [package.license]
+  workspace = true
+
+  [package.repository]
+  workspace = true
+
+  [package.edition]
+  workspace = true
+
+  [package.rust-version]
+  workspace = true
 
 [lib]
 name = "delta_comic"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = [ "staticlib", "cdylib", "rlib" ]
 
-[dependencies]
-log = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tauri = { workspace = true }
-tauri-plugin-aptabase = { workspace = true }
-tauri-plugin-better-cors-fetch = { workspace = true }
-tauri-plugin-clipboard-manager = { workspace = true }
-tauri-plugin-db = { workspace = true }
-tauri-plugin-fs = { workspace = true }
-# Keep direct so Tauri discovers log:* permissions used by capabilities/default.json.
-tauri-plugin-log = { workspace = true }
-tauri-plugin-m3 = { workspace = true }
-tauri-plugin-persisted-scope = { workspace = true }
-tauri-plugin-plugin = { workspace = true }
-tauri-plugin-shell = { workspace = true }
-# Keep direct so Tauri discovers sql:* permissions used by capabilities/default.json.
-tauri-plugin-sql = { workspace = true }
-tauri-plugin-utils = { workspace = true }
-tokio = { workspace = true }
+[dependencies.log]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.tauri]
+workspace = true
+
+[dependencies.tauri-plugin-aptabase]
+workspace = true
+
+[dependencies.tauri-plugin-better-cors-fetch]
+workspace = true
+
+[dependencies.tauri-plugin-clipboard-manager]
+workspace = true
+
+[dependencies.tauri-plugin-db]
+workspace = true
+
+[dependencies.tauri-plugin-fs]
+workspace = true
+
+[dependencies.tauri-plugin-log]
+workspace = true
+
+[dependencies.tauri-plugin-m3]
+workspace = true
+
+[dependencies.tauri-plugin-persisted-scope]
+workspace = true
+
+[dependencies.tauri-plugin-plugin]
+workspace = true
+
+[dependencies.tauri-plugin-shell]
+workspace = true
+
+[dependencies.tauri-plugin-sql]
+workspace = true
+
+[dependencies.tauri-plugin-utils]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
 
 [build-dependencies.tauri-build]
 workspace = true
 
 [features]
-default = []
-custom-protocol = ["tauri/custom-protocol"]
+default = [ ]
+custom-protocol = [ "tauri/custom-protocol" ]
