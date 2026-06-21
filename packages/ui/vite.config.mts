@@ -18,7 +18,7 @@ const isExternal = (id: string) =>
 
 export default defineConfig(({ command }) => ({
   plugins: [
-    VueRouter({ dts: false }),
+    VueRouter({ dts: 'typed-router.d.ts' }),
     vue(),
     vueJsx(),
     tailwindcss(),

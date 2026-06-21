@@ -5,7 +5,7 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "composite": true,
     "paths": { "@/*": ["./lib/*"] },
-    "types": ["./env.d.ts"]
+    "types": ["./env.d.ts", "./typed-router.d.ts"]
   },
   "include": ["env.d.ts", "lib/**/*", "src/**/*", "./package.json"]
 }
