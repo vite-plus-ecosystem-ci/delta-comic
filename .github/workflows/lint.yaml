@@ -3,7 +3,10 @@ name: Lint
 on:
   push:
     paths:
-      - packages
+      - 'packages/**'
+      - '.github/workflows/lint.yaml'
+      - '*.config.ts'
+      - 'tsconfig*.json'
 
 permissions:
   contents: read
@@ -29,5 +32,5 @@ jobs:
 
       - name: Lint
         run: |
-          vp run npm-build
+          vp run lib-build
           vp check

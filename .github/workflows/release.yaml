@@ -1,0 +1,258 @@
+name: 构建和发布
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: .node-version
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Check
+        run: vp check
+
+      - name: Test
+        run: vp test
+
+      - name: Create release PR or publish npm packages
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: vp run version-packages
+          publish: vp run release
+          title: 'chore(release): version packages'
+          commit: 'chore(release): version packages [skip ci]'
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Stop when no npm publish happened
+        if: steps.changesets.outputs.published != 'true'
+        run: echo "No npm packages were published; Android release build is skipped."
+
+      - name: Resolve release version
+        if: steps.changesets.outputs.published == 'true'
+        id: release-version
+        env:
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          VERSION="$(node --input-type=module <<'NODE'
+          function comparePart(left, right) {
+            const leftNumber = /^\d+$/.test(left) ? Number(left) : undefined
+            const rightNumber = /^\d+$/.test(right) ? Number(right) : undefined
+            if (leftNumber !== undefined && rightNumber !== undefined) return leftNumber - rightNumber
+            if (leftNumber !== undefined) return -1
+            if (rightNumber !== undefined) return 1
+            return left.localeCompare(right)
+          }
+          function compareSemver(left, right) {
+            const pattern = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/
+            const leftMatch = pattern.exec(left)
+            const rightMatch = pattern.exec(right)
+            if (!leftMatch || !rightMatch) throw new Error(`Invalid release version: ${leftMatch ? right : left}`)
+            for (const index of [1, 2, 3]) {
+              const diff = Number(leftMatch[index]) - Number(rightMatch[index])
+              if (diff !== 0) return diff
+            }
+            const leftPre = leftMatch[4]
+            const rightPre = rightMatch[4]
+            if (!leftPre && !rightPre) return 0
+            if (!leftPre) return 1
+            if (!rightPre) return -1
+            const leftParts = leftPre.split('.')
+            const rightParts = rightPre.split('.')
+            const length = Math.max(leftParts.length, rightParts.length)
+            for (let index = 0; index < length; index++) {
+              if (leftParts[index] === undefined) return -1
+              if (rightParts[index] === undefined) return 1
+              const diff = comparePart(leftParts[index], rightParts[index])
+              if (diff !== 0) return diff
+            }
+            return 0
+          }
+          const packages = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]')
+          const versions = packages.map((pkg) => pkg.version ?? pkg.newVersion).filter(Boolean)
+          const version = versions.reduce((highest, current) =>
+            !highest || compareSemver(current, highest) > 0 ? current : highest,
+          undefined)
+          if (!version) {
+            console.error('No published package version found')
+            process.exit(1)
+          }
+          console.log(version)
+          NODE
+          )"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Sync build version
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          OLD_VERSION="$(node ./script/update-version.mts)"
+          echo "old_version=$OLD_VERSION"
+          BUILD_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
+          if [ "$BUILD_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "Expected build version $RELEASE_VERSION, got $BUILD_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Setup Rust
+        if: steps.changesets.outputs.published == 'true'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi
+
+      - name: JDK 23
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        if: steps.changesets.outputs.published == 'true'
+        uses: android-actions/setup-android@v3.2.2
+        with:
+          log-accepted-android-sdk-licenses: false
+
+      - name: Setup Android NDK
+        if: steps.changesets.outputs.published == 'true'
+        uses: nttld/setup-ndk@v1.5.0
+        id: setup-ndk
+        with:
+          ndk-version: r29
+          link-to-sdk: true
+          local-cache: true
+          add-to-path: true
+
+      - name: Init android project
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          echo "${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+
+          cd packages/app
+          vp exec tauri android init
+
+      - name: Make gradlew executable
+        if: steps.changesets.outputs.published == 'true'
+        run: chmod +x ./packages/app/src-tauri/gen/android/gradlew
+
+      - name: Build Android App
+        if: steps.changesets.outputs.published == 'true'
+        id: build
+        uses: tauri-apps/tauri-action@dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          mobile: 'android'
+          args: ''
+          retryAttempts: 0
+          projectPath: packages/app
+
+      - name: Restore keystore (decode + verify)
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          KEYSTORE_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP"
+
+          printf '%s' "${{ secrets.ANDROID_KEY_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/keystore.p12"
+
+          ls -l "$RUNNER_TEMP/keystore.p12"
+          FILESIZE=$(stat --format="%s" "$RUNNER_TEMP/keystore.p12" || echo 0)
+          echo "keystore size: $FILESIZE"
+          if [ "$FILESIZE" -lt 1000 ]; then
+            echo "ERROR: keystore seems too small ($FILESIZE bytes). Did you upload the correct base64 content?" >&2
+            exit 1
+          fi
+
+          cd packages/app/src-tauri/gen/android || true
+          printf 'storeFile=%s\n' "$RUNNER_TEMP/keystore.p12" > keystore.properties
+          printf 'storePassword=%s\n' "$KEYSTORE_PASS" >> keystore.properties
+          printf 'keyPassword=%s\n' "$KEYSTORE_PASS" >> keystore.properties
+          printf 'keyAlias=%s\n' "${{ secrets.ANDROID_KEY_ALIAS }}" >> keystore.properties
+
+      - name: Install apksigner
+        if: steps.changesets.outputs.published == 'true'
+        run: sudo apt-get update && sudo apt-get install -y apksigner
+
+      - name: Sign APK
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          KEYSTORE_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          APK_SRC="./packages/app/src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk"
+          if [ ! -f "$APK_SRC" ]; then
+            echo "APK not found at $APK_SRC" >&2
+            exit 1
+          fi
+          mkdir -p dist
+
+          apksigner sign \
+            --ks "$RUNNER_TEMP/keystore.p12" \
+            --ks-type PKCS12 \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass "pass:$KEYSTORE_PASS" \
+            --key-pass "pass:$KEYSTORE_PASS" \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --out ./dist/app.apk \
+            "$APK_SRC"
+
+          echo '-----------'
+          ls -la ./dist
+
+      - name: Publish GitHub release
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          node ./script/release-notes.mts "$RELEASE_VERSION" > "$NOTES_FILE"
+
+          if gh release view "$RELEASE_VERSION" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_VERSION" --title "$RELEASE_VERSION" --notes-file "$NOTES_FILE"
+            gh release upload "$RELEASE_VERSION" ./dist/app.apk --clobber
+          else
+            gh release create "$RELEASE_VERSION" ./dist/app.apk --title "$RELEASE_VERSION" --notes-file "$NOTES_FILE"
+          fi

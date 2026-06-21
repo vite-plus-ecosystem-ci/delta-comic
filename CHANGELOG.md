@@ -1,4 +1,6 @@
-# [2.0.0](https://github.com/delta-comic/delta-comic/compare/1.3.0...2.0.0) (2026-04-14)
+# delta-comic
+
+## [2.0.0](https://github.com/delta-comic/delta-comic/compare/1.3.0...2.0.0) (2026-04-14)
 
 
 ### Bug Fixes
@@ -33,7 +35,7 @@
 * 插件底层大改，旧插件要完全重构
 * 插件底层大改，旧插件要完全重构
 
-# [1.3.0](https://github.com/delta-comic/delta-comic/compare/1.2.0...1.3.0) (2026-03-06)
+## [1.3.0](https://github.com/delta-comic/delta-comic/compare/1.2.0...1.3.0) (2026-03-06)
 
 
 ### Bug Fixes
@@ -50,7 +52,7 @@
 * new sentry version ([546869a](https://github.com/delta-comic/delta-comic/commit/546869a1234fdf6106e71dc96b17341549c24a60))
 * **ui:** 更好的markdown渲染样式 ([86c24b2](https://github.com/delta-comic/delta-comic/commit/86c24b29e6529000bd3f76868d7bc7aec55382be))
 
-# [1.2.0](https://github.com/delta-comic/delta-comic/compare/1.1.4...1.2.0) (2026-02-22)
+## [1.2.0](https://github.com/delta-comic/delta-comic/compare/1.1.4...1.2.0) (2026-02-22)
 
 
 ### Bug Fixes
@@ -103,7 +105,7 @@
 
 * **build:** build frontend error ([#24](https://github.com/delta-comic/delta-comic/issues/24)) ([3a1bf4d](https://github.com/delta-comic/delta-comic/commit/3a1bf4de75dd2b3a14c680eae7c66243484f045d)), closes [#17](https://github.com/delta-comic/delta-comic/issues/17)
 
-# [1.1.0](https://github.com/delta-comic/delta-comic/compare/v1.0.0...v1.1.0) (2026-02-08)
+## [1.1.0](https://github.com/delta-comic/delta-comic/compare/v1.0.0...v1.1.0) (2026-02-08)
 
 
 ### Bug Fixes
@@ -117,7 +119,7 @@
 
 * Better Net ([#21](https://github.com/delta-comic/delta-comic/issues/21)) ([088b0d9](https://github.com/delta-comic/delta-comic/commit/088b0d9aba0941ad460a1a8ea7a233dea779c7e0)), closes [#17](https://github.com/delta-comic/delta-comic/issues/17)
 
-# 1.0.0 (2026-02-05)
+## 1.0.0 (2026-02-05)
 
 
 ### Bug Fixes

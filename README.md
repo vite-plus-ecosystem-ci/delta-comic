@@ -14,9 +14,6 @@ _____   _________________ ____        __________________ _____   ______
 ```
 
 <p align="center">
-    <a href="https://github.com/semantic-release/semantic-release">
-      <img src="https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release" alt="semantic-release: angular" />
-    </a>
     <a href="https://github.com/delta-comic/delta-comic/blob/main/LICENSE">
       <img src="https://img.shields.io/github/license/delta-comic/delta-comic" alt="Repo License" />
     </a>

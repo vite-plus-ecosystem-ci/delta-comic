@@ -3,24 +3,24 @@ name = "delta-comic"
 description = "Per Aspera, Ad Astra"
 version = "2.3.0"
 
-  [package.authors]
-  workspace = true
+[package.authors]
+workspace = true
 
-  [package.license]
-  workspace = true
+[package.license]
+workspace = true
 
-  [package.repository]
-  workspace = true
+[package.repository]
+workspace = true
 
-  [package.edition]
-  workspace = true
+[package.edition]
+workspace = true
 
-  [package.rust-version]
-  workspace = true
+[package.rust-version]
+workspace = true
 
 [lib]
 name = "delta_comic"
-crate-type = [ "staticlib", "cdylib", "rlib" ]
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies.log]
 workspace = true
@@ -77,5 +77,5 @@ workspace = true
 workspace = true
 
 [features]
-default = [ ]
-custom-protocol = [ "tauri/custom-protocol" ]
+default = []
+custom-protocol = ["tauri/custom-protocol"]

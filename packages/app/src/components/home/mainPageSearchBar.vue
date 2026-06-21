@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useNativeStore } from '@delta-comic/db'
+import { usePreventBack } from '@delta-comic/ui'
 import { SharedFunction } from '@delta-comic/utils'
 import { ReuseableAbortController } from '@delta-comic/utils'
 import { computedAsync } from '@vueuse/core'
@@ -10,7 +11,6 @@ import { useTemplateRef } from 'vue'
 
 import { pluginName } from '@/symbol'
 import { getBarcodeList, type ThinkList } from '@/utils/search'
-import { usePreventBack } from '@delta-comic/ui'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 usePreventBack(isSearching)

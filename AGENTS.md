@@ -390,11 +390,15 @@ packages/app/src-tauri (delta_comic)
 | `Cargo.toml` | Rust workspace 配置（包含 `tauri-plugin-db`、`tauri-plugin-plugin`、`delta_comic`） |
 | `rustfmt.toml` | Rust 格式化配置 |
 | `.commitlintrc.json` | 提交信息规范 |
-| `.releaserc.mjs` | semantic-release 发布配置 |
+| `.changeset/config.json` | Changesets 版本、changelog、发布包范围配置 |
 | `cspell.json` | 拼写检查配置（自定义词库 `words.txt`） |
 | `pnpm-lock.yaml` | pnpm 锁定文件 |
-| `script/set-version.mts` | 版本设置脚本 |
-| `script/update-version.mts` | 版本更新脚本 |
+| `script/set-version.mts` | 同步根包、workspace 包、Tauri 配置、Cargo/Cargo.lock 版本 |
+| `script/update-version.mts` | CI 构建前基于 Changesets 推算并写入版本 |
+| `script/version-packages.mts` | Changesets version PR 命令：版本升级 + 根 CHANGELOG 生成 |
+| `script/release-utils.mts` | Changesets release plan 读取、最高版本推算、GitHub 链接辅助函数 |
+| `script/release-utils.test.ts` | 版本推算单元测试 |
+| `script/release-notes.mts` | 从根 CHANGELOG 提取 GitHub Release notes |
 
 ---
 
@@ -413,7 +417,8 @@ packages/app/src-tauri (delta_comic)
 | `vp run tauri build` | 构建 Tauri 桌面应用 |
 | `vp run typecheck` | TypeScript 类型检查 |
 | `vp run lib-build` | 构建所有库（以 app 的 build 为拓扑起点） |
-| `vp run release` | 执行 semantic-release 发布流程 |
+| `vp run version-packages` | 执行 Changesets 版本升级并生成根 CHANGELOG |
+| `vp run release` | 构建库并执行 `changeset publish` 发布 npm 包 |
 | `vp dlx` | 执行一次性二进制（替代 npx/dlx） |
 | `vp add <pkg>` | 添加依赖 |
 | `vp remove <pkg>` | 卸载依赖 |

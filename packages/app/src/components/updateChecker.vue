@@ -36,7 +36,7 @@ watch(markdown, markdown => (isShow.value = Boolean(markdown.length)), { immedia
 
 <template>
   <NModal v-model:show="isShow">
-    <div class="max-h-[90vh] min-w-[80vw] rounded-lg p-3 bg-(--van-background)">
+    <div class="max-h-[90vh] min-w-[80vw] rounded-lg bg-(--van-background) p-3">
       <div class="text-xl font-bold text-[--p-color]">发现新版本</div>
       <DcMarkdown
         :markdown="markdown.map(v => v[1]).join('------\n\n')"
