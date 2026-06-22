@@ -227,6 +227,10 @@ packages/app/src-tauri (delta_comic)
 | `packages/ui/lib/index.ts` | 总入口，全局注册所有 UI 组件 |
 | `packages/ui/lib/index.css` | 全局样式 |
 | `packages/ui/lib/components/` | 通用 UI 组件 |
+| `packages/ui/lib/components/DcContent.vue` | 数据状态内容容器，支持加载/错误/空状态浮层和加载态 class/style 覆写 |
+| `packages/ui/lib/components/DcLoading.vue` | 通用加载指示器，支持 `spinning` 控制旋转动画和 `strokeWidth` 圆环粗细配置 |
+| `packages/ui/lib/components/DcPullRefresh.vue` | 移动端触摸下拉刷新容器，使用无文本圆形加载指示，支持配置 slot 内容外层 class/style |
+| `packages/ui/lib/components/DcWaterfall.vue` | 虚拟瀑布流容器，内部将 `DcContent` 固定在满高内容层中以保持状态浮层粘性显示 |
 | `packages/ui/lib/message/` | 消息提示组件 |
 | `packages/ui/lib/utils/` | UI 相关工具函数 |
 | `packages/ui/vite/index.ts` | Vite 构建插件 |

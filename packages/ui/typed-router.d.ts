@@ -37,6 +37,7 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       Record<never, never>,
       | '//component'
+      | '//component/list'
       | '//component/message'
     >,
     '//component': RouteRecordInfo<
@@ -44,7 +45,15 @@ declare module 'vue-router/auto-routes' {
       '/component',
       Record<never, never>,
       Record<never, never>,
+      | '//component/list'
       | '//component/message'
+    >,
+    '//component/list': RouteRecordInfo<
+      '//component/list',
+      '/component/list',
+      Record<never, never>,
+      Record<never, never>,
+      | never
     >,
     '//component/message': RouteRecordInfo<
       '//component/message',
@@ -70,6 +79,7 @@ declare module 'vue-router/auto-routes' {
       routes:
         | '/'
         | '//component'
+        | '//component/list'
         | '//component/message'
       views:
         | 'default'
@@ -79,9 +89,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/index/component.vue': {
       routes:
         | '//component'
+        | '//component/list'
         | '//component/message'
       views:
         | 'default'
+      pathParamNames:
+        | never
+    }
+    'src/pages/index/component/list.vue': {
+      routes:
+        | '//component/list'
+      views:
+        | never
       pathParamNames:
         | never
     }

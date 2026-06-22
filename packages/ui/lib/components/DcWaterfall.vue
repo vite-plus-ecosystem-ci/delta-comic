@@ -174,13 +174,8 @@ defineSlots<{
     v-model:pulling="isPullRefreshHold"
     :class="cn('relative h-full', $props.class)"
     :style
-    :disabled="
-      unReloadable ||
-      !source.refetch ||
-      !!source.error ||
-      source.isLoading ||
-      (!!contentScrollTop && !isPullRefreshHold)
-    "
+    contentClass="h-full"
+    :disabled="false"
   >
     <DcContent
       :source="{

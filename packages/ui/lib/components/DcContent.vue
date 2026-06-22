@@ -21,8 +21,10 @@ const $props = defineProps<
       | { type: 'raw'; data: T; isLoading: boolean; error?: Error | null; refetch?: () => any }
     classError?: any
     classEmpty?: any
+    classLoading?: any
     styleError?: StyleValue
     styleEmpty?: StyleValue
+    styleLoading?: any
   } & StyleProps
 >()
 
@@ -149,6 +151,9 @@ const animateOn = computed<AllVariant>(() => {
   }
   return 'done'
 })
+const isLoadingState = computed(
+  () => animateOn.value === 'isLoadingNoData' || animateOn.value === 'isLoadingData',
+)
 
 const conation = useTemplateRef('conation')
 defineExpose({ cont: conation })
@@ -165,7 +170,13 @@ defineSlots<{ default(data: { data?: T }): any }>()
         :initial="{ opacity: 0, translateY: '-100%', left: '50%', translateX: '-50%' }"
         :variants="loadingVariants"
         :animate="animateOn"
-        class="absolute flex scale-100 items-center justify-center whitespace-nowrap shadow"
+        :class="
+          cn(
+            'absolute flex scale-100 items-center justify-center whitespace-nowrap shadow',
+            isLoadingState && classLoading,
+          )
+        "
+        :style="isLoadingState ? styleLoading : undefined"
       >
         <Transition name="van-fade">
           <DcLoading size="25px" color="var(--p-color)" v-if="animateOn === 'isLoadingNoData'" />

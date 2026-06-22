@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useMediaQuery, useSupported } from '@vueuse/core'
+import { computed, onMounted, onUnmounted, ref, type StyleValue, watch } from 'vue'
 
 import { cn, type StyleProps } from '../utils'
 
@@ -7,7 +8,13 @@ import DcLoading from './DcLoading.vue'
 
 const $props = withDefaults(
   defineProps<
-    { disabled: boolean; refresher: () => Promise<any>; pullDistance?: number } & StyleProps
+    {
+      disabled: boolean
+      refresher: () => Promise<any>
+      pullDistance?: number
+      contentClass?: any
+      contentStyle?: StyleValue
+    } & StyleProps
   >(),
   { disabled: false, pullDistance: 58 },
 )
@@ -35,20 +42,16 @@ const containerRef = ref<HTMLElement>()
 const threshold = computed(() => $props.pullDistance)
 const maxDistance = computed(() => threshold.value * 2.2)
 const progress = computed(() => Math.min(distance.value / threshold.value, 1))
-const progressPercent = computed(() => `${Math.round(progress.value * 100)}%`)
-const arrowRotation = computed(() => `${progress.value * 180}deg`)
-const pullText = computed(() => {
-  switch (pullState.value) {
-    case 'ready':
-      return '松手刷新'
-    case 'refreshing':
-      return '正在刷新...'
-    case 'pulling':
-      return '下拉刷新'
-    default:
-      return '下拉刷新'
-  }
-})
+const isCoarsePointer = useMediaQuery('(pointer: coarse)')
+const hasTouchSupport = useSupported(
+  () =>
+    typeof window !== 'undefined' &&
+    ('ontouchstart' in window ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)),
+)
+const isPullRefreshEnabled = computed(
+  () => !$props.disabled && hasTouchSupport.value && isCoarsePointer.value,
+)
 
 function canPull(): boolean {
   const el = containerRef.value
@@ -61,6 +64,13 @@ function resetGesture() {
   isDragging.value = false
 }
 
+function resetPullState() {
+  distance.value = 0
+  pullState.value = 'idle'
+  transitioning.value = false
+  resetGesture()
+}
+
 function getRubberBandDistance(delta: number) {
   const dampened = delta * 0.45
   if (dampened <= threshold.value) return dampened
@@ -71,14 +81,15 @@ function getRubberBandDistance(delta: number) {
 
 // ── touch handlers ──
 function onTouchStart(e: TouchEvent) {
-  if ($props.disabled || isRefreshing.value || transitioning.value || !canPull()) return
+  if (!isPullRefreshEnabled.value || isRefreshing.value || transitioning.value || !canPull()) return
 
   startY.value = e.touches[0].clientY
   startX.value = e.touches[0].clientX
 }
 
 function onTouchMove(e: TouchEvent) {
-  if (!startY.value || $props.disabled || isRefreshing.value || transitioning.value) return
+  if (!startY.value || !isPullRefreshEnabled.value || isRefreshing.value || transitioning.value)
+    return
 
   const touch = e.touches[0]
   const deltaY = touch.clientY - startY.value
@@ -101,7 +112,8 @@ function onTouchMove(e: TouchEvent) {
 }
 
 function onTouchEnd() {
-  if (!startY.value || $props.disabled || isRefreshing.value || transitioning.value) return
+  if (!startY.value || !isPullRefreshEnabled.value || isRefreshing.value || transitioning.value)
+    return
 
   resetGesture()
 
@@ -141,16 +153,18 @@ async function doRefresh() {
 }
 
 watch(
-  () => $props.disabled,
-  v => {
-    if (v) {
-      distance.value = 0
-      pullState.value = 'idle'
-      transitioning.value = false
-      resetGesture()
-    }
+  isPullRefreshEnabled,
+  enabled => {
+    if (!enabled) resetPullState()
   },
+  { immediate: true },
 )
+
+watch(isRefreshing, refreshing => {
+  if (!refreshing || pullState.value === 'refreshing' || !isPullRefreshEnabled.value) return
+  pullState.value = 'refreshing'
+  distance.value = threshold.value
+})
 
 onMounted(() => {
   containerRef.value?.addEventListener('touchmove', onTouchMove, { passive: false })
@@ -176,14 +190,9 @@ const indicatorStyle = computed(() => ({
       : 'none',
 }))
 
-const faceStyle = computed(() => ({
+const indicatorFaceStyle = computed(() => ({
   transform: `translateY(${8 - progress.value * 8}px) scale(${0.86 + progress.value * 0.14})`,
   opacity: 0.35 + progress.value * 0.65,
-}))
-
-const bubbleStyle = computed(() => ({
-  '--dc-pull-progress': progressPercent.value,
-  '--dc-pull-arrow-rotate': arrowRotation.value,
 }))
 </script>
 
@@ -197,166 +206,21 @@ const bubbleStyle = computed(() => ({
     @touchcancel="onTouchEnd"
   >
     <div
+      v-if="isPullRefreshEnabled"
       class="pointer-events-none absolute top-0 right-0 left-0 z-1 flex items-end justify-center overflow-hidden"
       :style="indicatorStyle"
       aria-hidden="true"
     >
-      <div class="dc-pull-refresh__stage pb-2" :style="bubbleStyle">
-        <div class="dc-pull-refresh__mascot" :style="faceStyle">
-          <div class="dc-pull-refresh__antenna" />
-          <div class="dc-pull-refresh__face">
-            <span class="dc-pull-refresh__eye dc-pull-refresh__eye--left" />
-            <span class="dc-pull-refresh__eye dc-pull-refresh__eye--right" />
-            <span class="dc-pull-refresh__mouth" />
-          </div>
-        </div>
-
-        <div class="dc-pull-refresh__bubble">
-          <DcLoading v-if="pullState === 'refreshing'" size="14px" />
-          <span v-else class="dc-pull-refresh__arrow">↓</span>
-          <span>{{ pullText }}</span>
-        </div>
+      <div
+        class="mb-2 flex size-9 items-center justify-center rounded-full bg-white shadow-lg"
+        :style="indicatorFaceStyle"
+      >
+        <DcLoading size="26px" color="var(--p-color)" :spinning="pullState === 'refreshing'" />
       </div>
     </div>
 
-    <div :style="contentStyle">
+    <div :class="$props.contentClass" :style="[contentStyle, $props.contentStyle]">
       <slot />
     </div>
   </div>
 </template>
-
-<style scoped>
-.dc-pull-refresh__stage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fb7299;
-  font-size: 13px;
-  line-height: 1;
-}
-
-.dc-pull-refresh__mascot {
-  position: relative;
-  width: 34px;
-  height: 28px;
-  transition: opacity 0.18s ease;
-}
-
-.dc-pull-refresh__antenna {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 16px;
-  height: 10px;
-  border-top: 2px solid currentColor;
-  border-left: 2px solid currentColor;
-  border-radius: 10px 0 0;
-  transform: translateX(-15%) rotate(22deg);
-  transform-origin: bottom left;
-}
-
-.dc-pull-refresh__antenna::after {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 5px;
-  height: 5px;
-  background: currentColor;
-  border-radius: 999px;
-  content: '';
-}
-
-.dc-pull-refresh__face {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 23px;
-  overflow: hidden;
-  background: #fff;
-  border: 2px solid currentColor;
-  border-radius: 7px;
-  box-shadow: 0 5px 14px rgb(251 114 153 / 18%);
-}
-
-.dc-pull-refresh__face::before,
-.dc-pull-refresh__face::after {
-  position: absolute;
-  top: 6px;
-  width: 4px;
-  height: 8px;
-  background: #fff;
-  border: 2px solid currentColor;
-  content: '';
-}
-
-.dc-pull-refresh__face::before {
-  left: -4px;
-  border-radius: 4px 0 0 4px;
-}
-
-.dc-pull-refresh__face::after {
-  right: -4px;
-  border-radius: 0 4px 4px 0;
-}
-
-.dc-pull-refresh__eye {
-  position: absolute;
-  top: 8px;
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-  border-radius: 999px;
-}
-
-.dc-pull-refresh__eye--left {
-  left: 9px;
-}
-
-.dc-pull-refresh__eye--right {
-  right: 9px;
-}
-
-.dc-pull-refresh__mouth {
-  position: absolute;
-  right: 13px;
-  bottom: 5px;
-  left: 13px;
-  height: 4px;
-  border-bottom: 2px solid currentColor;
-  border-radius: 0 0 999px 999px;
-}
-
-.dc-pull-refresh__bubble {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-width: 92px;
-  gap: 5px;
-  padding: 7px 10px;
-  overflow: hidden;
-  color: #fb7299;
-  background: rgb(251 114 153 / 10%);
-  border: 1px solid rgb(251 114 153 / 18%);
-  border-radius: 999px;
-}
-
-.dc-pull-refresh__bubble::before {
-  position: absolute;
-  inset: 0;
-  width: var(--dc-pull-progress);
-  background: linear-gradient(90deg, rgb(251 114 153 / 14%), rgb(251 114 153 / 4%));
-  content: '';
-}
-
-.dc-pull-refresh__bubble > * {
-  position: relative;
-  z-index: 1;
-}
-
-.dc-pull-refresh__arrow {
-  font-size: 14px;
-  transform: rotate(var(--dc-pull-arrow-rotate));
-  transition: transform 0.18s ease;
-}
-</style>
