@@ -6,6 +6,7 @@ export default {
     'typed-router.d.ts',
     '**/permissions/**',
     '**/worker-configuration.d.ts',
+    '*.md',
   ],
   endOfLine: 'lf',
   semi: false,
