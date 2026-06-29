@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig, lazyPlugins } from 'vite-plus'
 
@@ -7,9 +7,14 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 export default defineConfig({
   pack: { entry: './app/index.ts', dts: { tsgo: true, tsconfig: './tsconfig.app.json' } },
   plugins: lazyPlugins(async () => {
+    if (process.env.VP_COMMAND == 'test') return []
     const { cloudflare } = await import('@cloudflare/vite-plugin')
     return [cloudflare()]
   }),
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./app', import.meta.url)) },
+    extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts'],
+  },
   root,
   test: { environment: 'node', include: ['app/**/*.test.ts'] },
 })

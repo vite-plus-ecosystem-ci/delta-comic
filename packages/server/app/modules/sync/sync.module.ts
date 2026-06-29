@@ -1,0 +1,1 @@
+export { syncRoutes as syncModule } from './sync.routes'
