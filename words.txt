@@ -16,6 +16,7 @@ datetimerange
 disretry
 dtolnay
 elysia
+elysiajs
 Favourite
 favselect
 Gmailerrorred
@@ -63,9 +64,9 @@ TAURI
 temurin
 thiserror
 tlds
-typebox
 tsgo
 tsgolint
+typebox
 unplugin
 userscript
 vant

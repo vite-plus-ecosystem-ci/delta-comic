@@ -317,7 +317,7 @@ packages/app/src-tauri (delta_comic)
 
 | 文件 | 说明 |
 |------|------|
-| `packages/server/app/index.ts` | Worker 入口，启用 Elysia Cloudflare adapter，接入 `@elysiajs/cors`、`@elysiajs/openapi`、全局错误处理和 `/api/v1`；导出 `App` 类型供 Eden/客户端类型共享 |
+| `packages/server/app/index.ts` | Worker 入口，启用 Elysia Cloudflare adapter，接入 `@elysiajs/cors`、`@elysiajs/openapi`、全局错误处理和无版本 `/api` 路由；导出 `App` 类型供 Eden/客户端类型共享 |
 | `packages/server/app/env.ts` | Worker runtime 访问层：通过 `WeakMap<Request, AppRuntime>` 为 Elysia 路由提供 D1、secrets、vars、ExecutionContext |
 | `packages/server/app/infrastructure/http/serverContext.ts` | Elysia request-scoped DI 插件：从 Cloudflare runtime 注入 `db`、`runtime`、`authService`、`syncService` |
 | `packages/server/app/shared/` | API 响应、错误、crypto/hash、stable JSON、时间、HTTP auth guard/CORS 等共享基础设施；`authGuard` 使用 `@elysiajs/bearer` + Elysia `resolve` 注入 `auth` 上下文 |
@@ -332,7 +332,7 @@ packages/app/src-tauri (delta_comic)
 | `packages/server/vite.config.mts` | 接入 Cloudflare Vite Plugin 的 Vite+ 配置；测试模式跳过 Cloudflare 插件并配置 `@ -> app` alias |
 | `packages/server/package.json` | `dev`、`build`、`preview`、`deploy`、`cf-typegen`、类型检查与 Vitest 依赖 |
 
-**Server API 概览**：统一前缀 `/api/v1`。`/health` 为健康检查；`/auth/register`、`/auth/login`、`/auth/refresh`、`/auth/logout`、`/auth/me` 提供第一方鉴权；`/sync/snapshot`、`/sync/push`、`/sync/pull` 提供本地 SQLite 数据同步。同步范围包括 `itemStore`、`favouriteCard`、`favouriteItem`、`history`、`recentView`、`subscribe`、`config`，明确排除 `plugin` 与 `nativeStore`。OpenAPI 文档挂载于 `/api/openapi`，JSON schema 位于 `/api/openapi/json`，鉴权路由通过 bearer security 标记。
+**Server API 概览**：统一前缀 `/api`，不使用 `/v1` 等路径版本控制策略。`/health` 为健康检查；`/auth/register`、`/auth/login`、`/auth/refresh`、`/auth/logout`、`/auth/me` 提供第一方鉴权；`/sync/snapshot`、`/sync/push`、`/sync/pull` 提供本地 SQLite 数据同步。同步范围包括 `itemStore`、`favouriteCard`、`favouriteItem`、`history`、`recentView`、`subscribe`、`config`，明确排除 `plugin` 与 `nativeStore`。OpenAPI 文档挂载于 `/api/openapi`，JSON schema 位于 `/api/openapi/json`，鉴权路由通过 bearer security 标记。
 
 ---
 

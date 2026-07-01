@@ -1,44 +1,49 @@
-import { Elysia } from 'elysia'
-import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 import { openapi } from '@elysiajs/openapi'
+import { Elysia, t } from 'elysia'
+import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 
 import { bindRuntime, type AppEnv } from './env'
+import { authModule } from './modules/auth/auth.module'
+import { syncModule } from './modules/sync/sync.module'
 import { cors } from './shared/http/cors'
-import { errorResponse } from './shared/response'
-import { v1 } from './v1'
+import { apiSuccessSchema, errorResponse, ok } from './shared/response'
+
+const healthResponseSchema = t.Object({
+  service: t.Literal('delta-comic-server'),
+  status: t.Literal('ok'),
+})
 
 export const app = new Elysia({ adapter: CloudflareAdapter, prefix: '/api' })
   .use(cors)
-  .use(openapi({
-    documentation: {
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            scheme: 'bearer',
-            type: 'http',
-          },
-        },
+  .use(
+    openapi({
+      documentation: {
+        components: { securitySchemes: { bearerAuth: { scheme: 'bearer', type: 'http' } } },
+        info: { title: 'Delta Comic Server API', version: '1.0.0' },
+        tags: [
+          { description: 'Health check and service metadata', name: 'Health' },
+          { description: 'First-party account and terminal session APIs', name: 'Auth' },
+          { description: 'SQLite data sync APIs', name: 'Sync' },
+        ],
       },
-      info: {
-        title: 'Delta Comic Server API',
-        version: '1.0.0',
-      },
-      tags: [
-        { description: 'Health check and service metadata', name: 'Health' },
-        { description: 'First-party account and terminal session APIs', name: 'Auth' },
-        { description: 'SQLite data sync APIs', name: 'Sync' },
-      ],
-    },
-    path: '/openapi',
-  }))
+      path: '/openapi',
+    }),
+  )
   .onError(({ code, error }) => errorResponse(error, code))
-  .use(v1)
+  .model({ 'Response.Health': apiSuccessSchema(healthResponseSchema) })
+  .get('/health', () => ok({ service: 'delta-comic-server', status: 'ok' as const }), {
+    detail: { summary: 'Health check', tags: ['Health'] },
+    response: { 200: 'Response.Health' },
+  })
+  .use(authModule)
+  .use(syncModule)
 
 export type App = typeof app
 
 const compiled = app.compile()
 
 export default {
+  ...compiled,
   fetch(request: Request, env: AppEnv, ctx: ExecutionContext) {
     bindRuntime(request, { ctx, env })
     return compiled.fetch(request)

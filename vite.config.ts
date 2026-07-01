@@ -12,4 +12,5 @@ export default defineConfig({
   fmt,
   lint,
   run: { cache: { tasks: true, scripts: true } },
+  test: { exclude: ['**/node_modules/**', '**/.git/**', '.agents/**'] },
 })

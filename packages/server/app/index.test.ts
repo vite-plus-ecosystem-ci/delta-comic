@@ -29,8 +29,8 @@ const fetchWorker = (path: string, init?: RequestInit, env = createEnv()) =>
   worker.fetch(request(path, init), env, createExecutionContext())
 
 describe('server Elysia app', () => {
-  it('returns the v1 health payload', async () => {
-    const response = await fetchWorker('/api/v1/health')
+  it('returns the health payload', async () => {
+    const response = await fetchWorker('/api/health')
 
     await expect(response.json()).resolves.toEqual({
       data: { service: 'delta-comic-server', status: 'ok' },
@@ -40,7 +40,7 @@ describe('server Elysia app', () => {
   })
 
   it('maps body validation failures to the unified API error shape', async () => {
-    const response = await fetchWorker('/api/v1/auth/login', {
+    const response = await fetchWorker('/api/auth/login', {
       body: JSON.stringify({ loginName: 'ab' }),
       headers: { 'content-type': 'application/json' },
       method: 'POST',
@@ -54,7 +54,7 @@ describe('server Elysia app', () => {
   })
 
   it('uses the Elysia auth guard for protected routes', async () => {
-    const response = await fetchWorker('/api/v1/auth/me')
+    const response = await fetchWorker('/api/auth/me')
 
     await expect(response.json()).resolves.toMatchObject({
       error: { code: 'AUTH_MISSING_TOKEN' },
@@ -69,6 +69,6 @@ describe('server Elysia app', () => {
 
     expect(response.status).toBe(200)
     expect(payload.info?.title).toBe('Delta Comic Server API')
-    expect(payload.paths).toHaveProperty('/api/v1/health')
+    expect(payload.paths).toHaveProperty('/api/health')
   })
 })
