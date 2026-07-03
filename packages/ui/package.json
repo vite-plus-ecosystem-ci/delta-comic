@@ -59,6 +59,7 @@
     "@tailwindcss/vite": "catalog:",
     "@types/linkify-it": "catalog:",
     "@types/markdown-it": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:",
     "browserslist": "catalog:",

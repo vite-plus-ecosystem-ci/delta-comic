@@ -19,5 +19,5 @@ export default defineConfig({
     extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts'],
   },
   root,
-  test: { environment: 'node', include: ['app/**/*.test.ts'], root },
+  test: { environment: 'node', include: ['app/**/*.test.ts', 'lib/**/*.test.ts'], root },
 })

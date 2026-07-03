@@ -17,6 +17,7 @@
     "@delta-comic/db": "workspace:",
     "@delta-comic/model": "workspace:",
     "@delta-comic/plugin": "workspace:",
+    "@delta-comic/server": "workspace:",
     "@delta-comic/ui": "workspace:",
     "@delta-comic/utils": "workspace:",
     "@octokit/rest": "catalog:",

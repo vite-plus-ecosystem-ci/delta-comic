@@ -46,6 +46,17 @@ const appConfig = new ConfigPointer(
       defaultValue: false,
       info: '接受预发布版本更新(可能不稳定)',
     },
+    cloudEnabled: {
+      type: 'switch',
+      defaultValue: false,
+      info: '启用云服务',
+    },
+    cloudServerUrl: {
+      type: 'string',
+      defaultValue: '',
+      info: '云服务地址',
+      placeholder: '默认关闭，启用后填写云服务地址',
+    },
     installOverride: { type: 'pairs', defaultValue: [], info: '安装源覆盖配置', required: true },
   },
   '核心',

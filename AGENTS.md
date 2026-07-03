@@ -53,9 +53,9 @@ packages/plugin        ← 依赖 model（同时是 Tauri 插件 crate: tauri-pl
   ↑
 packages/ui            ← 依赖 model
   ↑
-packages/app           ← 依赖所有包 + src-tauri（Rust 主应用）
+packages/app           ← 依赖所有包 + src-tauri（Rust 主应用，包含 @delta-comic/server 客户端接入）
 
-packages/server        ← 独立 Cloudflare Worker 服务，无 workspace 依赖
+packages/server        ← Cloudflare Worker 服务 + 客户端 SDK，无 workspace 依赖
 ```
 
 ### Rust Crate 依赖关系
@@ -258,6 +258,8 @@ packages/app/src-tauri (delta_comic)
 | `packages/app/src/icons.tsx` | SVG 图标组件集合 |
 | `packages/app/src/stores/app.ts` | Pinia store — 应用全局状态 |
 | `packages/app/src/stores/content.ts` | Pinia store — 内容相关状态 |
+| `packages/app/src/stores/cloud.ts` | Pinia store — 云服务接入编排；离线优先，读取 core config 的启用开关和服务地址 |
+| `packages/app/src/cloud/` | 云服务客户端适配层：DB/nativeStore session 与 checkpoint 存储、本地 SQLite 同步快照和远端变更应用 |
 | `packages/app/src/utils/date.ts` | 日期格式化工具 |
 | `packages/app/src/utils/search.tsx` | 搜索辅助组件 |
 | `packages/app/src/utils/url.ts` | URL 处理工具 |
@@ -324,7 +326,11 @@ packages/app/src-tauri (delta_comic)
 | `packages/server/app/modules/auth/` | 第一方登录注册鉴权模块：用户、终端 UUID、session/token hash、注册/登录/刷新/注销/me 接口；schemas 同时作为 TypeBox 校验、类型推导、OpenAPI model 来源 |
 | `packages/server/app/modules/sync/` | D1 数据同步模块：collection 白名单、snapshot 一次性推送、push 动态变更、pull checkpoint 拉取、幂等 op 记录、LWW 冲突处理、tombstone 删除；schemas 同时作为 TypeBox 校验、类型推导、OpenAPI model 来源 |
 | `packages/server/app/index.test.ts` | Elysia/Worker route 级测试：覆盖 health、请求校验错误、auth guard、OpenAPI JSON 暴露 |
-| `packages/server/lib/index.ts` | 导出 `App` 类型，供前端或 Eden 客户端复用 server 类型契约 |
+| `packages/server/lib/index.ts` | 客户端接入 SDK 总入口：基于 `ky` 的离线优先云服务客户端、auth/session/sync 封装、raw Eden treaty 兜底入口 |
+| `packages/server/lib/client.ts` | `createCloudClient`/`useCloudServer` 客户端工厂，组合 HTTP、auth、sync 子客户端 |
+| `packages/server/lib/http.ts` | `ky` HTTP 封装：`/api` 前缀、Bearer 注入、统一响应 unwrap、禁用云服务时阻止网络请求 |
+| `packages/server/lib/storage.ts` | 云服务 session 存储抽象与 Memory/localStorage 实现；app 侧提供 DB/nativeStore 实现 |
+| `packages/server/lib/sync/` | 客户端同步协议工具：collection 白名单、entityId 计算、stable hash、snapshot/push/pull 客户端 |
 | `packages/server/migrations/0001_auth.sql` | D1 鉴权表：`auth_users`、`auth_terminals`、`auth_sessions` |
 | `packages/server/migrations/0002_sync.sql` | D1 同步表：`sync_entities`、`sync_changes`、`sync_ops`、`sync_terminal_cursors` |
 | `packages/server/wrangler.jsonc` | Worker 名称、入口、兼容日期、`nodejs_compat` 兼容标记、D1 binding、免费 Workers Logs 可观测性与 sync/auth vars；secrets 使用 `AUTH_PEPPER`、`TOKEN_PEPPER` |
@@ -332,7 +338,7 @@ packages/app/src-tauri (delta_comic)
 | `packages/server/vite.config.mts` | 接入 Cloudflare Vite Plugin 的 Vite+ 配置；测试模式跳过 Cloudflare 插件并配置 `@ -> app` alias |
 | `packages/server/package.json` | `dev`、`build`、`preview`、`deploy`、`cf-typegen`、类型检查与 Vitest 依赖 |
 
-**Server API 概览**：统一前缀 `/api`，不使用 `/v1` 等路径版本控制策略。`/health` 为健康检查；`/auth/register`、`/auth/login`、`/auth/refresh`、`/auth/logout`、`/auth/me` 提供第一方鉴权；`/sync/snapshot`、`/sync/push`、`/sync/pull` 提供本地 SQLite 数据同步。同步范围包括 `itemStore`、`favouriteCard`、`favouriteItem`、`history`、`recentView`、`subscribe`、`config`，明确排除 `plugin` 与 `nativeStore`。OpenAPI 文档挂载于 `/api/openapi`，JSON schema 位于 `/api/openapi/json`，鉴权路由通过 bearer security 标记。
+**Server API 概览**：统一前缀 `/api`，不使用 `/v1` 等路径版本控制策略。`/health` 为健康检查；`/auth/register`、`/auth/login`、`/auth/refresh`、`/auth/logout`、`/auth/me` 提供第一方鉴权；`/sync/snapshot`、`/sync/push`、`/sync/pull` 提供本地 SQLite 数据同步。同步范围包括 `itemStore`、`favouriteCard`、`favouriteItem`、`history`、`recentView`、`subscribe`、`config`，明确排除 `plugin` 与 `nativeStore`。OpenAPI 文档挂载于 `/api/openapi`，JSON schema 位于 `/api/openapi/json`，鉴权路由通过 bearer security 标记。客户端接入默认离线优先：core config 中 `cloudEnabled` 默认关闭，`cloudServerUrl` 为空时不会发起网络请求；实际请求统一由 `ky` 执行。
 
 ---
 
@@ -408,6 +414,7 @@ packages/app/src-tauri (delta_comic)
 | 修改页面逻辑组件 | `packages/app/src/components/` 对应目录 |
 | 修改路由 | `packages/app/src/router.ts` |
 | 修改全局状态 | `packages/app/src/stores/` |
+| 修改云服务客户端接入 | `packages/server/lib/`（协议 SDK）+ `packages/app/src/cloud/`（本地适配）+ `packages/app/src/stores/cloud.ts`（Pinia 编排） |
 | 修改 Rust 后端逻辑 | `packages/app/src-tauri/src/` 对应文件 |
 | 修改 Tauri 权限 | `packages/app/src-tauri/tauri.conf.json` + `capabilities/` |
 | 修改工具函数 | `packages/utils/lib/` |

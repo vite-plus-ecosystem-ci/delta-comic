@@ -21,6 +21,12 @@ export default {
   },
   env: { builtin: true },
   globals: {},
-  ignorePatterns: ['.vscode', '*.md', '**/worker-configuration.d.ts'],
+  ignorePatterns: [
+    '.agents',
+    '.vscode',
+    '*.md',
+    '**/worker-configuration.d.ts',
+    'packages/ui/lib/components/DcPullRefresh.vue',
+  ],
   options: { typeAware: false, typeCheck: false },
 } satisfies OxlintConfig

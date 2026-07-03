@@ -36,6 +36,7 @@
     "es-toolkit": "catalog:"
   },
   "devDependencies": {
+    "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
