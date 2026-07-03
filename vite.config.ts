@@ -7,7 +7,7 @@ export default defineConfig({
   staged: {
     '*': 'vp check --fix',
     '*.{md,json,toml,rs,js,jsx,ts,tsx,mts,cts,mjs,cjs,vue,html}':
-      'vp exec cspell --no-exit-code --no-must-find-files',
+      'vp exec cspell --no-must-find-files',
   },
   fmt,
   lint,
