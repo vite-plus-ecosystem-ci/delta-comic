@@ -22,7 +22,7 @@ catalog:
   '@elysiajs/cors': ^1.4.2
   '@elysiajs/openapi': ^1.4.15
   '@sinclair/typebox': ^0.34.49
-  '@typescript/native-preview': 7.0.0-dev.20260702.3 
+  '@typescript/native-preview': 7.0.0-dev.20260702.3
   '@lhlyu/vue-virtual-waterfall': 1.0.8
   '@octokit/rest': ^22.0.1
   '@pinia/colada': ^1.3.1
@@ -66,7 +66,6 @@ catalog:
   motion-v: 2.2.1
   naive-ui: ^2.44.1
   openapi-types: ^12.1.3
-  oxlint-tsgolint: ^0.24.0
   pinia: ^3.0.4
   semver: ^7.8.1
   swiper: ^14.0.1
@@ -81,14 +80,14 @@ catalog:
   unplugin-vue-components: 32.1.0
   userscript-meta: ^1.0.1
   vant: ^4.9.24
-  vite: npm:@voidzero-dev/vite-plus-core@^0.2.2
+  vite: npm:@voidzero-dev/vite-plus-core@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20
   vite-plugin-externals: ^0.6.2
   vite-plugin-monkey: ^8.0.6
   vite-plugin-ms-clarity: ^1.0.0
   vite-plugin-vue-devtools: ^8.0.7
   vite-plugin-wasm: ^3.5.0
-  vite-plus: ^0.2.1
-  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.24
+  vite-plus: 0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20
+  vitest: 4.1.9
   vue: ^3.5.39
   vue-component-type-helpers: ^3.3.3
   vue-router: ^5.1.0
@@ -103,6 +102,16 @@ minimumReleaseAgeExclude:
   - '@oxlint-tsgolint/win32-arm64@0.24.0'
   - '@oxlint-tsgolint/win32-x64@0.24.0'
   - oxlint-tsgolint@0.24.0
+  - '@voidzero-dev/vite-plus-core@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-darwin-arm64@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-darwin-x64@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-linux-arm64-gnu@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-linux-arm64-musl@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-linux-x64-gnu@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-linux-x64-musl@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-win32-arm64-msvc@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - '@voidzero-dev/vite-plus-win32-x64-msvc@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20'
+  - vite-plus@0.0.0-commit.fd1ae7eab160c92f3907a20e80e92d2e87403c20
 
 overrides:
   vite: 'catalog:'

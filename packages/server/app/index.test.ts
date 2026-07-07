@@ -1,26 +1,22 @@
-import { describe, expect, it } from 'vitest'
-
-import worker from './index'
+import { describe, expect, it } from 'vite-plus/test'
 
 import type { AppEnv } from './env'
 
-const createExecutionContext = (): ExecutionContext =>
-  ({
-    passThroughOnException() {},
-    waitUntil() {},
-  }) as unknown as ExecutionContext
+import worker from './index'
 
-const createEnv = (overrides: Partial<AppEnv> = {}): AppEnv =>
-  ({
-    ACCESS_TOKEN_TTL_SECONDS: '900',
-    AUTH_PEPPER: 'auth-pepper',
-    DB: {} as D1Database,
-    REFRESH_TOKEN_TTL_SECONDS: '2592000',
-    SYNC_MAX_PULL_CHANGES: '500',
-    SYNC_MAX_PUSH_OPS: '100',
-    TOKEN_PEPPER: 'token-pepper',
-    ...overrides,
-  })
+const createExecutionContext = (): ExecutionContext =>
+  ({ passThroughOnException() {}, waitUntil() {} }) as unknown as ExecutionContext
+
+const createEnv = (overrides: Partial<AppEnv> = {}): AppEnv => ({
+  ACCESS_TOKEN_TTL_SECONDS: '900',
+  AUTH_PEPPER: 'auth-pepper',
+  DB: {} as D1Database,
+  REFRESH_TOKEN_TTL_SECONDS: '2592000',
+  SYNC_MAX_PULL_CHANGES: '500',
+  SYNC_MAX_PUSH_OPS: '100',
+  TOKEN_PEPPER: 'token-pepper',
+  ...overrides,
+})
 
 const request = (path: string, init?: RequestInit) =>
   new Request(`https://delta.example${path}`, init)
@@ -46,7 +42,7 @@ describe('server Elysia app', () => {
       method: 'POST',
     })
 
-    const payload = await response.json() as { error: { code: string }; ok: boolean }
+    const payload = (await response.json()) as { error: { code: string }; ok: boolean }
 
     expect(response.status).toBe(400)
     expect(payload.ok).toBe(false)
@@ -65,7 +61,10 @@ describe('server Elysia app', () => {
 
   it('exposes OpenAPI schema under the API prefix', async () => {
     const response = await fetchWorker('/api/openapi/json')
-    const payload = await response.json() as { info?: { title?: string }; paths?: Record<string, unknown> }
+    const payload = (await response.json()) as {
+      info?: { title?: string }
+      paths?: Record<string, unknown>
+    }
 
     expect(response.status).toBe(200)
     expect(payload.info?.title).toBe('Delta Comic Server API')

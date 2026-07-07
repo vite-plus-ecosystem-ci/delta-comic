@@ -21,16 +21,16 @@
   "type": "module",
   "scripts": {
     "changeset": "vp exec changeset",
-    "vp:install": "vp install",
     "check": "vp check",
-    "test": "vp test",
     "dev": "vp run --filter app dev",
     "lib-build": "vp run -t app#build",
     "release": "vp run lib-build && vp exec changeset publish",
     "set-ver": "node ./script/set-version.mts",
     "tauri": "vp run --filter app tauri",
+    "test": "vp test",
     "typecheck": "vp run -r typecheck",
-    "version-packages": "node ./script/version-packages.mts"
+    "version-packages": "node ./script/version-packages.mts",
+    "vp:install": "vp install"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
@@ -39,7 +39,7 @@
     "@typescript/native-preview": "catalog:",
     "commitlint-plugin-cspell": "catalog:",
     "cspell": "catalog:",
-    "oxlint-tsgolint": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "badges": [
