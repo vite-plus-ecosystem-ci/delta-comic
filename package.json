@@ -21,16 +21,16 @@
   "type": "module",
   "scripts": {
     "changeset": "vp exec changeset",
-    "vp:install": "vp install",
     "check": "vp check",
-    "test": "vp test",
     "dev": "vp run --filter app dev",
     "lib-build": "vp run -t app#build",
     "release": "vp run lib-build && vp exec changeset publish",
     "set-ver": "node ./script/set-version.mts",
     "tauri": "vp run --filter app tauri",
+    "test": "vp test",
     "typecheck": "vp run -r typecheck",
-    "version-packages": "node ./script/version-packages.mts"
+    "version-packages": "node ./script/version-packages.mts",
+    "vp:install": "vp install"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
@@ -59,6 +59,6 @@
       "url": "https://wakatime.com/badge/user/018cf362-35ff-48f2-af6b-61f09a441de4/project/9f2c18ca-6eec-4e82-8041-5d23c1aba440.svg"
     }
   ],
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.10.0",
   "readme": "./README.md"
 }

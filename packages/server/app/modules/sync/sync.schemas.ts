@@ -54,20 +54,14 @@ export const syncPushItemResultSchema = t.Object({
   collection: collectionSchema,
   entityId: t.String(),
   entityVersion: t.Optional(t.String()),
-  error: t.Optional(t.Object({
-    code: t.String(),
-    message: t.String(),
-  })),
+  error: t.Optional(t.Object({ code: t.String(), message: t.String() })),
   opId: t.String(),
   result: operationResultSchema,
   serverSeq: t.Optional(t.Number()),
 })
 
 export const syncPushResponseSchema = t.Object({
-  checkpoint: t.Object({
-    latestSeq: t.Number(),
-    serverTime: t.Number(),
-  }),
+  checkpoint: t.Object({ latestSeq: t.Number(), serverTime: t.Number() }),
   results: t.Array(syncPushItemResultSchema),
 })
 

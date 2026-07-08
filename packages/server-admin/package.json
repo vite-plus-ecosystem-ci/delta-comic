@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "vp build",
-    "dev": "vp dev",
-    "preview": "vp preview",
-    "pages:preview": "wrangler pages dev dist --compatibility-date=2026-06-28",
     "deploy": "vp build && wrangler pages deploy dist --project-name=delta-comic-server-admin",
+    "dev": "vp dev",
+    "pages:preview": "wrangler pages dev dist --compatibility-date=2026-06-28",
+    "preview": "vp preview",
     "typecheck": "vue-tsc -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
   "dependencies": {

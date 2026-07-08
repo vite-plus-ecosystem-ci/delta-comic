@@ -2,25 +2,23 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "delta-comic-server",
   "main": "./app/index.ts",
+  "tsconfig": "./tsconfig.app.json",
   "compatibility_date": "2026-06-28",
   "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true,
-    "logs": { "head_sampling_rate": 1 },
-  },
+  "observability": { "enabled": true, "logs": { "head_sampling_rate": 1 } },
   "upload_source_maps": true,
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "delta-comic-server-db",
       "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "migrations"
-    }
+      "migrations_dir": "migrations",
+    },
   ],
   "vars": {
     "ACCESS_TOKEN_TTL_SECONDS": "900",
     "REFRESH_TOKEN_TTL_SECONDS": "2592000",
     "SYNC_MAX_PUSH_OPS": "100",
-    "SYNC_MAX_PULL_CHANGES": "500"
-  }
+    "SYNC_MAX_PULL_CHANGES": "500",
+  },
 }

@@ -7,7 +7,9 @@ const loading = ref(false)
 const status = ref<'idle' | 'ok' | 'error'>('idle')
 const message = ref('尚未检测')
 
-const tagType = computed(() => (status.value == 'ok' ? 'success' : status.value == 'error' ? 'error' : 'default'))
+const tagType = computed(() =>
+  status.value == 'ok' ? 'success' : status.value == 'error' ? 'error' : 'default',
+)
 
 const check = async () => {
   if (props.disabled) return
@@ -15,7 +17,7 @@ const check = async () => {
   try {
     const response = await fetch(props.healthUrl)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const body = await response.json() as { ok?: boolean; service?: string }
+    const body = (await response.json()) as { ok?: boolean; service?: string }
     status.value = body.ok ? 'ok' : 'error'
     message.value = body.ok ? `${body.service ?? 'server'} 正常` : '健康检查返回异常'
   } catch (error) {
@@ -32,7 +34,9 @@ const check = async () => {
     <n-space vertical>
       <n-text code>{{ healthUrl || '请先配置 Server API 地址' }}</n-text>
       <n-space align="center">
-        <n-button :disabled="disabled" :loading="loading" type="primary" @click="check">立即检测</n-button>
+        <n-button :disabled="disabled" :loading="loading" type="primary" @click="check"
+          >立即检测</n-button
+        >
         <n-tag :type="tagType">{{ message }}</n-tag>
       </n-space>
     </n-space>

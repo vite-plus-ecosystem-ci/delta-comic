@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ modelValue: string }>()
-const emit = defineEmits<{ 'update:modelValue': [value: string]; save: [value: string] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: string]; 'save': [value: string] }>()
 
 const draft = ref(props.modelValue)
 
@@ -29,7 +29,8 @@ const save = () => {
         <n-button type="primary" @click="save">保存</n-button>
       </n-input-group>
       <n-text depth="3">
-        Pages 面板运行在浏览器中，只保存公开的 Worker API 根地址；不要在面板中写入 Cloudflare secret。
+        Pages 面板运行在浏览器中，只保存公开的 Worker API 根地址；不要在面板中写入 Cloudflare
+        secret。
       </n-text>
     </n-space>
   </n-card>

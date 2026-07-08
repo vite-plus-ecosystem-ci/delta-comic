@@ -16,14 +16,14 @@
     "build": "vp build",
     "cf-typegen": "wrangler types",
     "deploy": "vp build && wrangler deploy",
-    "dev": "vp dev",
+    "dev": "wrangler dev --config wrangler.jsonc",
     "preview": "vp build && vp preview",
     "typecheck": "tsgo -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
   "dependencies": {
+    "@delta-comic/server-config": "workspace:",
     "@elysia/eden": "catalog:",
-    "ky": "catalog:",
-    "@delta-comic/server-config": "workspace:"
+    "ky": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:",

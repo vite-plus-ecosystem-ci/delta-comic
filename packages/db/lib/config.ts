@@ -22,7 +22,9 @@ const cloneValue = <T>(value: T): T => {
 }
 
 const createDefaultData = <T extends ConfigDescription>(config: T): FormResult<T> =>
-  fromPairs(Object.entries(config).map(([name, desc]) => [name, desc.defaultValue])) as FormResult<T>
+  fromPairs(
+    Object.entries(config).map(([name, desc]) => [name, desc.defaultValue]),
+  ) as FormResult<T>
 
 const parseJson = <T>(value: string | null | undefined, fallback: T): T => {
   if (!value) return cloneValue(fallback)

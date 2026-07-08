@@ -24,11 +24,7 @@ export default defineConfig({
       vueDevTools(),
       vue(),
       vueJsx(),
-      Components({
-        dts: true,
-        dtsTsx: false,
-        resolvers: [NaiveUiResolver(), VantResolver()],
-      }),
+      Components({ dts: true, dtsTsx: false, resolvers: [NaiveUiResolver(), VantResolver()] }),
       tailwindcss(),
     ]
   }) as any),

@@ -39,12 +39,14 @@ const parseValue = <T extends object>(
 const getStoreValue = async (namespace: string, key: string) => {
   const { db } = await import('../index')
   return (
-    (await db
-      .selectFrom('nativeStore')
-      .select('value')
-      .where('namespace', '=', namespace)
-      .where('key', '=', key)
-      .executeTakeFirst())?.value ?? null
+    (
+      await db
+        .selectFrom('nativeStore')
+        .select('value')
+        .where('namespace', '=', namespace)
+        .where('key', '=', key)
+        .executeTakeFirst()
+    )?.value ?? null
   )
 }
 

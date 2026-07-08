@@ -2,16 +2,16 @@
 
 # Using Vite+, the Unified Toolchain for the Web
 
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a CLI called `vp`. CI installs the global CLI through `voidzero-dev/setup-vp`; in Cloud Codex or other environments where global `vp` is unavailable, use the project-local CLI with `pnpm exec vp <command>` or the root package scripts (`pnpm run check`, `pnpm run test`, `pnpm run vp:install`). Vite+ is distinct from Vite, but it invokes Vite through `vp dev` and `vp build`. Run `pnpm exec vp help` to print a list of commands and `pnpm exec vp <command> --help` for information about a specific command.
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
 
 Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
 ## Review Checklist
 
-- [ ] Run `vp install` after pulling remote changes and before getting started; if global `vp` is unavailable, run `pnpm run vp:install` or `pnpm exec vp install`.
-- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes; if global `vp` is unavailable, run `pnpm run check` and `pnpm run test`.
-- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>` or `pnpm exec vp run <script>`.
-- [ ] If setup, runtime, or package-manager behavior looks wrong, run `pnpm exec vp config --help` and include the relevant output when asking for help.
+- [ ] Run `vp install` after pulling remote changes and before getting started.
+- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
+- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
 
 <!--VITE PLUS END-->
 
@@ -335,10 +335,10 @@ packages/app/src-tauri (delta_comic)
 | `packages/server/lib/sync/` | 客户端同步协议工具：collection 白名单、entityId 计算、stable hash、snapshot/push/pull 客户端 |
 | `packages/server/migrations/0001_auth.sql` | D1 鉴权表：`auth_users`、`auth_terminals`、`auth_sessions` |
 | `packages/server/migrations/0002_sync.sql` | D1 同步表：`sync_entities`、`sync_changes`、`sync_ops`、`sync_terminal_cursors` |
-| `packages/server/wrangler.jsonc` | Worker 名称、入口、兼容日期、`nodejs_compat` 兼容标记、D1 binding、免费 Workers Logs 可观测性与 sync/auth vars；secrets 使用 `AUTH_PEPPER`、`TOKEN_PEPPER` |
+| `packages/server/wrangler.jsonc` | Worker 名称、入口、用于解析 `@/* -> app/*` 的 `tsconfig.app.json`、兼容日期、`nodejs_compat` 兼容标记、D1 binding、免费 Workers Logs 可观测性与 sync/auth vars；secrets 使用 `AUTH_PEPPER`、`TOKEN_PEPPER` |
 | `packages/server/worker-configuration.d.ts` | 由 `wrangler types` 根据配置生成的 Workers 运行时类型 |
 | `packages/server/vite.config.mts` | 接入 Cloudflare Vite Plugin 的 Vite+ 配置；测试模式跳过 Cloudflare 插件并配置 `@ -> app` alias |
-| `packages/server/package.json` | `dev`、`build`、`preview`、`deploy`、`cf-typegen`、类型检查与 Vitest 依赖 |
+| `packages/server/package.json` | `dev` 通过 `wrangler dev --config wrangler.jsonc` 从源码直接启动本地 Worker（避开 Cloudflare Vite runner 与 Elysia AOT 的运行时冲突，也避免复用已有 Vite 构建的重定向配置）；`build`/`preview` 继续使用 Vite+；另含 `deploy`、`cf-typegen`、类型检查与 Vitest 依赖 |
 
 **Server API 概览**：统一前缀 `/api`，不使用 `/v1` 等路径版本控制策略。`/health` 为健康检查；`/auth/register`、`/auth/login`、`/auth/refresh`、`/auth/logout`、`/auth/me` 提供第一方鉴权；`/sync/snapshot`、`/sync/push`、`/sync/pull` 提供本地 SQLite 数据同步。同步范围包括 `itemStore`、`favouriteCard`、`favouriteItem`、`history`、`recentView`、`subscribe`、`config`，明确排除 `plugin` 与 `nativeStore`。OpenAPI 文档挂载于 `/api/openapi`，JSON schema 位于 `/api/openapi/json`，鉴权路由通过 bearer security 标记。客户端接入默认离线优先：core config 中 `cloudEnabled` 默认关闭，`cloudServerUrl` 为空时不会发起网络请求；实际请求统一由 `ky` 执行。
 
@@ -381,8 +381,8 @@ packages/app/src-tauri (delta_comic)
 | `tsconfig.json` | 根级 TypeScript 配置（引用 base + node） |
 | `tsconfig.node.json` | Node 端 TypeScript 配置 |
 | `vite.config.ts` | 根 Vite 配置 |
-| `oxfmt.config.ts` | Oxfmt 格式化配置 |
-| `oxlint.config.ts` | Oxlint 代码检查配置 |
+| `oxfmt.config.json` | Oxfmt JSON 格式化配置；忽略 `.agents/`、生成类型和权限产物等非业务源码 |
+| `oxlint.config.json` | Oxlint JSON 代码检查配置 |
 | `Cargo.toml` | Rust workspace 配置（包含 `tauri-plugin-db`、`tauri-plugin-plugin`、`delta_comic`） |
 | `rustfmt.toml` | Rust 格式化配置 |
 | `.commitlintrc.json` | 提交信息规范 |
@@ -457,7 +457,7 @@ packages/app/src-tauri (delta_comic)
 | 修改样式 | `packages/ui/lib/index.css` 或各组件内的 `<style>` |
 | 修改图标 | `packages/app/src/icons.tsx` |
 | 修改构建配置 | 各包的 `vite.config.mts`（`plugins` 统一使用 `lazyPlugins` + 动态 `import()` 延迟加载） |
-| 修改 Oxlint 规则 | `oxlint.config.ts` |
-| 修改 Oxfmt 配置 | `oxfmt.config.ts` |
+| 修改 Oxlint 规则 | `oxlint.config.json` |
+| 修改 Oxfmt 配置 | `oxfmt.config.json` |
 | 修改 pnpm catalog 依赖版本 | `pnpm-workspace.yaml` |
 | 版本发布相关脚本 | `script/` 下对应文件 |

@@ -3,7 +3,6 @@ import { CloudClientError } from '../errors'
 
 import { getSyncEntityId, type SyncCollection } from './collections'
 import { hashJson, sha256Hex } from './hash'
-
 import type { SyncAction, SyncPushOperation, SyncSnapshotRequest } from './types'
 
 export interface CreateSyncOperationInput {
@@ -51,8 +50,4 @@ export const createSyncOperation = async (
 export const createSyncSnapshotRequest = (
   collections: SyncSnapshotRequest['collections'],
   snapshotId = `snapshot:${Date.now()}:${randomId()}`,
-): SyncSnapshotRequest => ({
-  collections,
-  schemaVersion: CLOUD_SCHEMA_VERSION,
-  snapshotId,
-})
+): SyncSnapshotRequest => ({ collections, schemaVersion: CLOUD_SCHEMA_VERSION, snapshotId })

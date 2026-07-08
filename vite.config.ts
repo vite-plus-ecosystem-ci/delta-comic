@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite-plus'
+import type { OxfmtConfig } from 'vite-plus/fmt'
+import type { OxlintConfig } from 'vite-plus/lint'
 
-import fmt from './oxfmt.config'
-import lint from './oxlint.config'
+import fmt from './.oxfmtrc.json' with { type: 'json' }
+import lint from './.oxlintrc.json' with { type: 'json' }
 
 export default defineConfig({
   staged: {
@@ -9,8 +11,8 @@ export default defineConfig({
     '*.{md,json,toml,rs,js,jsx,ts,tsx,mts,cts,mjs,cjs,vue,html}':
       'vp exec cspell --no-must-find-files',
   },
-  fmt,
-  lint,
+  fmt: fmt as OxfmtConfig,
+  lint: lint as OxlintConfig,
   run: { cache: { tasks: true, scripts: true } },
   test: { exclude: ['**/node_modules/**', '**/.git/**', '.agents/**'] },
 })

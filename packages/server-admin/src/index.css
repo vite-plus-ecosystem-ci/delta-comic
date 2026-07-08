@@ -1,6 +1,6 @@
-@import "../../ui/lib/index.css";
-@import "vant/lib/index.css";
-@import "tailwindcss";
+@import '../../ui/lib/index.css';
+@import 'vant/lib/index.css';
+@import 'tailwindcss';
 
 html,
 body,

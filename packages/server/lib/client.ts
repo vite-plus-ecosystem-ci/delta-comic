@@ -3,11 +3,10 @@ import { treaty } from '@elysia/eden'
 import { CloudAuthClient } from './auth'
 import { OFFICIAL_SERVER_URL } from './constants'
 import { CloudHttpClient } from './http'
-import { MemoryCloudSessionStorage } from './storage'
-import { CloudSyncClient } from './sync/client'
-
 import type { CloudHttpClientOptions } from './http'
+import { MemoryCloudSessionStorage } from './storage'
 import type { CloudSessionStorage } from './storage'
+import { CloudSyncClient } from './sync/client'
 import type { CloudHealthResponse, CloudTerminalProvider } from './types'
 
 export interface CreateCloudClientOptions extends CloudHttpClientOptions {

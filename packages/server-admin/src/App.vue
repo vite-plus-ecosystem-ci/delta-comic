@@ -22,7 +22,13 @@ const menuOptions = [
       </n-space>
     </n-layout-header>
     <n-layout has-sider>
-      <n-layout-sider bordered collapse-mode="width" :collapsed-width="0" :width="240" show-trigger="bar">
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
+        :collapsed-width="0"
+        :width="240"
+        show-trigger="bar"
+      >
         <n-menu :options="menuOptions" :value="$route.path" @update:value="go" />
       </n-layout-sider>
       <n-layout-content class="p-6">

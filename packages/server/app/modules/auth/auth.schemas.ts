@@ -17,9 +17,7 @@ export const registerSchema = t.Object({
 
 export const loginSchema = registerSchema
 
-export const refreshSchema = t.Object({
-  refreshToken: t.String({ minLength: 16 }),
-})
+export const refreshSchema = t.Object({ refreshToken: t.String({ minLength: 16 }) })
 
 export const authTokensResponseSchema = t.Object({
   terminal: t.Object({
@@ -32,10 +30,7 @@ export const authTokensResponseSchema = t.Object({
     refreshExpiresAt: t.Number(),
     refreshToken: t.String(),
   }),
-  user: t.Object({
-    id: t.String(),
-    loginName: t.String(),
-  }),
+  user: t.Object({ id: t.String(), loginName: t.String() }),
 })
 
 export const logoutResponseSchema = t.Object({ loggedOut: t.Literal(true) })
@@ -47,10 +42,7 @@ export const meResponseSchema = t.Object({
     platform: t.Optional(t.String()),
     terminalUuid: t.String({ format: 'uuid' }),
   }),
-  user: t.Object({
-    id: t.String(),
-    loginName: t.String(),
-  }),
+  user: t.Object({ id: t.String(), loginName: t.String() }),
 })
 
 export type RegisterRequest = typeof registerSchema.static

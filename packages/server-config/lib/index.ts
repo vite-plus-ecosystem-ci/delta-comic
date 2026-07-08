@@ -26,7 +26,12 @@ export const serverModules = [
     description: '用户、终端、access token 与 refresh token 生命周期配置。',
     apiPrefix: '/api/auth',
     cloudflareBindings: ['DB'],
-    workerEnvVars: ['ACCESS_TOKEN_TTL_SECONDS', 'REFRESH_TOKEN_TTL_SECONDS', 'AUTH_PEPPER', 'TOKEN_PEPPER'],
+    workerEnvVars: [
+      'ACCESS_TOKEN_TTL_SECONDS',
+      'REFRESH_TOKEN_TTL_SECONDS',
+      'AUTH_PEPPER',
+      'TOKEN_PEPPER',
+    ],
     adminRoute: '/modules/auth',
   },
   {

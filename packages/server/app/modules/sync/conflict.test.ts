@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { shouldApplyOperation } from './conflict'
-
 import type { NormalizedSyncOperation, SyncEntityRow } from './sync.types'
 
 const current: SyncEntityRow = {

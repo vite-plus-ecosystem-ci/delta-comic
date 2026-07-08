@@ -14,7 +14,11 @@ export class AuthRepository {
   }
 
   async findUserById(id: string): Promise<AuthUserRow | null> {
-    return (await first(this.db, 'SELECT * FROM auth_users WHERE id = ? LIMIT 1', id)) as AuthUserRow | null
+    return (await first(
+      this.db,
+      'SELECT * FROM auth_users WHERE id = ? LIMIT 1',
+      id,
+    )) as AuthUserRow | null
   }
 
   async createUser(row: AuthUserRow): Promise<void> {
@@ -111,10 +115,16 @@ export class AuthRepository {
     )
   }
 
-  async rotateSession(oldSessionId: string, oldRotatedAt: number, newSession: AuthSessionRow): Promise<void> {
+  async rotateSession(
+    oldSessionId: string,
+    oldRotatedAt: number,
+    newSession: AuthSessionRow,
+  ): Promise<void> {
     await this.db.batch([
       this.db
-        .prepare('UPDATE auth_sessions SET rotated_at = ?, revoked_at = ? WHERE id = ? AND revoked_at IS NULL')
+        .prepare(
+          'UPDATE auth_sessions SET rotated_at = ?, revoked_at = ? WHERE id = ? AND revoked_at IS NULL',
+        )
         .bind(oldRotatedAt, oldRotatedAt, oldSessionId),
       this.db
         .prepare(

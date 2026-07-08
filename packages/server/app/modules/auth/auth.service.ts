@@ -4,9 +4,6 @@ import { createId, isUuid } from '@/shared/ids'
 import { now as readNow } from '@/shared/time'
 
 import { AuthRepository } from './auth.repository'
-import { createPasswordRecord, verifyPassword } from './password'
-import { createTokenPair, hashToken } from './token'
-
 import type {
   AuthContext,
   AuthSessionRow,
@@ -15,6 +12,8 @@ import type {
   LoginRequest,
   RegisterRequest,
 } from './auth.types'
+import { createPasswordRecord, verifyPassword } from './password'
+import { createTokenPair, hashToken } from './token'
 
 const normalizeLoginName = (loginName: string): string => loginName.trim().toLowerCase()
 
@@ -69,7 +68,13 @@ export class AuthService {
       updated_at: current,
     })
     await this.upsertTerminal(userId, input, current)
-    return await this.createSessionResponse(userId, loginName, input.terminalUuid, input.terminalName, current)
+    return await this.createSessionResponse(
+      userId,
+      loginName,
+      input.terminalUuid,
+      input.terminalName,
+      current,
+    )
   }
 
   async login(input: LoginRequest): Promise<AuthTokensResponse> {
@@ -88,11 +93,18 @@ export class AuthService {
       user.password_alg,
       this.authPepper,
     )
-    if (!matched) throw new AppError('AUTH_INVALID_CREDENTIALS', 'invalid login name or password', 401)
+    if (!matched)
+      throw new AppError('AUTH_INVALID_CREDENTIALS', 'invalid login name or password', 401)
 
     const current = readNow()
     await this.upsertTerminal(user.id, input, current)
-    return await this.createSessionResponse(user.id, user.login_name, input.terminalUuid, input.terminalName, current)
+    return await this.createSessionResponse(
+      user.id,
+      user.login_name,
+      input.terminalUuid,
+      input.terminalName,
+      current,
+    )
   }
 
   async refresh(refreshToken: string): Promise<AuthTokensResponse> {
@@ -105,7 +117,8 @@ export class AuthService {
     }
 
     const user = await this.repository.findUserById(session.user_id)
-    if (!user || user.disabled_at !== null) throw new AppError('AUTH_TOKEN_EXPIRED', 'user is disabled', 401)
+    if (!user || user.disabled_at !== null)
+      throw new AppError('AUTH_TOKEN_EXPIRED', 'user is disabled', 401)
 
     const terminal = await this.repository.findTerminal(session.user_id, session.terminal_uuid)
     if (!terminal || terminal.revoked_at !== null) {
@@ -132,7 +145,13 @@ export class AuthService {
     }
     await this.repository.rotateSession(session.id, current, newSession)
 
-    return this.toTokenResponse(user.id, user.login_name, terminal.terminal_uuid, terminal.display_name, tokens)
+    return this.toTokenResponse(
+      user.id,
+      user.login_name,
+      terminal.terminal_uuid,
+      terminal.display_name,
+      tokens,
+    )
   }
 
   async logout(auth: AuthContext): Promise<{ loggedOut: true }> {
@@ -149,7 +168,8 @@ export class AuthService {
       throw new AppError('AUTH_TOKEN_EXPIRED', 'access token is expired or revoked', 401)
     }
     const user = await this.repository.findUserById(session.user_id)
-    if (!user || user.disabled_at !== null) throw new AppError('AUTH_TOKEN_EXPIRED', 'user is disabled', 401)
+    if (!user || user.disabled_at !== null)
+      throw new AppError('AUTH_TOKEN_EXPIRED', 'user is disabled', 401)
     const terminal = await this.repository.findTerminal(session.user_id, session.terminal_uuid)
     if (!terminal || terminal.revoked_at !== null) {
       throw new AppError('AUTH_TERMINAL_REVOKED', 'terminal is revoked', 401)
@@ -171,29 +191,37 @@ export class AuthService {
         platform: terminal?.platform ?? undefined,
         terminalUuid: auth.terminalUuid,
       },
-      user: {
-        id: auth.userId,
-        loginName: auth.loginName,
-      },
+      user: { id: auth.userId, loginName: auth.loginName },
     }
   }
 
   private assertSecrets() {
-    if (!this.authPepper) throw new AppError('CONFIG_MISSING_AUTH_PEPPER', 'AUTH_PEPPER is not configured', 500)
-    if (!this.tokenPepper) throw new AppError('CONFIG_MISSING_TOKEN_PEPPER', 'TOKEN_PEPPER is not configured', 500)
+    if (!this.authPepper)
+      throw new AppError('CONFIG_MISSING_AUTH_PEPPER', 'AUTH_PEPPER is not configured', 500)
+    if (!this.tokenPepper)
+      throw new AppError('CONFIG_MISSING_TOKEN_PEPPER', 'TOKEN_PEPPER is not configured', 500)
   }
 
   private assertTerminalUuid(terminalUuid: string) {
-    if (!isUuid(terminalUuid)) throw new AppError('AUTH_INVALID_TERMINAL_UUID', 'terminalUuid must be a UUID', 400)
+    if (!isUuid(terminalUuid))
+      throw new AppError('AUTH_INVALID_TERMINAL_UUID', 'terminalUuid must be a UUID', 400)
   }
 
   private assertLoginName(loginName: string) {
     if (loginName.length < 3 || loginName.length > 64) {
-      throw new AppError('AUTH_INVALID_LOGIN_NAME', 'loginName length must be between 3 and 64', 400)
+      throw new AppError(
+        'AUTH_INVALID_LOGIN_NAME',
+        'loginName length must be between 3 and 64',
+        400,
+      )
     }
   }
 
-  private async upsertTerminal(userId: string, input: LoginRequest | RegisterRequest, current: number) {
+  private async upsertTerminal(
+    userId: string,
+    input: LoginRequest | RegisterRequest,
+    current: number,
+  ) {
     const terminal: AuthTerminalRow = {
       app_version: optionalString(input.appVersion),
       created_at: current,
@@ -232,7 +260,13 @@ export class AuthService {
       terminal_uuid: terminalUuid,
       user_id: userId,
     })
-    return this.toTokenResponse(userId, loginName, terminalUuid, optionalString(terminalName), tokens)
+    return this.toTokenResponse(
+      userId,
+      loginName,
+      terminalUuid,
+      optionalString(terminalName),
+      tokens,
+    )
   }
 
   private toTokenResponse(
@@ -248,15 +282,9 @@ export class AuthService {
     },
   ): AuthTokensResponse {
     return {
-      terminal: {
-        ...(displayName ? { displayName } : {}),
-        terminalUuid,
-      },
+      terminal: { ...(displayName ? { displayName } : {}), terminalUuid },
       tokens,
-      user: {
-        id: userId,
-        loginName,
-      },
+      user: { id: userId, loginName },
     }
   }
 }

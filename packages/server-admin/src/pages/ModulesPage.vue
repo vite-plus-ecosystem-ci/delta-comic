@@ -25,9 +25,15 @@ const moduleInfo = computed(() => serverModules.find(item => item.key == moduleK
         {{ serverCollections.join(', ') }}；plugin 和 nativeStore 不参与云同步。
       </n-alert>
       <n-alert v-if="moduleInfo.key == 'auth'" type="warning" title="环境限制">
-        Pages 面板不能读取 Worker secret。AUTH_PEPPER 与 TOKEN_PEPPER 只能通过 Wrangler/Cloudflare 控制台配置。
+        Pages 面板不能读取 Worker secret。AUTH_PEPPER 与 TOKEN_PEPPER 只能通过 Wrangler/Cloudflare
+        控制台配置。
       </n-alert>
     </n-space>
   </n-card>
-  <n-result v-else status="404" title="模块不存在" description="请从左侧菜单选择已注册的 server 模块。" />
+  <n-result
+    v-else
+    status="404"
+    title="模块不存在"
+    description="请从左侧菜单选择已注册的 server 模块。"
+  />
 </template>

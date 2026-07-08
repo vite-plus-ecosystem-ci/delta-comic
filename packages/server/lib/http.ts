@@ -1,4 +1,5 @@
 import ky, { HTTPError, TimeoutError } from 'ky'
+import type { KyInstance, Options, RetryOptions } from 'ky'
 
 import { CLOUD_API_PREFIX, DEFAULT_REQUEST_TIMEOUT } from './constants'
 import {
@@ -9,9 +10,7 @@ import {
   toCloudClientError,
   unwrapApiResponse,
 } from './errors'
-
 import type { ApiResponse } from './types'
-import type { KyInstance, Options, RetryOptions } from 'ky'
 
 export interface CloudHttpClientOptions {
   baseUrl?: string
@@ -123,4 +122,5 @@ export class CloudHttpClient {
   }
 }
 
-export const isCloudApiError = (error: unknown): error is CloudApiError => error instanceof CloudApiError
+export const isCloudApiError = (error: unknown): error is CloudApiError =>
+  error instanceof CloudApiError

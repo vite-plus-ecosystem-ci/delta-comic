@@ -8,12 +8,14 @@ const terminalUuidKey = 'terminal-uuid'
 const readValue = async (key: string): Promise<string | null> => {
   const { db } = await import('@delta-comic/db')
   return (
-    (await db
-      .selectFrom('nativeStore')
-      .select('value')
-      .where('namespace', '=', namespace)
-      .where('key', '=', key)
-      .executeTakeFirst())?.value ?? null
+    (
+      await db
+        .selectFrom('nativeStore')
+        .select('value')
+        .where('namespace', '=', namespace)
+        .where('key', '=', key)
+        .executeTakeFirst()
+    )?.value ?? null
   )
 }
 

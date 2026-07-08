@@ -21,6 +21,7 @@ Favourite
 favselect
 Gmailerrorred
 gradlew
+hoverable
 iarna
 jmcomic
 kysely
@@ -37,6 +38,7 @@ nvim
 oxfmt
 oxfmtrc
 oxlint
+oxlintrc
 pinia
 pipefail
 Popconfirm
@@ -81,3 +83,4 @@ workerd
 wrangler
 xgbuugti
 Yahei
+yxxx

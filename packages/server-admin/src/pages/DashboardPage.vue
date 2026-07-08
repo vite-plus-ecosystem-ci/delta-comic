@@ -8,7 +8,9 @@ import ServerEndpointForm from '@/components/dashboard/ServerEndpointForm.vue'
 import { useAdminStore } from '@/stores/admin'
 
 const adminStore = useAdminStore()
-const healthUrl = computed(() => adminStore.isConfigured ? adminStore.endpoint(adminStore.healthPath) : '')
+const healthUrl = computed(() =>
+  adminStore.isConfigured ? adminStore.endpoint(adminStore.healthPath) : '',
+)
 </script>
 
 <template>
