@@ -10,7 +10,7 @@ export default defineConfig({
     { entry: './lib/index.ts', dts: { tsgo: true, tsconfig: './tsconfig.lib.json' } },
   ],
   plugins: lazyPlugins((async () => {
-    if (process.env.VP_COMMAND == 'test') return []
+    if (process.env.VITEST || process.env.VP_COMMAND == 'test') return []
     const { cloudflare } = await import('@cloudflare/vite-plugin')
     return [cloudflare()]
   }) as any),

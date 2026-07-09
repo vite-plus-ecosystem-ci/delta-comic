@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index 2ff8d1e4705e3d10e8be57cc2a6db6261115f57b..9b7f6d3df781c0cb4e94f6efddcc56739b6cb20c 100644
+--- a/package.json
++++ b/package.json
+@@ -21,6 +21,9 @@
+   ],
+   "type": "module",
+   "sideEffects": false,
++  "bin": {
++    "vitest": "./vitest.mjs"
++  },
+   "main": "./dist/index.js",
+   "module": "./dist/index.js",
+   "types": "./dist/index.d.ts",

@@ -10,9 +10,9 @@ import type { CloudSession } from './types'
 const session = (): CloudSession => ({
   terminal: { terminalUuid: '00000000-0000-4000-8000-000000000000' },
   tokens: {
-    accessExpiresAt: Date.now() + 60_000,
+    accessExpiresAt: Date.now() + 120_000,
     accessToken: 'access-token',
-    refreshExpiresAt: Date.now() + 120_000,
+    refreshExpiresAt: Date.now() + 240_000,
     refreshToken: 'refresh-token',
   },
   user: { id: 'user-id', loginName: 'alice' },

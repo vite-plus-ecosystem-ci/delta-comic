@@ -74,7 +74,7 @@ export class CloudHttpClient {
           : normalizePrefixUrl(options.baseUrl),
       retry: options.retry ?? 0,
       timeout: options.timeout ?? DEFAULT_REQUEST_TIMEOUT,
-      throwHttpErrors: true,
+      throwHttpErrors: false,
     })
   }
 
@@ -114,8 +114,22 @@ export class CloudHttpClient {
         method,
         searchParams: options.searchParams,
         signal: options.signal,
-      }).json<ApiResponse<T>>()
-      return unwrapApiResponse(response)
+      })
+      let payload: ApiResponse<T>
+      try {
+        payload = await response.json<ApiResponse<T>>()
+      } catch (error) {
+        if (!response.ok) {
+          throw new CloudClientError(
+            'CLOUD_HTTP_ERROR',
+            `Request failed with status code ${response.status}`,
+            response.status,
+            error,
+          )
+        }
+        throw error
+      }
+      return unwrapApiResponse(payload, response.status)
     } catch (error) {
       throw await normalizeKyError(error)
     }
