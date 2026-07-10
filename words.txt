@@ -5,12 +5,14 @@ apksigner
 aptabase
 armv
 Aspera
+bika
 bili
 Booter
 booters
 cdylib
 codegen
 colada
+cosav
 daterange
 datetimerange
 disretry
@@ -21,6 +23,7 @@ Favourite
 favselect
 Gmailerrorred
 gradlew
+Hentai
 hoverable
 iarna
 jmcomic
@@ -47,6 +50,7 @@ previewable
 releaserc
 reloadable
 Reloadable
+Repobeats
 reqwest
 retriable
 retryable
