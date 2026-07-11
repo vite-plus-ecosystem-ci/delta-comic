@@ -1,10 +1,12 @@
-import Elysia from 'elysia'
+import Elysia, { t } from 'elysia'
 
+import { getRuntime } from '@/env'
 import { serverContext } from '@/infrastructure/http/serverContext'
 import { adminGuard } from '@/shared/http/adminGuard'
 import { ok } from '@/shared/response'
 
 import { pluginModels } from './plugins.schemas'
+import { createPluginScriptService } from './plugins.script'
 import { createPluginService } from './plugins.service'
 
 const actorId = 'server-admin'
@@ -16,7 +18,13 @@ export const pluginRoutes = new Elysia({
   .use(pluginModels)
   .use(serverContext)
   .use(adminGuard)
-  .resolve(({ db }) => ({ pluginService: createPluginService(db) }))
+  .resolve(({ db, request }) => {
+    const { env } = getRuntime(request)
+    return {
+      pluginScriptService: createPluginScriptService(env),
+      pluginService: createPluginService(db),
+    }
+  })
   .get('/', async ({ pluginService }) => ok(await pluginService.snapshot()), {
     detail: { summary: 'List discovered and managed server plugins', tags: ['Plugins'] },
     response: { 200: 'Response.PluginSnapshot' },
@@ -32,6 +40,50 @@ export const pluginRoutes = new Elysia({
       detail: { summary: 'Read a server plugin operation job', tags: ['Plugins'] },
       params: 'Plugin.JobParams',
       response: { 200: 'Response.PluginJob' },
+    },
+  )
+  .get(
+    '/:pluginId/script',
+    async ({ params, pluginScriptService }) => ok(await pluginScriptService.find(params.pluginId)),
+    {
+      detail: { summary: 'Read isolated code configured for a server plugin', tags: ['Plugins'] },
+      params: 'Plugin.IdParams',
+      response: { 200: t.Any() },
+    },
+  )
+  .put(
+    '/:pluginId/script',
+    async ({ body, params, pluginScriptService }) =>
+      ok(await pluginScriptService.save(params.pluginId, body)),
+    {
+      body: 'Plugin.ScriptRequest',
+      detail: { summary: 'Configure isolated code and its hourly schedule', tags: ['Plugins'] },
+      params: 'Plugin.IdParams',
+      response: { 200: t.Any() },
+    },
+  )
+  .get(
+    '/:pluginId/script/runs',
+    async ({ params, pluginScriptService }) =>
+      ok(await pluginScriptService.listRuns(params.pluginId)),
+    {
+      detail: { summary: 'List recent isolated plugin code runs', tags: ['Plugins'] },
+      params: 'Plugin.IdParams',
+      response: { 200: t.Any() },
+    },
+  )
+  .post(
+    '/:pluginId/script/run',
+    async ({ body, params, pluginScriptService }) =>
+      ok(await pluginScriptService.run(params.pluginId, body.input, 'manual')),
+    {
+      body: 'Plugin.ScriptRunRequest',
+      detail: {
+        summary: 'Run server plugin code in an isolated Dynamic Worker',
+        tags: ['Plugins'],
+      },
+      params: 'Plugin.IdParams',
+      response: { 200: t.Any() },
     },
   )
   .post(

@@ -166,3 +166,27 @@ export interface ServerPluginSnapshot {
   recentAudit: ServerPluginAuditEvent[]
   observedAt: number
 }
+
+export type ServerPluginScriptTrigger = 'manual' | 'scheduled'
+
+export interface ServerPluginScript {
+  pluginId: string
+  source: string
+  enabled: boolean
+  intervalHours: number
+  nextRunAt: number
+  createdAt: number
+  updatedAt: number
+}
+
+export interface ServerPluginScriptRun {
+  id: string
+  pluginId: string
+  trigger: ServerPluginScriptTrigger
+  status: 'failed' | 'succeeded'
+  startedAt: number
+  completedAt: number
+  input?: unknown
+  result?: unknown
+  errorMessage?: string
+}

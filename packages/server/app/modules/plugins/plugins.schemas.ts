@@ -102,11 +102,22 @@ export const pluginIdParamsSchema = t.Object({
 
 export const pluginJobParamsSchema = t.Object({ jobId: t.String({ maxLength: 160, minLength: 1 }) })
 
+export const pluginScriptRequestSchema = t.Object({
+  enabled: t.Boolean(),
+  intervalHours: t.Number({ maximum: 168, minimum: 1 }),
+  nextRunAt: t.Optional(t.Number({ minimum: 0 })),
+  source: t.String({ maxLength: 100_000, minLength: 1 }),
+})
+
+export const pluginScriptRunRequestSchema = t.Object({ input: t.Optional(t.Any()) })
+
 export const pluginModels = new Elysia({ name: 'dc-server-plugin-models' }).model({
   'Plugin.ConfigRequest': pluginConfigRequestSchema,
   'Plugin.IdParams': pluginIdParamsSchema,
   'Plugin.JobParams': pluginJobParamsSchema,
   'Plugin.Job': pluginJobSchema,
+  'Plugin.ScriptRequest': pluginScriptRequestSchema,
+  'Plugin.ScriptRunRequest': pluginScriptRunRequestSchema,
   'Plugin.Snapshot': pluginSnapshotSchema,
   'Response.PluginJob': apiSuccessSchema(pluginJobSchema),
   // Runtime definitions intentionally expose readonly manifest arrays to plugin authors.

@@ -7,6 +7,7 @@ import { bindRuntime, type AppEnv } from './env'
 import { adminModule } from './modules/admin/admin.module'
 import { authModule } from './modules/auth/auth.module'
 import { pluginsModule } from './modules/plugins/plugins.module'
+import { runScheduledPluginScripts } from './modules/plugins/plugins.script'
 import { syncModule } from './modules/sync/sync.module'
 import { cors } from './shared/http/cors'
 import { apiSuccessSchema, errorResponse, ok } from './shared/response'
@@ -94,5 +95,8 @@ export default {
   fetch(request: Request, env: AppEnv, ctx: ExecutionContext) {
     bindRuntime(request, { ctx, env })
     return compiled.fetch(request)
+  },
+  scheduled(controller: ScheduledController, env: AppEnv, ctx: ExecutionContext) {
+    ctx.waitUntil(runScheduledPluginScripts(env, controller.scheduledTime, controller.cron))
   },
 } satisfies ExportedHandler<AppEnv>
