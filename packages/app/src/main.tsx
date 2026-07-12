@@ -22,7 +22,7 @@ import {
   NGlobalStyle,
 } from 'naive-ui'
 import * as Pinia from 'pinia'
-import { createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 
 import '@/index.css'
 import * as Vue from 'vue'
@@ -45,6 +45,9 @@ await initializePlatform().then(v => {
       `${(v || {})[`adjustedInset${direction}`] ?? 0}px`,
     )
 })
+
+const pinia = createPinia()
+setActivePinia(pinia)
 
 const preboot = await DcPlugin.pluginRuntime.preparePreboot()
 if (preboot.reloadRequired) {
@@ -100,7 +103,6 @@ const app = createApp(
 
 app.use(DataLoaderPlugin, { router })
 
-const pinia = createPinia()
 app.use(pinia)
 
 app.use(Pc.PiniaColada)

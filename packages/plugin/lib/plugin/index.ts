@@ -1,6 +1,6 @@
 import { isFunction } from 'es-toolkit/compat'
 
-import type { ConfigPointer } from '@/config'
+import type { ConfigPointer } from '@/configPointer'
 
 import type * as Share from './share'
 export type * as Share from './share'
@@ -89,9 +89,12 @@ export type PluginExpose<T extends PluginConfig> = ReturnType<
 
 export type PluginConfigFactory<T extends PluginConfig = PluginConfig> = (env: ConfigEnv) => T
 
-/**
- * 这仅是个辅助定义的函数，没有副作用
- */
-export const defineInnerPlugin = (
-  definition: (env: ConfigEnv) => { meta: PluginArchiveDB.Meta; config: PluginConfigFactory },
-) => definition
+export interface BuiltInPluginDefinition<T extends PluginConfig = PluginConfig> {
+  meta: PluginArchiveDB.Meta
+  config: PluginConfigFactory<T>
+  enabledByDefault?: boolean
+}
+
+/** Defines a trusted plugin that is bundled with the application. */
+export const defineInnerPlugin = <T extends PluginConfig>(definition: BuiltInPluginDefinition<T>) =>
+  definition

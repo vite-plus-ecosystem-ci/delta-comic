@@ -39,17 +39,21 @@ const codeArchives = PluginArchiveDB.useQuery(
   [],
   () => [],
 )
-const actionsFor = (plugin: PluginArchiveDB.Archive): DropdownOption[] => [
-  { key: 'toggle', label: plugin.enable ? '禁用' : '启用' },
-  {
-    key: 'kind-normal',
-    label: '设为普通插件',
-    disabled: (plugin.meta.kind ?? 'normal') === 'normal',
-  },
-  { key: 'kind-preboot', label: '设为预启动插件', disabled: plugin.meta.kind === 'preboot' },
-  { key: 'update', label: '从下载源更新', disabled: updating.has(plugin.pluginName) },
-  { key: 'remove', label: '删除' },
-]
+const isBuiltIn = (plugin: PluginArchiveDB.Archive) => plugin.loaderName === 'builtin'
+const actionsFor = (plugin: PluginArchiveDB.Archive): DropdownOption[] => {
+  const actions: DropdownOption[] = [{ key: 'toggle', label: plugin.enable ? '禁用' : '启用' }]
+  if (isBuiltIn(plugin)) return actions
+  return actions.concat(
+    {
+      key: 'kind-normal',
+      label: '设为普通插件',
+      disabled: (plugin.meta.kind ?? 'normal') === 'normal',
+    },
+    { key: 'kind-preboot', label: '设为预启动插件', disabled: plugin.meta.kind === 'preboot' },
+    { key: 'update', label: '从下载源更新', disabled: updating.has(plugin.pluginName) },
+    { key: 'remove', label: '删除' },
+  )
+}
 
 const handleAction = async (plugin: PluginArchiveDB.Archive, key: string) => {
   switch (key) {
@@ -96,7 +100,8 @@ const handleAction = async (plugin: PluginArchiveDB.Archive, key: string) => {
               size="small"
               :type="plugin.meta.kind === 'preboot' ? 'warning' : 'default'"
             >
-              {{ plugin.meta.kind === 'preboot' ? '预启动' : '普通' }}
+              {{ isBuiltIn(plugin) ? '内置 · ' : ''
+              }}{{ plugin.meta.kind === 'preboot' ? '预启动' : '普通' }}
             </NTag>
             <span class="ml-2 font-light text-(--nui-text-color-3) italic">
               {{ plugin.enable ? '已启用' : '未启用' }}

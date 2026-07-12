@@ -1,0 +1,18 @@
+import type { FormSingleConfigure } from '@delta-comic/model'
+
+export type ConfigDescription = Record<
+  string,
+  Required<Pick<FormSingleConfigure, 'defaultValue'>> & FormSingleConfigure
+>
+
+export class ConfigPointer<T extends ConfigDescription = ConfigDescription> {
+  public readonly key: symbol
+
+  constructor(
+    public pluginName: string,
+    public config: T,
+    public configName: string,
+  ) {
+    this.key = Symbol.for(`config:${pluginName}`)
+  }
+}

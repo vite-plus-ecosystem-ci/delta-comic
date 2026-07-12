@@ -5,6 +5,7 @@ import { sortBy } from 'es-toolkit/compat'
 
 import { useConfig } from '@/config'
 
+import { isBuiltInPlugin, isBuiltInPluginName } from './builtIn'
 import type { PluginInstaller } from './init/utils'
 import { loaders } from './loader'
 import { pluginRuntime } from './runtime'
@@ -65,6 +66,9 @@ const installPluginFile = async (
         if (typeof progress.progress === 'number') v.progress = clampProgress(progress.progress)
       },
     })
+    if (isBuiltInPluginName(meta.name.id)) {
+      throw new Error(`插件 ID "${meta.name.id}" 由内置插件保留`)
+    }
 
     v.description = '写入数据库'
     v.progress = 95
@@ -116,8 +120,9 @@ export const installFilePlugin = (file: File, __installedPlugins?: Set<string>) 
 export const updatePlugin = async (
   pluginMeta: PluginArchiveDB.Archive,
   __installedPlugins?: Set<string>,
-) =>
-  createDownloadMessage(`更新插件-${pluginMeta.pluginName}`, async m => {
+) => {
+  if (isBuiltInPlugin(pluginMeta)) throw new Error('内置插件随应用更新，不能单独更新')
+  return createDownloadMessage(`更新插件-${pluginMeta.pluginName}`, async m => {
     const file = await m.createLoading('更新', async v => {
       v.retryable = true
       let installerName = pluginMeta.installerName
@@ -152,5 +157,6 @@ export const updatePlugin = async (
 
     await installDepends(m, meta, __installedPlugins)
   })
+}
 
 export const uninstallPlugin = (pluginName: string) => pluginRuntime.uninstall(pluginName)

@@ -120,9 +120,11 @@ export const useSetKind = defineMutation(() => {
       withTransition(async trx => {
         const plugin = await trx
           .selectFrom('plugin')
-          .select('meta')
+          .select(['loaderName', 'meta'])
           .where('pluginName', '=', pluginName)
           .executeTakeFirstOrThrow()
+        if (plugin.loaderName === 'builtin')
+          throw new Error('built-in plugin kind cannot be changed')
         await trx
           .updateTable('plugin')
           .set({ meta: JSON.stringify({ ...plugin.meta, kind }) })

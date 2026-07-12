@@ -16,6 +16,8 @@ export interface Table {
   data: string
 }
 
+export type ConfigRef<T> = Ref<T> & { readonly ready: Promise<void> }
+
 const cloneValue = <T>(value: T): T => {
   if (typeof structuredClone === 'function') return structuredClone(value)
   return JSON.parse(JSON.stringify(value)) as T
@@ -48,7 +50,7 @@ const upsertConfig = async (belongTo: string, form: ConfigDescription, data: unk
 export const useConfig = <T extends ConfigDescription>(
   belongTo: string,
   form: T,
-): Ref<FormResult<T>> => {
+): ConfigRef<FormResult<T>> => {
   const defaultData = createDefaultData(form)
   const data = ref(cloneValue(defaultData)) as Ref<FormResult<T>>
   let hydrated = false
@@ -63,7 +65,7 @@ export const useConfig = <T extends ConfigDescription>(
     }, 100)
   }
 
-  void (async () => {
+  const ready = (async () => {
     try {
       const { db } = await import('.')
       const stored = await db
@@ -92,5 +94,5 @@ export const useConfig = <T extends ConfigDescription>(
     { deep: true },
   )
 
-  return data
+  return Object.assign(data, { ready })
 }

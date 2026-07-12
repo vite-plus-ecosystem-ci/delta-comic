@@ -2,6 +2,7 @@ export * from './store'
 export * from './loadPlan'
 export * from './runtime'
 export * from './runtimePlan'
+export * from './builtIn'
 export type { PluginLoadingInfo } from './loader'
 
 export * as Booter from './booter'

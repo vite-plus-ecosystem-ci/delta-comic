@@ -58,7 +58,7 @@ class _ConfigSetter extends PluginBooter {
         Global.subscribes.set([plugin, key], value)
     }
     if (cfg.config) {
-      for (const config of cfg.config) useConfig().$resignerConfig(config)
+      for (const config of cfg.config) useConfig().$registerConfig(config)
     }
     if (share) {
       for (const v of share.initiative ?? []) Global.share.set([plugin, v.key], v)

@@ -1,9 +1,11 @@
 import { db, type PluginArchiveDB } from '@delta-comic/db'
 import { ref, type Ref } from 'vue'
 
+import { useConfig } from '@/config'
 import { Global } from '@/global'
 import type { PluginConfig } from '@/plugin'
 
+import { isBuiltInPlugin, synchronizeBuiltInPlugins } from './builtIn'
 import { cleanupPlugin } from './cleanup'
 import { isTauriRuntime, removePluginFiles } from './init/storage'
 import { bootResolvedConfig, type PluginLoadingInfo, loadPluginConfig } from './loader'
@@ -44,6 +46,7 @@ class PluginRuntime {
   private readonly preparedPreboot = new Map<string, PluginConfig>()
   private readonly startupPluginNames = new Set<string>()
   private readonly startupPrebootNames = new Set<string>()
+  private builtInSynchronization?: Promise<void>
   private enabledPrebootNames: string[] = []
   private normalOperation?: Promise<void>
   private startupSnapshotReady = false
@@ -78,6 +81,7 @@ class PluginRuntime {
   }
 
   async preparePreboot(): Promise<{ reloadRequired: boolean }> {
+    await this.ensureBuiltInPlugins()
     const allPlugins = await db.selectFrom('plugin').selectAll().execute()
     this.captureStartupSnapshot(allPlugins)
     const plugins = selectPluginsForPhase(
@@ -107,6 +111,10 @@ class PluginRuntime {
             if (config.name !== archive.pluginName) {
               throw new Error(`plugin name mismatch: ${archive.pluginName} / ${config.name}`)
             }
+            const configStore = useConfig()
+            await Promise.all(
+              (config.config ?? []).map(pointer => configStore.$registerConfig(pointer).ready),
+            )
             const cleanup = await config.onPreboot?.({ platform, safe: true })
             if (cleanup) this.prebootCleanups.set(config.name, cleanup)
             this.preparedPreboot.set(config.name, config)
@@ -145,6 +153,9 @@ class PluginRuntime {
       .where('pluginName', '=', pluginName)
       .executeTakeFirst()
     if (!archive) return
+    if (isBuiltInPlugin(archive)) {
+      throw new Error(`built-in plugin "${pluginName}" cannot be uninstalled`)
+    }
 
     const errors: unknown[] = []
     const active = this.active.get(pluginName)
@@ -206,6 +217,10 @@ class PluginRuntime {
     )
   }
 
+  private ensureBuiltInPlugins() {
+    return (this.builtInSynchronization ??= synchronizeBuiltInPlugins())
+  }
+
   private captureStartupSnapshot(plugins: PluginArchiveDB.Archive[]) {
     if (!this.startupSnapshotReady) this.startupPrebootNames.clear()
     for (const plugin of plugins) {
@@ -217,6 +232,7 @@ class PluginRuntime {
   }
 
   private async loadKind(kind: 'normal', progress: Ref<Record<string, PluginLoadingInfo>>) {
+    await this.ensureBuiltInPlugins()
     const allPlugins = await db
       .selectFrom('plugin')
       .where('enable', 'is', true)

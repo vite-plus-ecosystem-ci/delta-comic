@@ -1,64 +1,19 @@
 import { useConfig as useDbConfig } from '@delta-comic/db'
-import type { FormResult, FormSingleConfigure } from '@delta-comic/model'
+import type { FormResult } from '@delta-comic/model'
 import { defineStore } from 'pinia'
 import { computed, shallowReactive, type Ref } from 'vue'
 
-export type ConfigDescription = Record<
-  string,
-  Required<Pick<FormSingleConfigure, 'defaultValue'>> & FormSingleConfigure
->
-export class ConfigPointer<T extends ConfigDescription = ConfigDescription> {
-  constructor(
-    public pluginName: string,
-    public config: T,
-    public configName: string,
-  ) {
-    this.key = Symbol.for(`config:${pluginName}`)
-  }
-  public readonly key: symbol
+import type { ConfigDescription, ConfigPointer } from './configPointer'
+import { coreConfig } from './features/core/feature'
+
+export * from './configPointer'
+
+export type ConfigSave<T> = {
+  form: ConfigDescription
+  data: Ref<T>
+  name: string
+  ready: Promise<void>
 }
-
-const appConfig = new ConfigPointer(
-  'core',
-  {
-    recordHistory: { type: 'switch', defaultValue: true, info: '记录历史记录' },
-    showAIProject: { type: 'switch', defaultValue: true, info: '展示AI作品' },
-    darkMode: {
-      type: 'radio',
-      defaultValue: 'system',
-      info: '暗色模式配置',
-      comp: 'select',
-      selects: [
-        { label: '浅色', value: 'light' },
-        { label: '暗色', value: 'dark' },
-        { label: '跟随系统', value: 'system' },
-      ],
-    },
-    easilyTitle: { type: 'switch', defaultValue: false, info: '简化标题(实验性功能)' },
-    githubToken: {
-      type: 'string',
-      defaultValue: '',
-      info: 'github的token',
-      placeholder: '仅用于解除api访问限制',
-    },
-    receivePerReleaseUpdate: {
-      type: 'switch',
-      defaultValue: false,
-      info: '接受预发布版本更新(可能不稳定)',
-    },
-    cloudEnabled: { type: 'switch', defaultValue: false, info: '启用云服务' },
-    cloudServerUrl: {
-      type: 'string',
-      defaultValue: '',
-      info: '云服务地址',
-      placeholder: '默认关闭，启用后填写云服务地址',
-    },
-    installOverride: { type: 'pairs', defaultValue: [], info: '安装源覆盖配置', required: true },
-  },
-  '核心',
-)
-
-export type ConfigSave<T> = { form: ConfigDescription; data: Ref<T>; name: string }
 
 export const useConfig = defineStore('config', helper => {
   const configDescription = shallowReactive(new Map<symbol, ConfigSave<any>>())
@@ -72,12 +27,12 @@ export const useConfig = defineStore('config', helper => {
     'load',
   )
 
-  const $loadApp = helper.action(() => $load(appConfig), 'loadApp')
+  const $loadApp = helper.action(() => $load(coreConfig), 'loadApp')
 
   const isSystemDark = matchMedia('(prefers-color-scheme: dark)').matches
   const isDark = computed(() => {
-    if (!$isExistConfig(appConfig)) return isSystemDark
-    const cfg = $load(appConfig).data.value
+    if (!$isExistConfig(coreConfig)) return isSystemDark
+    const cfg = $load(coreConfig).data.value
     switch (cfg.darkMode) {
       case 'light':
         return false
@@ -92,19 +47,28 @@ export const useConfig = defineStore('config', helper => {
     (pointer: ConfigPointer) => configDescription.has(pointer.key),
     'isExistConfig',
   )
-  const $resignerConfig = helper.action((pointer: ConfigPointer) => {
+  const $registerConfig = helper.action((pointer: ConfigPointer) => {
+    const registered = configDescription.get(pointer.key)
+    if (registered) return registered
+
     const store = useDbConfig(pointer.pluginName, pointer.config)
-    configDescription.set(pointer.key, {
+    const saved: ConfigSave<any> = {
       form: pointer.config,
       data: store,
       name: pointer.pluginName,
-    })
-  }, 'resignerConfig')
+      ready: (store as typeof store & { ready: Promise<void> }).ready,
+    }
+    configDescription.set(pointer.key, saved)
+    return saved
+  }, 'registerConfig')
+  /** @deprecated Use `$registerConfig`. */
+  const $resignerConfig = $registerConfig
   const $unregisterConfig = helper.action((pointer: ConfigPointer) => {
     configDescription.delete(pointer.key)
   }, 'unregisterConfig')
 
-  $resignerConfig(appConfig) // important: register core config first, because app depend on it
+  // Core settings remain available when the built-in core runtime is disabled.
+  $registerConfig(coreConfig)
 
   return {
     isDark,
@@ -112,6 +76,7 @@ export const useConfig = defineStore('config', helper => {
     $loadApp,
     $load,
     $isExistConfig,
+    $registerConfig,
     $resignerConfig,
     $unregisterConfig,
   }
