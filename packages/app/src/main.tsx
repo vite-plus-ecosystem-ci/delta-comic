@@ -7,7 +7,7 @@ import * as DcUi from '@delta-comic/ui'
 import './logger'
 import * as DcUtils from '@delta-comic/utils'
 import * as Pc from '@pinia/colada'
-import { reactiveComputed, useCssVar, useDark } from '@vueuse/core'
+import { reactiveComputed, useDark } from '@vueuse/core'
 import Color from 'color'
 import * as Naive from 'naive-ui'
 import {
@@ -24,28 +24,21 @@ import * as Pinia from 'pinia'
 import { createPinia } from 'pinia'
 
 import '@/index.css'
-import 'vant/lib/index.css'
-import { CORSFetch } from 'tauri-plugin-better-cors-fetch'
-import { M3, type InsetsScheme } from 'tauri-plugin-m3'
-import * as Vant from 'vant'
-import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } from 'vant'
 import * as Vue from 'vue'
 import { createApp, defineComponent, watch } from 'vue'
 import * as VR from 'vue-router'
 import { DataLoaderPlugin } from 'vue-router/experimental'
 
 import AppSetup from './AppSetup.vue'
+import { initializePlatform, type SafeAreaInsets } from './platform'
 import { router } from './router'
-CORSFetch.init({ request: { danger: { acceptInvalidCerts: true, acceptInvalidHostnames: true } } })
 
-window.$$lib$$ = { Vue, Vant, Naive, VR, Pinia, DcModel, DcUi, DcPlugin, DcUtils, DcDb, Pc }
+window.$$lib$$ = { Vue, Naive, VR, Pinia, DcModel, DcUi, DcPlugin, DcUtils, DcDb, Pc }
 window.$api.NImage = Naive.NImage
-window.$api.showImagePreview = Vant.showImagePreview
-window.$api.M3 = M3
 
 document.addEventListener('contextmenu', e => e.preventDefault())
 
-const handleSafeAreaChange = (v: InsetsScheme | false) => {
+const handleSafeAreaChange = (v: SafeAreaInsets | false) => {
   if (!v)
     v = { adjustedInsetBottom: 0, adjustedInsetLeft: 0, adjustedInsetRight: 0, adjustedInsetTop: 0 }
   const { adjustedInsetBottom, adjustedInsetLeft, adjustedInsetRight, adjustedInsetTop } = v
@@ -63,7 +56,14 @@ const handleSafeAreaChange = (v: InsetsScheme | false) => {
   )
   document.documentElement.style.setProperty(`--safe-area-inset-top`, `${adjustedInsetTop ?? 0}px`)
 }
-await M3.getInsets().then(handleSafeAreaChange)
+
+handleSafeAreaChange(await initializePlatform())
+
+const preboot = await DcPlugin.pluginRuntime.preparePreboot()
+if (preboot.reloadRequired) {
+  location.reload()
+  await new Promise<never>(() => {})
+}
 
 const app = createApp(
   defineComponent(() => {
@@ -80,12 +80,14 @@ const app = createApp(
         cardColor: config.isDark ? '#17181a' : undefined,
       },
     }))
-    const fontBold = useCssVar('--nui-font-weight')
-
     const isUseDarkMode = useDark({ listenToStorageChanges: false })
     watch(
       () => config.isDark,
-      isDark => (isUseDarkMode.value = isDark),
+      isDark => {
+        isUseDarkMode.value = isDark
+        document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+      },
+      { immediate: true },
     )
     return () => (
       <NConfigProvider
@@ -97,30 +99,11 @@ const app = createApp(
         <NGlobalStyle />
         <NLoadingBarProvider>
           <NDialogProvider>
-            <VanConfigProvider
-              themeVars={
-                {
-                  blue: themeColor,
-                  green: themeOverrides.common?.successColor,
-                  red: themeOverrides.common?.errorColor,
-                  orange: themeOverrides.common?.warningColor,
-
-                  baseFont: 'var(--nui-font-family)',
-                  priceFont: 'var(--font-family-mono)',
-
-                  background: config.isDark ? themeOverrides.common?.cardColor : undefined,
-
-                  fontBold: fontBold.value,
-                } as ConfigProviderThemeVars
-              }
-              class='h-full overflow-hidden'
-              theme={config.isDark ? 'dark' : 'light'}
-              themeVarsScope='global'
-            >
+            <div class='h-full overflow-hidden'>
               <NMessageProvider max={5}>
                 <AppSetup />
               </NMessageProvider>
-            </VanConfigProvider>
+            </div>
           </NDialogProvider>
         </NLoadingBarProvider>
       </NConfigProvider>

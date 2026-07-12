@@ -22,6 +22,7 @@ export const addInjection = <
   key: TCfg['key'],
   value: TCfg['component'],
   condition?: TCfg['condition'],
+  plugin?: string,
 ) => {
-  Global.envExtends.add({ key, component: value, condition: condition ?? (() => true) })
+  Global.addEnvExtend({ key, component: value, condition: condition ?? (() => true) }, plugin)
 }

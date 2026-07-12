@@ -112,11 +112,11 @@ const useUploadPlugin = () => {
           : installers.filter(v => v.isMatched(inputUrl))"
       >
         <span
-          class="item-center size-2 shrink-0 rounded-full bg-(--van-text-color)"
+          class="item-center size-2 shrink-0 rounded-full bg-(--dc-text)"
           aria-hidden="true"
         ></span>
         <div>
-          <div class="van-hairline--bottom text-base font-semibold">
+          <div class="dc-hairline--bottom text-base font-semibold">
             {{ desc.description.title }}
           </div>
           <div>{{ desc.description.description }}</div>

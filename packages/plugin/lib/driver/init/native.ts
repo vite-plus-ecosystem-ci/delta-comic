@@ -1,15 +1,13 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { invoke } from '@tauri-apps/api/core'
-import { listen } from '@tauri-apps/api/event'
-import { join } from '@tauri-apps/api/path'
-import * as fs from '@tauri-apps/plugin-fs'
 
-import { getPluginFsPath } from './utils'
+import { decodeDevMetaFromCode, isTauriRuntime } from './storage'
 
 const progressEvent = 'plugin://install-progress'
 
-const call = <T>(command: string, args: Record<string, unknown>) =>
-  invoke<T>(`plugin:plugin|${command}`, args)
+const call = async <T>(command: string, args: Record<string, unknown>) => {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return await invoke<T>(`plugin:plugin|${command}`, args)
+}
 
 export interface NativeInstallProgress {
   current: number
@@ -27,7 +25,11 @@ interface NativeLocalFile {
 export const createNativeOperationId = () => crypto.randomUUID()
 
 export const writeNativeTempFile = async (file: File): Promise<string> => {
-  const temp = await getPluginFsPath('__temp__')
+  const [{ appLocalDataDir, join }, fs] = await Promise.all([
+    import('@tauri-apps/api/path'),
+    import('@tauri-apps/plugin-fs'),
+  ])
+  const temp = await join(await appLocalDataDir(), 'plugin', '__temp__')
   await fs.mkdir(temp, { recursive: true })
   const safeName = file.name.replace(/[\\/]/g, '_') || 'plugin.bin'
   const path = await join(temp, `${Date.now()}-${crypto.randomUUID()}-${safeName}`)
@@ -41,10 +43,14 @@ export const readLocalFile = async (path: string): Promise<File> => {
 }
 
 export const prepareDevScript = (input: string, code: string) =>
-  call<string>('prepare_dev_script', { code, input })
+  isTauriRuntime()
+    ? call<string>('prepare_dev_script', { code, input })
+    : Promise.resolve(code.replaceAll('localhost', input).replaceAll('127.0.0.1', input))
 
 export const decodeDevMeta = (code: string) =>
-  call<PluginArchiveDB.Meta>('decode_dev_meta', { code })
+  isTauriRuntime()
+    ? call<PluginArchiveDB.Meta>('decode_dev_meta', { code })
+    : Promise.resolve(decodeDevMetaFromCode(code))
 
 export const installDev = (code: string) => call<PluginArchiveDB.Meta>('install_dev', { code })
 
@@ -56,6 +62,7 @@ export const installZip = async (
   opId: string,
   onProgress?: (progress: NativeInstallProgress) => void,
 ) => {
+  const { listen } = await import('@tauri-apps/api/event')
   const unlisten = onProgress
     ? await listen<NativeInstallProgress>(progressEvent, event => {
         if (event.payload.opId === opId) onProgress(event.payload)

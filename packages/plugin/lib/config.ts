@@ -100,8 +100,19 @@ export const useConfig = defineStore('config', helper => {
       name: pointer.pluginName,
     })
   }, 'resignerConfig')
+  const $unregisterConfig = helper.action((pointer: ConfigPointer) => {
+    configDescription.delete(pointer.key)
+  }, 'unregisterConfig')
 
   $resignerConfig(appConfig) // important: register core config first, because app depend on it
 
-  return { isDark, form: configDescription, $loadApp, $load, $isExistConfig, $resignerConfig }
+  return {
+    isDark,
+    form: configDescription,
+    $loadApp,
+    $load,
+    $isExistConfig,
+    $resignerConfig,
+    $unregisterConfig,
+  }
 })

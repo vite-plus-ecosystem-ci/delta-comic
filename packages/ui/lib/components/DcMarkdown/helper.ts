@@ -6,6 +6,7 @@ export const createTemplate = (cfg: {
   isDark: boolean
   content: string
   messageKey: string
+  delegateLinkOpen: boolean
 }) => `
 <!doctype html>
 <html lang="zh-cn" class="static size-full">
@@ -36,6 +37,10 @@ export const createTemplate = (cfg: {
         const href = el.dataset.href || el.getAttribute('href');
         if(!href) return;
         e.preventDefault();
+        if(!${cfg.delegateLinkOpen}) {
+          window.open(href, '_blank', 'noopener,noreferrer');
+          return;
+        }
         // 发送请求给父窗口，请求导航
         console.debug('${cfg.messageKey}', href)
         window.parent.postMessage({ type:'${cfg.messageKey}', href });

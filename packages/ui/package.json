@@ -37,7 +37,7 @@
   "scripts": {
     "build": "vp build && vp pack",
     "dev": "vp dev",
-    "typecheck": "vue-tsgo -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
+    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
   "dependencies": {
     "@lhlyu/vue-virtual-waterfall": "catalog:",
@@ -70,8 +70,7 @@
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vue-component-type-helpers": "catalog:",
-    "vue-tsc": "catalog:",
-    "vue-tsgo": "catalog:"
+    "vue-tsc": "catalog:"
   },
   "peerDependencies": {
     "@delta-comic/model": "workspace:*",

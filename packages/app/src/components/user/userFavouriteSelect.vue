@@ -51,11 +51,11 @@ defineExpose({ create })
 
 <template>
   <NDrawer v-model:show="isShow" placement="bottom" @afterLeave="promise.reject()">
-    <div class="relative m-(--van-cell-group-inset-padding) mt-2 mb-2! w-full font-semibold">
+    <div class="relative m-(--dc-content-padding) mt-2 mb-2! w-full font-semibold">
       选择收藏夹
       <div
         @click="createFavouriteCard?.create()"
-        class="absolute top-1/2 right-8 flex -translate-y-1/2 items-center text-xs! font-normal text-(--van-text-color-2)"
+        class="absolute top-1/2 right-8 flex -translate-y-1/2 items-center text-xs! font-normal text-(--dc-text-secondary)"
       >
         <NIcon>
           <Icons.material.PlusFilled />

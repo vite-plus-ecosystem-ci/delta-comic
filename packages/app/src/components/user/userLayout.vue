@@ -19,15 +19,15 @@ const $router = useRouter()
     class="h-[calc(100%-var(--safe-area-inset-top))] w-full"
     contentClass="size-full"
   >
-    <div class="w-full bg-(--van-background-2) pt-safe"></div>
-    <div class="flex w-full flex-col bg-(--van-background-2)" ref="topBarEl">
+    <div class="w-full bg-(--dc-surface) pt-safe"></div>
+    <div class="flex w-full flex-col bg-(--dc-surface)" ref="topBarEl">
       <div class="relative flex h-13 w-full items-center justify-center text-lg! font-bold">
         <VanIcon
           name="arrow-left"
           size="calc(var(--spacing) * 6)"
-          class="van-haptics-feedback absolute! left-3"
+          class="dc-interactive absolute! left-3"
           @click="$router.back()"
-          color="var(--van-text-color-2)"
+          color="var(--dc-text-secondary)"
         />
         <span>{{ title }}</span>
         <div class="absolute right-0 flex h-full items-center justify-end gap-4 pr-2">

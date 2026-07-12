@@ -38,6 +38,9 @@ minidump
 miui
 msvc
 nvim
+noopener
+noreferrer
+OPFS
 oxfmt
 oxfmtrc
 oxlint
@@ -63,6 +66,7 @@ serde
 sider
 splited
 staticlib
+subframe
 Strs
 stylesheet
 swipeable
@@ -76,14 +80,15 @@ tsgo
 tsgolint
 typebox
 unplugin
+unlisten
 unstub
 userscript
-vant
 vicons
 Videogame
 voidzero
 vueuse
 Wakatime
+wasqlite
 webp
 wenxig
 workerd

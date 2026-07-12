@@ -63,13 +63,13 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
 </script>
 
 <template>
-  <div class="fixed top-0 z-1 w-full bg-(--van-background-2) pt-safe"></div>
+  <div class="fixed top-0 z-1 w-full bg-(--dc-surface) pt-safe"></div>
   <header
-    class="mt-safe h-21.5 w-full text-(--van-text-color) transition-transform duration-200"
+    class="mt-safe h-21.5 w-full text-(--dc-text) transition-transform duration-200"
     :class="[showSearch ? 'translate-y-0!' : '-translate-y-13.5!']"
   >
     <SearchBar v-model:search-text="searchText" :source="route.params.method" />
-    <div class="van-hairline--bottom relative h-8 w-full bg-(--van-background-2)">
+    <div class="dc-hairline-bottom relative h-8 w-full bg-(--dc-surface)">
       <div class="scroll flex w-full items-center gap-2 overflow-x-auto pr-2 *:text-nowrap!">
         <NPopselect
           :options="
@@ -116,21 +116,30 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
               )
           "
         >
-          <NButton
-            quaternary
-            class="van-haptics-feedback flex h-full items-center justify-start text-sm"
-          >
-            <template #icon> <VanIcon name="sort" size="1.5rem" class="sort-icon" /> </template>排序
+          <NButton quaternary class="dc-interactive flex h-full items-center justify-start text-sm">
+            <template #icon>
+              <NIcon size="1.5rem" class="sort-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M3 6h12v2H3V6Zm0 5h9v2H3v-2Zm0 5h6v2H3v-2Zm14-5V7h2v4h3l-4 4l-4-4h3Z"
+                  />
+                </svg>
+              </NIcon>
+            </template>
+            排序
             <span class="text-xs text-(--nui-primary-color)">
               -{{ method.sorts.find(v => v.value == route.params.sort)?.text ?? '<不存在>' }}
             </span>
           </NButton>
         </NPopselect>
-        <div class="van-haptics-feedback flex h-full items-center justify-start text-sm">
+        <div class="dc-interactive flex h-full items-center justify-start gap-1 text-sm">
           <NSwitch v-model:value="config.data.value.showAIProject" />展示AI作品
         </div>
       </div>
-      <VanIcon
+      <button
+        type="button"
+        aria-label="重新搜索"
         @click="
           () =>
             SharedFunction.call(
@@ -140,11 +149,12 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
             )
         "
         :class="[showSearch ? 'translate-x-full' : '-translate-x-2']"
-        size="25px"
-        class="absolute! top-1/2 right-0 -translate-y-1/2 rounded-full bg-(--van-background-2) p-1 shadow transition-transform duration-200"
-        name="search"
-        color="var(--van-text-color-2)"
-      />
+        class="dc-interactive absolute! top-1/2 right-0 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-(--dc-surface) p-1 text-(--dc-text-secondary) shadow transition-transform duration-200"
+      >
+        <NIcon size="25">
+          <Icons.material.SearchFilled />
+        </NIcon>
+      </button>
     </div>
   </header>
 
@@ -164,8 +174,8 @@ const searchText = shallowRef(decodeURIComponent(route.params.keyword))
     v-else
     :class="[
       showSearch
-        ? 'h-[calc(100vh-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0'
-        : 'h-[calc(100vh-32px-var(--safe-area-inset-top))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]',
+        ? 'h-[calc(100vh-var(--dc-tabs-height)-var(--dc-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0'
+        : 'h-[calc(100vh-32px-var(--safe-area-inset-top))] -translate-y-[calc(var(--dc-tabs-height)+var(--dc-tabs-padding-bottom))]',
     ]"
   >
     <DcList

@@ -107,7 +107,7 @@ const mainFilters = useNativeStore(pluginName, 'favourite.mainFilters', new Arra
     <template #rightNav>
       <NIcon
         size="calc(var(--spacing) * 6.5)"
-        color="var(--van-text-color-2)"
+        color="var(--dc-text-secondary)"
         @click="syncFromCloud"
       >
         <Icons.antd.CloudSyncOutlined />
@@ -118,7 +118,7 @@ const mainFilters = useNativeStore(pluginName, 'favourite.mainFilters', new Arra
     </template>
     <template #bottomNav>
       <div
-        class="flex h-12 w-full items-center justify-evenly gap-4 bg-(--van-background-2) pt-4 pr-4 pb-2"
+        class="flex h-12 w-full items-center justify-evenly gap-4 bg-(--dc-surface) pt-4 pr-4 pb-2"
       >
         <div class="w-full pl-4">
           <NButton
@@ -136,25 +136,25 @@ const mainFilters = useNativeStore(pluginName, 'favourite.mainFilters', new Arra
           </NButton>
         </div>
         <NIcon
-          color="var(--van-text-color-2)"
+          color="var(--dc-text-secondary)"
           size="1.5rem"
-          class="van-haptics-feedback"
+          class="dc-interactive"
           @click="searcher && (searcher!.isSearching = true)"
         >
           <Icons.material.SearchFilled />
         </NIcon>
         <NIcon
-          color="var(--van-text-color-2)"
+          color="var(--dc-text-secondary)"
           size="1.5rem"
-          class="van-haptics-feedback"
+          class="dc-interactive"
           @click="createFavouriteCard?.create()"
         >
           <Icons.material.PlusFilled />
         </NIcon>
         <NIcon
-          color="var(--van-text-color-2)"
+          color="var(--dc-text-secondary)"
           size="1.5rem"
-          class="van-haptics-feedback"
+          class="dc-interactive"
           @click="
             async () => {
               isCardMode = !isCardMode

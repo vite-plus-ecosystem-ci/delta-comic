@@ -1,6 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 
 import { readLocalFile } from '../native'
+import { isTauriRuntime } from '../storage'
 import { PluginInstaller, type PluginInstallerDescription } from '../utils'
 
 export class _PluginInstallByLocal extends PluginInstaller {
@@ -26,7 +27,7 @@ export class _PluginInstallByLocal extends PluginInstaller {
     return file
   }
   public override isMatched(input: string): boolean {
-    return input.startsWith('local:')
+    return isTauriRuntime() && input.startsWith('local:')
   }
 }
 

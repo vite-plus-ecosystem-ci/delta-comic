@@ -53,7 +53,7 @@ class _PluginAuth extends PluginBooter {
       const by: Auth.Method = {
         async form(form) {
           const formInstance = createForm(form)
-          Global.globalNodes.push(
+          Global.addGlobalNode(
             markRaw(
               defineComponent(() => {
                 const show = ref(true)
@@ -66,6 +66,7 @@ class _PluginAuth extends PluginBooter {
                   )
               }),
             ),
+            cfg.name,
           )
           const data = await formInstance.data
           return data

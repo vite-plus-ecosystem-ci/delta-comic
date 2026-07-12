@@ -70,7 +70,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '8px',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '100%',
   },
   isErrorNoData: {
@@ -83,7 +83,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '50%',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '4px',
   },
   isLoadingData: {
@@ -122,7 +122,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '50%',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '4px',
   },
   done: {
@@ -178,7 +178,7 @@ defineSlots<{ default(data: { data?: T }): any }>()
         "
         :style="isLoadingState ? styleLoading : undefined"
       >
-        <Transition name="van-fade">
+        <Transition name="dc-fade">
           <DcLoading size="25px" color="var(--p-color)" v-if="animateOn === 'isLoadingNoData'" />
           <DcLoading size="10px" color="white" v-else-if="animateOn === 'isLoadingData'"
             >加载中</DcLoading

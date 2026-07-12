@@ -18,6 +18,8 @@ export interface Meta {
   require: { id: string; download?: string | undefined }[]
   entry?: { jsPath: string; cssPath?: string }
   beforeBoot?: { path: string; slot: string }[]
+  kind?: 'normal' | 'preboot'
+  integrity?: { algorithm: 'blake3' | 'sha256'; digest: string }
 }
 
 export interface Table {
@@ -36,6 +38,11 @@ export type Archive = Selectable<Table>
 
 export enum QueryKey {
   item = 'db:plugin:',
+}
+
+export const removeByNames = async (keys: Archive['pluginName'][], trx: Kysely<DB>) => {
+  if (keys.length === 0) return
+  await trx.deleteFrom('plugin').where('plugin.pluginName', 'in', keys).execute()
 }
 
 export const useUpsert = defineMutation(() => {
@@ -63,7 +70,7 @@ export const useRemove = defineMutation(() => {
   const { mutateAsync, ...mutation } = useMutation({
     mutation: async ({ keys, trx }: { keys: Archive['pluginName'][]; trx?: Kysely<DB> }) =>
       withTransition(async trx => {
-        await trx.deleteFrom('plugin').where('plugin.pluginName', 'is', keys).execute()
+        await removeByNames(keys, trx)
       }, trx),
     onSettled: () => {
       void queryCache.invalidateQueries({ key })
@@ -98,6 +105,37 @@ export const useToggleEnable = defineMutation(() => {
     key,
   })
   return { ...mutation, toggle: mutateAsync, key }
+})
+
+export const useSetKind = defineMutation(() => {
+  const queryCache = useQueryCache()
+  const key = [CommonQueryKey.common, QueryKey.item]
+  const { mutateAsync, ...mutation } = useMutation({
+    mutation: async ({
+      pluginName,
+      kind,
+    }: {
+      pluginName: string
+      kind: NonNullable<Meta['kind']>
+    }) =>
+      withTransition(async trx => {
+        const plugin = await trx
+          .selectFrom('plugin')
+          .select('meta')
+          .where('pluginName', '=', pluginName)
+          .executeTakeFirstOrThrow()
+        await trx
+          .updateTable('plugin')
+          .set({ meta: JSON.stringify({ ...plugin.meta, kind }) })
+          .where('pluginName', '=', pluginName)
+          .execute()
+      }),
+    onSettled: () => {
+      void queryCache.invalidateQueries({ key })
+    },
+    key,
+  })
+  return { ...mutation, setKind: mutateAsync, key }
 })
 
 export const useQuery = <T>(

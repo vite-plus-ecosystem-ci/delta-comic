@@ -31,6 +31,7 @@ const $props = withDefaults(
   }>(),
   { tag: 'div', border: true, required: undefined, clickable: undefined },
 )
+const emit = defineEmits<{ click: [event: MouseEvent] }>()
 
 const slots = useSlots()
 const vm = getCurrentInstance()!.proxy!
@@ -45,6 +46,11 @@ function navigate() {
       location.href = $props.url
     }
   }
+}
+
+function handleClick(event: MouseEvent) {
+  navigate()
+  emit('click', event)
 }
 
 const isClickable = computed(() => ($props.clickable != null ? $props.clickable : $props.isLink))
@@ -87,12 +93,18 @@ const renderArrowIcon = computed(() => {
     :style="$props.style"
     :role="isClickable ? 'button' : undefined"
     :tabindex="isClickable ? 0 : undefined"
-    @click="navigate"
+    @click="handleClick"
   >
     <!-- left icon -->
     <div v-if="slots.icon || icon" class="dc-cell__left-icon">
       <slot v-if="slots.icon" name="icon" />
-      <span v-else class="van-icon" :class="[iconPrefix, icon]" />
+      <span
+        v-else
+        class="dc-cell__icon"
+        :class="[iconPrefix, icon]"
+        :aria-label="icon"
+        role="img"
+      />
     </div>
 
     <!-- title area -->
@@ -129,27 +141,27 @@ const renderArrowIcon = computed(() => {
 <style>
 :root,
 :host {
-  --van-cell-font-size: var(--van-font-size-md);
-  --van-cell-line-height: 24px;
-  --van-cell-vertical-padding: 10px;
-  --van-cell-horizontal-padding: var(--van-padding-md);
-  --van-cell-text-color: var(--van-text-color);
-  --van-cell-background: var(--van-background-2);
-  --van-cell-border-color: var(--van-border-color);
-  --van-cell-active-color: var(--van-active-color);
-  --van-cell-required-color: var(--van-danger-color);
-  --van-cell-label-color: var(--van-text-color-2);
-  --van-cell-label-font-size: var(--van-font-size-sm);
-  --van-cell-label-line-height: var(--van-line-height-sm);
-  --van-cell-label-margin-top: var(--van-padding-base);
-  --van-cell-value-color: var(--van-text-color-2);
-  --van-cell-value-font-size: inherit;
-  --van-cell-icon-size: 16px;
-  --van-cell-right-icon-color: var(--van-gray-6);
-  --van-cell-large-vertical-padding: var(--van-padding-sm);
-  --van-cell-large-title-font-size: var(--van-font-size-lg);
-  --van-cell-large-label-font-size: var(--van-font-size-md);
-  --van-cell-large-value-font-size: inherit;
+  --dc-cell-font-size: var(--dc-font-size-md);
+  --dc-cell-line-height: var(--dc-line-height-md);
+  --dc-cell-vertical-padding: 10px;
+  --dc-cell-horizontal-padding: var(--dc-space-4);
+  --dc-cell-text-color: var(--dc-color-text);
+  --dc-cell-background: var(--dc-color-surface);
+  --dc-cell-border-color: var(--dc-color-border);
+  --dc-cell-active-color: var(--dc-color-active);
+  --dc-cell-required-color: var(--dc-color-danger);
+  --dc-cell-label-color: var(--dc-color-text-secondary);
+  --dc-cell-label-font-size: var(--dc-font-size-sm);
+  --dc-cell-label-line-height: var(--dc-line-height-sm);
+  --dc-cell-label-margin-top: var(--dc-space-1);
+  --dc-cell-value-color: var(--dc-color-text-secondary);
+  --dc-cell-value-font-size: inherit;
+  --dc-cell-icon-size: 16px;
+  --dc-cell-right-icon-color: var(--dc-color-icon);
+  --dc-cell-large-vertical-padding: var(--dc-space-3);
+  --dc-cell-large-title-font-size: var(--dc-font-size-lg);
+  --dc-cell-large-label-font-size: var(--dc-font-size-md);
+  --dc-cell-large-value-font-size: inherit;
 }
 
 .dc-cell {
@@ -157,12 +169,12 @@ const renderArrowIcon = computed(() => {
   display: flex;
   box-sizing: border-box;
   width: 100%;
-  padding: var(--van-cell-vertical-padding) var(--van-cell-horizontal-padding);
+  padding: var(--dc-cell-vertical-padding) var(--dc-cell-horizontal-padding);
   overflow: hidden;
-  color: var(--van-cell-text-color);
-  font-size: var(--van-cell-font-size);
-  line-height: var(--van-cell-line-height);
-  background: var(--van-cell-background);
+  color: var(--dc-cell-text-color);
+  font-size: var(--dc-cell-font-size);
+  line-height: var(--dc-cell-line-height);
+  background: var(--dc-cell-background);
 }
 
 .dc-cell::after {
@@ -170,10 +182,10 @@ const renderArrowIcon = computed(() => {
   box-sizing: border-box;
   content: ' ';
   pointer-events: none;
-  right: var(--van-padding-md);
+  right: var(--dc-space-4);
   bottom: 0;
-  left: var(--van-padding-md);
-  border-bottom: 1px solid var(--van-cell-border-color);
+  left: var(--dc-space-4);
+  border-bottom: 1px solid var(--dc-cell-border-color);
   transform: scaleY(0.5);
 }
 
@@ -183,10 +195,10 @@ const renderArrowIcon = computed(() => {
 }
 
 .dc-cell__label {
-  margin-top: var(--van-cell-label-margin-top);
-  color: var(--van-cell-label-color);
-  font-size: var(--van-cell-label-font-size);
-  line-height: var(--van-cell-label-line-height);
+  margin-top: var(--dc-cell-label-margin-top);
+  color: var(--dc-cell-label-color);
+  font-size: var(--dc-cell-label-font-size);
+  line-height: var(--dc-cell-label-line-height);
 }
 
 .dc-cell__title,
@@ -197,8 +209,8 @@ const renderArrowIcon = computed(() => {
 .dc-cell__value {
   position: relative;
   overflow: hidden;
-  color: var(--van-cell-value-color);
-  font-size: var(--van-cell-value-font-size);
+  color: var(--dc-cell-value-color);
+  font-size: var(--dc-cell-value-font-size);
   text-align: right;
   vertical-align: middle;
   word-wrap: break-word;
@@ -206,18 +218,27 @@ const renderArrowIcon = computed(() => {
 
 .dc-cell__left-icon,
 .dc-cell__right-icon {
-  height: var(--van-cell-line-height);
-  font-size: var(--van-cell-icon-size);
-  line-height: var(--van-cell-line-height);
+  height: var(--dc-cell-line-height);
+  font-size: var(--dc-cell-icon-size);
+  line-height: var(--dc-cell-line-height);
 }
 
 .dc-cell__left-icon {
-  margin-right: var(--van-padding-base);
+  margin-right: var(--dc-space-1);
 }
 
 .dc-cell__right-icon {
-  margin-left: var(--van-padding-base);
-  color: var(--van-cell-right-icon-color);
+  margin-left: var(--dc-space-1);
+  color: var(--dc-cell-right-icon-color);
+}
+
+.dc-cell__icon {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
 }
 
 .dc-cell--clickable {
@@ -225,7 +246,7 @@ const renderArrowIcon = computed(() => {
 }
 
 .dc-cell--clickable:active {
-  background-color: var(--van-cell-active-color);
+  background-color: var(--dc-cell-active-color);
 }
 
 .dc-cell--required {
@@ -234,9 +255,9 @@ const renderArrowIcon = computed(() => {
 
 .dc-cell--required::before {
   position: absolute;
-  left: var(--van-padding-xs);
-  color: var(--van-cell-required-color);
-  font-size: var(--van-cell-font-size);
+  left: var(--dc-space-2);
+  color: var(--dc-cell-required-color);
+  font-size: var(--dc-cell-font-size);
   content: '*';
 }
 
@@ -245,20 +266,20 @@ const renderArrowIcon = computed(() => {
 }
 
 .dc-cell--large {
-  padding-top: var(--van-cell-large-vertical-padding);
-  padding-bottom: var(--van-cell-large-vertical-padding);
+  padding-top: var(--dc-cell-large-vertical-padding);
+  padding-bottom: var(--dc-cell-large-vertical-padding);
 }
 
 .dc-cell--large .dc-cell__title {
-  font-size: var(--van-cell-large-title-font-size);
+  font-size: var(--dc-cell-large-title-font-size);
 }
 
 .dc-cell--large .dc-cell__label {
-  font-size: var(--van-cell-large-label-font-size);
+  font-size: var(--dc-cell-large-label-font-size);
 }
 
 .dc-cell--large .dc-cell__value {
-  font-size: var(--van-cell-large-value-font-size);
+  font-size: var(--dc-cell-large-value-font-size);
 }
 
 .dc-cell__arrow {

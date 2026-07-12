@@ -49,10 +49,19 @@ export interface PluginConfigValues {
 
 export type DefineResult = { api?: Record<string, string | undefined | false> }
 export interface PluginConfigHooks {
+  /** Runs before Vue createApp. Preboot plugins must avoid Vue injection APIs in this hook. */
+  onPreboot?(context: {
+    platform: 'tauri' | 'web'
+    safe: boolean
+  }): (() => Promise<void> | void) | Promise<(() => Promise<void> | void) | void> | void
   /**
    * 返回值如果不为空，则会await后作为expose暴露
    */
   onBooted?(ins: DefineResult): (PromiseLike<object> | object) | void
+  /** Runs before a normal plugin is reloaded or the runtime is disposed. */
+  onUnload?(): Promise<void> | void
+  /** Runs once before an installed plugin and its persisted files are removed. */
+  onUninstall?(): Promise<void> | void
 }
 
 export type PluginConfig = PluginConfigValues & PluginConfigHooks

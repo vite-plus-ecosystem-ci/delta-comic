@@ -1,11 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { appLocalDataDir, join } from '@tauri-apps/api/path'
 
 import type { PluginConfig, PluginConfigFactory } from '@/plugin'
 
-const appLocalDataDirPath = await appLocalDataDir()
-export const getPluginFsPath = async (pluginName: string) =>
-  await join(appLocalDataDirPath, 'plugin', pluginName)
 export interface PluginInstallerDescription {
   title: string
   description: string

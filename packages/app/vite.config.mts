@@ -16,7 +16,7 @@ export default defineConfig(
           { default: vue },
           { default: vueJsx },
           { default: MotionResolver },
-          { NaiveUiResolver, VantResolver },
+          { NaiveUiResolver },
           { default: Components },
           { default: vueDevTools },
           { default: wasm },
@@ -53,12 +53,7 @@ export default defineConfig(
           vueJsx(),
           Components({
             dts: true,
-            resolvers: [
-              VantResolver(),
-              MotionResolver(),
-              NaiveUiResolver(),
-              ...deltaComicUiResolvers,
-            ],
+            resolvers: [MotionResolver(), NaiveUiResolver(), ...deltaComicUiResolvers],
             dtsTsx: false,
           }),
           tailwindcss(),
@@ -80,6 +75,7 @@ export default defineConfig(
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_ENV_DEBUG,
       },
+      worker: { format: 'es' },
       base: '/',
       server: {
         port: 5173,
@@ -94,6 +90,7 @@ export default defineConfig(
           ignored: ['**/src-tauri/**', 'src-tauri'],
         },
       },
+      test: { environment: 'node', include: ['src/**/*.test.ts'] },
       clearScreen: false,
       envPrefix: ['VITE_', 'TAURI_ENV_*'],
     }) as UserConfig,

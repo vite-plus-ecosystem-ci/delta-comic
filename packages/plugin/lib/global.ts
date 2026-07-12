@@ -24,6 +24,54 @@ class _Global {
   )
   public globalNodes = shallowReactive(new Array<Raw<Component>>())
 
+  private readonly globalNodeOwners = new Map<Raw<Component>, string>()
+  private readonly envExtendOwners = new Map<GlobalInjectionsConfig, string>()
+  private readonly registrationOwners: string[] = []
+
+  /**
+   * Associates global registrations made by a plugin with that plugin. The runtime
+   * deliberately loads plugins serially while this ambient scope is active.
+   */
+  public async withRegistrationOwner<T>(plugin: string, action: () => Promise<T>): Promise<T> {
+    this.registrationOwners.push(plugin)
+    try {
+      return await action()
+    } finally {
+      this.registrationOwners.pop()
+    }
+  }
+
+  private get registrationOwner() {
+    return this.registrationOwners.at(-1)
+  }
+
+  public addGlobalNode(component: Raw<Component>, plugin = this.registrationOwner) {
+    this.globalNodes.push(component)
+    if (plugin) this.globalNodeOwners.set(component, plugin)
+    return component
+  }
+
+  public addEnvExtend(config: GlobalInjectionsConfig, plugin = this.registrationOwner) {
+    this.envExtends.add(config)
+    if (plugin) this.envExtendOwners.set(config, plugin)
+    return config
+  }
+
+  /** Removes only registrations owned by the requested plugin. */
+  public removeOwnedRegistrations(plugin: string) {
+    for (let index = this.globalNodes.length - 1; index >= 0; index--) {
+      const component = this.globalNodes[index]
+      if (this.globalNodeOwners.get(component) !== plugin) continue
+      this.globalNodes.splice(index, 1)
+      this.globalNodeOwners.delete(component)
+    }
+    for (const config of this.envExtends) {
+      if (this.envExtendOwners.get(config) !== plugin) continue
+      this.envExtends.delete(config)
+      this.envExtendOwners.delete(config)
+    }
+  }
+
   public tabbar = shallowReactive(new Map<string, Search.Tabbar[]>())
   public addTabbar(plugin: string, ...tabbar: Search.Tabbar[]) {
     const old = this.tabbar.get(plugin) ?? []

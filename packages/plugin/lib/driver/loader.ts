@@ -1,18 +1,18 @@
-import { db, type PluginArchiveDB } from '@delta-comic/db'
+import type { PluginArchiveDB } from '@delta-comic/db'
 import { Mutex } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
-import { ref, type Ref } from 'vue'
+import type { Ref } from 'vue'
 
-import type { PluginConfigFactory } from '@/plugin'
+import type { PluginConfig, PluginConfigFactory } from '@/plugin'
 
 import { bootPlugin } from './booter'
+import { cleanupPlugin } from './cleanup'
 import type { PluginLoader } from './init/utils'
-import { formatPluginLoadPlanError, planPluginLoadOrder } from './loadPlan'
 
-const rawLoaders = import.meta.glob<PluginLoader>('./init/loader/*_*.ts', {
-  eager: true,
-  import: 'default',
-})
+const rawLoaders = import.meta.glob<PluginLoader>(
+  ['./init/loader/*_*.ts', '!./init/loader/*.test.ts'],
+  { eager: true, import: 'default' },
+)
 export const loaders = sortBy(Object.entries(rawLoaders), ([fname]) =>
   // oxlint-disable-next-line no-useless-escape
   Number(fname.match(/[\d\.]+(?=_)/)?.[0]),
@@ -21,17 +21,88 @@ export const loaders = sortBy(Object.entries(rawLoaders), ([fname]) =>
 const loadLocks = <Record<string, Mutex>>{}
 const getLoadLock = (pluginName: string) => (loadLocks[pluginName] ??= new Mutex())
 
-/** 加载单个插件：获取 config factory → bootPlugin，全程在锁内 */
-const bootConfig = async (
+export type PluginBootRollback = (
+  config: PluginConfig | undefined,
+  expectedName: string | undefined,
+) => Promise<void> | void
+
+export interface BootConfigOptions {
+  expectedName?: string
+  rollback?: PluginBootRollback
+}
+
+export const createPluginLoadingInfo = (): PluginLoadingInfo => ({
+  progress: { status: 'wait', stepsIndex: 0 },
+  steps: [{ name: '等待', description: '插件载入中' }],
+})
+
+export const ensurePluginLoadingInfo = (
+  info: Ref<Record<string, PluginLoadingInfo>>,
+  pluginName: string,
+) => (info.value[pluginName] ??= createPluginLoadingInfo())
+
+export const markPluginLoadError = (
+  info: Ref<Record<string, PluginLoadingInfo>>,
+  pluginName: string,
+  error: unknown,
+) => {
+  const loadingInfo = ensurePluginLoadingInfo(info, pluginName)
+  loadingInfo.progress = {
+    ...loadingInfo.progress,
+    errorReason: error instanceof Error ? error.message : String(error),
+    status: 'error',
+  }
+}
+
+/** 解析 config factory 并启动插件；任何中途失败都保留原始错误并执行回滚。 */
+export const bootConfig = async (
   configFactory: PluginConfigFactory,
   info: Ref<Record<string, PluginLoadingInfo>>,
+  options: BootConfigOptions = {},
 ) => {
-  const cfg = configFactory({ safe: true })
-  info.value[cfg.name] = {
-    progress: { status: 'wait', stepsIndex: 0 },
-    steps: [{ name: '等待', description: '插件载入中' }],
+  const { expectedName, rollback } = options
+  if (expectedName) ensurePluginLoadingInfo(info, expectedName)
+
+  let cfg: PluginConfig | undefined
+  try {
+    cfg = configFactory({ safe: true })
+    if (expectedName && cfg.name !== expectedName) {
+      throw new Error(`plugin name mismatch: ${expectedName} / ${cfg.name}`)
+    }
+    await bootResolvedConfig(cfg, info)
+    return cfg
+  } catch (error) {
+    const progressName = expectedName ?? cfg?.name
+    if (progressName) markPluginLoadError(info, progressName, error)
+    if (rollback) {
+      try {
+        await rollback(cfg, expectedName)
+      } catch (rollbackError) {
+        console.error('[plugin bootConfig] rollback failed', rollbackError)
+      }
+    }
+    throw error
   }
+}
+
+export const bootResolvedConfig = async (
+  cfg: ReturnType<PluginConfigFactory>,
+  info: Ref<Record<string, PluginLoadingInfo>>,
+) => {
+  ensurePluginLoadingInfo(info, cfg.name)
   await bootPlugin(cfg, info)
+}
+
+export const loadPluginConfig = async (meta: PluginArchiveDB.Archive) => {
+  const lock = getLoadLock(meta.pluginName)
+  const loader = loaders.find(value => value.name === meta.loaderName)
+  if (!loader) throw new Error(`未找到加载器 "${meta.loaderName}"，插件: ${meta.pluginName}`)
+  try {
+    await lock.acquire()
+    return await loader.load(meta)
+  } finally {
+    lock.release()
+  }
 }
 
 export const loadPlugin = async (
@@ -39,19 +110,19 @@ export const loadPlugin = async (
   info: Ref<Record<string, PluginLoadingInfo>>,
 ) => {
   console.log(`[plugin bootPlugin] booting name "${meta.pluginName}"`)
-  const lock = getLoadLock(meta.pluginName)
-
-  const loader = loaders.find(v => v.name === meta.loaderName)
-  if (!loader) throw new Error(`未找到加载器 "${meta.loaderName}"，插件: ${meta.pluginName}`)
-
+  ensurePluginLoadingInfo(info, meta.pluginName)
   try {
-    await lock.acquire()
-    const configFactory = await loader.load(meta)
-    if (configFactory) await bootConfig(configFactory, info)
-  } finally {
-    lock.release()
+    const configFactory = await loadPluginConfig(meta)
+    if (!configFactory) throw new Error(`插件 "${meta.pluginName}" 未导出默认配置`)
+    await bootConfig(configFactory, info, {
+      expectedName: meta.pluginName,
+      rollback: config => cleanupPlugin(config ?? ({ name: meta.pluginName } as PluginConfig)),
+    })
+    console.log(`[plugin bootPlugin] boot name done "${meta.pluginName}"`)
+  } catch (error) {
+    markPluginLoadError(info, meta.pluginName, error)
+    throw error
   }
-  console.log(`[plugin bootPlugin] boot name done "${meta.pluginName}"`)
 }
 
 export type PluginLoadingInfo = {
@@ -63,42 +134,5 @@ export type PluginLoadingInfo = {
   }
 }
 
-export const loadAllPlugins = () => {
-  const progress = ref<Record<string, PluginLoadingInfo>>({})
-
-  const promise = (async () => {
-    const plugins = await db.selectFrom('plugin').where('enable', 'is', true).selectAll().execute()
-
-    // 1. 通过 Kahn 拓扑排序将插件分层
-    const loadPlan = planPluginLoadOrder(plugins)
-
-    // 2. 检测无效依赖，输出具体路径
-    const planError = formatPluginLoadPlanError(loadPlan)
-    if (planError) {
-      throw new Error(planError)
-    }
-
-    // 3. 按层级加载，失败时终止后续
-    for (const level of loadPlan.levels) {
-      const results = await Promise.allSettled(level.map(p => loadPlugin(p, progress)))
-
-      for (const [i, r] of results.entries()) {
-        if (r.status === 'rejected') {
-          const pluginName = level[i].pluginName
-          const reason = r.reason instanceof Error ? r.reason.message : String(r.reason)
-          console.error(`[plugin] 加载失败: ${pluginName}`, r.reason)
-
-          progress.value[pluginName].progress = {
-            ...progress.value[pluginName].progress,
-            errorReason: reason,
-            status: 'error',
-          }
-        }
-      }
-    }
-
-    console.log('[plugin bootPlugin] all load done')
-  })()
-
-  return Object.assign(promise, progress)
-}
+export const loadAllPlugins = () =>
+  import('./runtime').then(({ pluginRuntime }) => pluginRuntime.loadNormal())

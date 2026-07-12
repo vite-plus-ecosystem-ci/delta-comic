@@ -33,6 +33,7 @@ type TestPluginContext = { emitFile(file: TestEmittedFile): unknown }
 type TestDeltaComicPlugin = {
   name: string
   enforce?: 'post' | 'pre'
+  config?(config: unknown): any
   generateBundle?(
     this: TestPluginContext,
     options: unknown,
@@ -53,6 +54,14 @@ const getBuildPlugin = (): TestDeltaComicPlugin => {
 }
 
 describe('deltaComic vite plugin', () => {
+  it('forces a browser-safe single-file bundle with inlined assets', () => {
+    const config = getBuildPlugin().config?.({})
+
+    expect(config.build.assetsInlineLimit).toBe(Number.POSITIVE_INFINITY)
+    expect(config.build.cssCodeSplit).toBe(false)
+    expect(config.build.rollupOptions.output.inlineDynamicImports).toBe(true)
+  })
+
   it('emits plugin.zip and keeps manifest.json outside the archive', async () => {
     const plugin = getBuildPlugin()
     const emitted: TestEmittedFile[] = []

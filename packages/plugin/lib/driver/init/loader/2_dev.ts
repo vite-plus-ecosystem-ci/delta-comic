@@ -1,19 +1,17 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { join } from '@tauri-apps/api/path'
-import * as fs from '@tauri-apps/plugin-fs'
 
 import type { PluginConfigFactory } from '@/plugin'
 
-import { decodeDevMeta, installDev } from '../native'
+import { decodeDevMeta } from '../native'
+import { installDevCode, readPluginText } from '../storage'
 import { PluginLoader } from '../utils'
-import { getPluginFsPath } from '../utils'
 
 export default new (class extends PluginLoader {
   public override name = 'dev'
 
   public override async install(file: File): Promise<PluginArchiveDB.Meta> {
     const code = await file.text()
-    return await installDev(code)
+    return await installDevCode(code)
   }
   public override canInstall(file: File): boolean {
     return file.name.endsWith('.js')
@@ -22,16 +20,18 @@ export default new (class extends PluginLoader {
   public override async load(
     pluginMeta: PluginArchiveDB.Archive,
   ): Promise<PluginConfigFactory | undefined> {
-    const code = await fs.readTextFile(
-      await join(await getPluginFsPath(pluginMeta.pluginName), 'us.js'),
-    )
+    const code = await readPluginText(pluginMeta.pluginName, 'us.js')
     const lastIndex = code.lastIndexOf(';') + 1
 
     const blob = new Blob([code.slice(0, lastIndex)], { type: 'text/javascript' })
 
     const url = URL.createObjectURL(blob)
-    const mod: { default: any } = await import(/* @vite-ignore */ url)
-    return mod.default as PluginConfigFactory | undefined
+    try {
+      const mod: { default: any } = await import(/* @vite-ignore */ url)
+      return mod.default as PluginConfigFactory | undefined
+    } finally {
+      URL.revokeObjectURL(url)
+    }
   }
   public override async decodeMeta(file: File): Promise<PluginArchiveDB.Meta> {
     const code = await file.text()

@@ -55,6 +55,7 @@ describe('webviewAuth', () => {
   })
 
   it('opens a page, waits for callback data, normalizes storage, and closes the page', async () => {
+    Object.defineProperty(window, '__TAURI_INTERNALS__', { configurable: true, value: {} })
     let reads = 0
     mocks.invoke.mockImplementation(async (command: string) => {
       if (command === 'plugin:utils|webview_open_page') {
@@ -117,6 +118,40 @@ describe('webviewAuth', () => {
     expect(mocks.invoke).toHaveBeenCalledWith('plugin:utils|webview_close_page', {
       label: 'delta-auth-1',
     })
+  })
+
+  it('uses a popup and postMessage callback in a normal browser', async () => {
+    let messageListener: ((event: MessageEvent) => void) | undefined
+    const popup = { close: vi.fn(), closed: false }
+    const browserWindow = {
+      $api: {},
+      addEventListener: vi.fn((type: string, listener: (event: MessageEvent) => void) => {
+        if (type === 'message') messageListener = listener
+      }),
+      open: vi.fn(() => popup),
+      removeEventListener: vi.fn(),
+    }
+    Object.defineProperty(globalThis, 'window', { configurable: true, value: browserWindow })
+
+    const { PageWebviewAuth } = await import('./webviewAuth')
+    const auth = new PageWebviewAuth<{ ok: boolean }>(
+      'https://auth.test/login',
+      { css: '', js: '' },
+      { pollInterval: 1, title: 'Login' },
+    )
+    const result = auth.mount()
+    await vi.waitFor(() => expect(messageListener).toBeTypeOf('function'))
+    messageListener?.({
+      data: { type: 'delta-comic:auth-callback', value: { ok: true } },
+      source: popup,
+    } as unknown as MessageEvent)
+
+    await expect(result).resolves.toMatchObject({
+      callbackValue: { ok: true },
+      href: 'https://auth.test/login',
+      title: 'Login',
+    })
+    expect(popup.close).toHaveBeenCalledOnce()
   })
 
   it('injects code into a same-origin iframe and resolves when authCallback is called', async () => {

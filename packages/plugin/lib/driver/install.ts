@@ -7,6 +7,7 @@ import { useConfig } from '@/config'
 
 import type { PluginInstaller } from './init/utils'
 import { loaders } from './loader'
+import { pluginRuntime } from './runtime'
 
 const clampProgress = (progress: number) => Math.min(100, Math.max(0, progress))
 
@@ -151,3 +152,5 @@ export const updatePlugin = async (
 
     await installDepends(m, meta, __installedPlugins)
   })
+
+export const uninstallPlugin = (pluginName: string) => pluginRuntime.uninstall(pluginName)

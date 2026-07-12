@@ -26,8 +26,9 @@ const createDefaultData = <T extends ConfigDescription>(config: T): FormResult<T
     Object.entries(config).map(([name, desc]) => [name, desc.defaultValue]),
   ) as FormResult<T>
 
-const parseJson = <T>(value: string | null | undefined, fallback: T): T => {
+const parseJson = <T>(value: unknown, fallback: T): T => {
   if (!value) return cloneValue(fallback)
+  if (typeof value !== 'string') return cloneValue(value as T)
   try {
     return JSON.parse(value) as T
   } catch (error) {
@@ -72,7 +73,9 @@ export const useConfig = <T extends ConfigDescription>(
         .executeTakeFirst()
       data.value = parseJson(stored?.data, defaultData)
       hydrated = true
-      if (!stored || stored.form !== JSON.stringify(form)) persist()
+      const storedForm =
+        typeof stored?.form === 'string' ? stored.form : JSON.stringify(stored?.form)
+      if (!stored || storedForm !== JSON.stringify(form)) persist()
     } catch (error) {
       console.warn('[db] failed to load config value', error)
       data.value = cloneValue(defaultData)

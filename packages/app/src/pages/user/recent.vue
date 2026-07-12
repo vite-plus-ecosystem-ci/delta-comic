@@ -27,7 +27,7 @@ const searcher = useTemplateRef('searcher')
 const { remove } = RecentDB.useRemove()
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: RecentDB.Item[]) => {
-  actionController.value!.showSelect = false
+  if (actionController.value) actionController.value.showSelect = false
   await remove({ items: item.map(v => v.timestamp) })
   actionController.value?.selectList.clear()
 }
@@ -44,7 +44,7 @@ const $dialog = useDialog()
       :action="[
         {
           text: '删除',
-          color: 'var(--van-danger-color)',
+          color: 'var(--dc-error)',
           onTrigger(sel) {
             $dialog.create({
               type: 'warning',
@@ -64,9 +64,9 @@ const $dialog = useDialog()
         <template #rightNav>
           <NIcon
             size="calc(var(--spacing) * 6.5)"
-            class="van-haptics-feedback"
+            class="dc-interactive"
             @click="searcher && (searcher!.isSearching = true)"
-            color="var(--van-text-color-2)"
+            color="var(--dc-text-secondary)"
           >
             <Icons.material.SearchFilled />
           </NIcon>
@@ -76,12 +76,10 @@ const $dialog = useDialog()
           <Searcher ref="searcher" v-model:filters-history="filters" />
         </template>
         <template #bottomNav>
-          <div
-            class="flex h-12 w-full items-center justify-end bg-(--van-background-2) pt-4 pr-3 pb-2"
-          >
+          <div class="flex h-12 w-full items-center justify-end bg-(--dc-surface) pt-4 pr-3 pb-2">
             <NIcon
               size="1.5rem"
-              class="van-haptics-feedback"
+              class="dc-interactive"
               @click="actionController!.showSelect = true"
             >
               <svg
@@ -109,20 +107,25 @@ const $dialog = useDialog()
           :padding="0"
           :minHeight="0"
         >
-          <VanSwipeCell class="relative w-full">
-            <component :is="SelectPacker" :it="item">
-              <RecentCard :height="130" :item />
-            </component>
-            <template #right>
-              <VanButton
-                square
-                text="删除"
-                type="danger"
-                class="h-full!"
-                @click="removeItems([item])"
-              />
-            </template>
-          </VanSwipeCell>
+          <div class="mx-auto flex w-full max-w-5xl items-stretch border-b border-(--dc-border)">
+            <div class="min-w-0 flex-1">
+              <component :is="SelectPacker" :it="item">
+                <RecentCard :height="130" :item />
+              </component>
+            </div>
+            <div class="flex w-18 shrink-0 items-center justify-center px-2 sm:w-24">
+              <NPopconfirm
+                positive-text="删除"
+                negative-text="取消"
+                @positive-click="removeItems([item])"
+              >
+                <template #trigger>
+                  <NButton type="error" secondary class="w-full">删除</NButton>
+                </template>
+                确认从稍后再看中移除？
+              </NPopconfirm>
+            </div>
+          </div>
         </DcWaterfall>
       </Layout>
     </Action>

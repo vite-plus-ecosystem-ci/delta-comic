@@ -1,6 +1,4 @@
-import Database from '@tauri-apps/plugin-sql'
-import { CamelCasePlugin, Kysely } from 'kysely'
-import { TauriSqliteDialect } from 'kysely-dialect-tauri'
+import { CamelCasePlugin, type Dialect, Kysely } from 'kysely'
 import { SerializePlugin } from 'kysely-plugin-serialize'
 
 import type * as FavouriteDB from './favourite'
@@ -32,14 +30,27 @@ export interface DB {
 }
 
 console.log('[db] loading')
-const database = await Database.load(`sqlite:app.db`)
 
-export const db = await (async () => {
-  return new Kysely<DB>({
-    dialect: new TauriSqliteDialect({ database }),
-    plugins: [new CamelCasePlugin(), new SerializePlugin()],
-  })
-})()
+export const isTauriRuntime = () => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
+const createDialect = async (): Promise<Dialect> => {
+  if (isTauriRuntime()) {
+    const [{ default: Database }, { TauriSqliteDialect }] = await Promise.all([
+      import('@tauri-apps/plugin-sql'),
+      import('kysely-dialect-tauri'),
+    ])
+    const database = await Database.load('sqlite:app.db')
+    return new TauriSqliteDialect({ database })
+  }
+
+  const { createWebDialect } = await import('./web')
+  return createWebDialect()
+}
+
+export const db = new Kysely<DB>({
+  dialect: await createDialect(),
+  plugins: [new CamelCasePlugin(), new SerializePlugin()],
+})
 
 export * as DBUtils from './utils'
 

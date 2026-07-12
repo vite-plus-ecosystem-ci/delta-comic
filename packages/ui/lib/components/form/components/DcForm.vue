@@ -2,6 +2,7 @@
 import type { FormConfigure, FormResult } from '@delta-comic/model'
 import { isArray } from 'es-toolkit/compat'
 import { NForm } from 'naive-ui'
+import { computed } from 'vue'
 
 import type { FormRowSlot } from '../type'
 
@@ -14,7 +15,8 @@ defineProps<{
    */
   overrideRow?: boolean | O
 }>()
-const result = defineModel<FormResult<T>>({ default: {} })
+const result = defineModel<FormResult<T>>({ required: true })
+const formModel = computed(() => result.value as Record<string, any>)
 
 const slots = defineSlots<{
   row?<K extends O[number]>(args: FormRowSlot<T, O, K>): any
@@ -24,18 +26,18 @@ const slots = defineSlots<{
 </script>
 
 <template>
-  <NForm :model="result">
+  <NForm :model="formModel">
     <slot name="top" :config="configs" />
     <template v-for="[path, config] of Object.entries(configs)">
       <slot
         name="row"
-        :modelValue="result[path]"
-        :setModelValue="v => ((result[path] as any) = v)"
+        :modelValue="formModel[path]"
+        :setModelValue="v => (formModel[path] = v)"
         :path
         :config="config as any"
         v-if="slots.row && (isArray(overrideRow) ? overrideRow.includes(path) : overrideRow)"
       />
-      <DcFormItem v-model="result[path]" :path :config v-else />
+      <DcFormItem v-model="formModel[path]" :path :config v-else />
     </template>
     <slot name="bottom" :config="configs" />
   </NForm>

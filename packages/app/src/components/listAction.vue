@@ -2,13 +2,19 @@
 import { useConfig } from '@delta-comic/plugin'
 import { createReusableTemplate } from '@vueuse/core'
 import { motion } from 'motion-v'
-import type { PopoverAction } from 'vant'
-import { shallowRef, shallowReactive } from 'vue'
+import { NButton, NCheckbox, NDropdown, type DropdownOption } from 'naive-ui'
+import { computed, shallowRef, shallowReactive } from 'vue'
 
-const $props = defineProps<{
-  values: T[]
-  action: (PopoverAction & { onTrigger: (sel: T[]) => void })[]
-}>()
+export interface ListActionOption<T> {
+  text: string
+  icon?: string
+  color?: string
+  disabled?: boolean
+  className?: string
+  onTrigger: (selected: T[]) => void
+}
+
+const $props = defineProps<{ values: T[]; action: ListActionOption<T>[] }>()
 
 const [DefineSelectPacker, SelectPacker] = createReusableTemplate<{ it: T }>()
 
@@ -21,6 +27,19 @@ const cancel = () => {
 const selectAll = () => {
   selectList.clear()
   for (const item of $props.values) selectList.add(item)
+}
+
+const actionOptions = computed<DropdownOption[]>(() =>
+  $props.action.map((action, index) => ({
+    key: index,
+    label: action.text,
+    disabled: action.disabled,
+    props: { class: action.className, style: action.color ? { color: action.color } : undefined },
+  })),
+)
+
+const triggerAction = (key: string | number) => {
+  $props.action[Number(key)]?.onTrigger([...selectList])
 }
 
 const [DefineActionBar, ActionBar] = createReusableTemplate()
@@ -62,9 +81,9 @@ const config = useConfig()
               :exit="{ translateX: '100%' }"
               v-if="showSelect"
             >
-              <VanCheckbox
-                :model-value="selectList.has(item)"
-                class="z-1 rounded-full bg-(--van-background-2)"
+              <NCheckbox
+                :checked="selectList.has(item)"
+                class="z-1 rounded-full bg-(--dc-background-2)"
               />
             </Motion>
           </div>
@@ -76,14 +95,14 @@ const config = useConfig()
     <AnimatePresence>
       <motion.div
         v-if="showSelect"
-        class="text-normal fixed top-safe-offset-12 left-1/2 z-2 flex h-11 w-[95%] -translate-x-1/2 items-center overflow-hidden rounded-lg bg-(--van-background-2) font-normal shadow-lg"
+        class="text-normal fixed top-safe-offset-12 left-1/2 z-2 flex h-11 w-[95%] -translate-x-1/2 items-center overflow-hidden rounded-lg bg-(--dc-background-2) font-normal shadow-lg"
         :initial="{ translateY: '-100%', opacity: 0 }"
         :animate="{ translateY: '0%', opacity: 1 }"
         :exit="{ translateY: '-100%', opacity: 0 }"
       >
         <div class="ml-2 flex w-full items-center">
           <span
-            class="rounded bg-(--van-gray-1) px-1.5 text-[16px]"
+            class="rounded bg-(--dc-gray-1) px-1.5 text-[16px]"
             :class="[config.isDark && 'bg-white/10!']"
           >
             已选<span class="px-0.5 text-(--p-color)">{{ selectList.size }}</span
@@ -92,16 +111,15 @@ const config = useConfig()
         </div>
         <div class="flex items-center text-nowrap">
           <NButton class="h-11!" quaternary @click="selectAll()">全选</NButton>
-          <VanButton square type="warning" @click="cancel()">取消</VanButton>
-          <VanPopover
-            :actions="action"
-            @select="(q: { onTrigger: Function }) => q.onTrigger([...selectList])"
+          <NButton class="h-11! rounded-none!" type="warning" @click="cancel()">取消</NButton>
+          <NDropdown
+            trigger="click"
+            :options="actionOptions"
+            @select="triggerAction"
             placement="bottom-end"
           >
-            <template #reference>
-              <VanButton square type="primary">操作</VanButton>
-            </template>
-          </VanPopover>
+            <NButton class="h-11! rounded-none!" type="primary">操作</NButton>
+          </NDropdown>
         </div>
       </motion.div>
     </AnimatePresence>

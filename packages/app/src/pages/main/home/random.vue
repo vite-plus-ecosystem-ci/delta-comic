@@ -4,9 +4,8 @@ import { usePluginStore } from '@delta-comic/plugin'
 import { useTemp } from '@delta-comic/utils'
 import { useInfiniteQuery } from '@pinia/colada'
 import { until, useResizeObserver } from '@vueuse/core'
-import { random } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
-import { computed, inject, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { Icons } from '@/icons'
@@ -24,8 +23,10 @@ const randomProvider = computed(() =>
     .filter(v => !!v),
 )
 const getRandomItems = (signal?: AbortSignal) => {
-  const index = random(randomProvider.value.length)
-  return randomProvider.value[index](signal)
+  const providers = randomProvider.value
+  if (providers.length === 0) return Promise.resolve([])
+  const index = Math.floor(Math.random() * providers.length)
+  return providers[index]!(signal)
 }
 
 let index = 0
@@ -38,7 +39,7 @@ const source = useInfiniteQuery({
   },
 })
 
-const containBound = ref<DOMRectReadOnly>()
+const containBound = shallowRef<DOMRectReadOnly>()
 useResizeObserver(
   () => <HTMLDivElement | null>waterfall.value?.scrollParent?.firstElementChild,
   ([b]) => (containBound.value = b.contentRect),
@@ -80,15 +81,22 @@ watch(
       free-height
       :key="`${index}|${item.id}`"
     >
-      <NIcon color="var(--van-text-color-2)" size="14px">
+      <NIcon color="var(--dc-text-secondary)" size="14px">
         <Icons.material.DrawOutlined />
       </NIcon>
-      <span class="van-ellipsis ml-0.5 max-w-2/3 text-xs text-(--van-text-color-2)">{{
+      <span class="dc-ellipsis ml-0.5 max-w-2/3 text-xs text-(--dc-text-secondary)">{{
         item.author.join(',')
       }}</span>
       <template #smallTopInfo>
         <span v-if="item.viewNumber">
-          <VanIcon name="eye-o" class="mr-0.5" size="14px" />
+          <NIcon class="mr-0.5" size="14">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 5c5.5 0 9.5 4.7 10.6 6.1a1.5 1.5 0 0 1 0 1.8C21.5 14.3 17.5 19 12 19S2.5 14.3 1.4 12.9a1.5 1.5 0 0 1 0-1.8C2.5 9.7 6.5 5 12 5Zm0 2c-3.8 0-7 3-8.5 5c1.5 2 4.7 5 8.5 5s7-3 8.5-5C19 10 15.8 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5Z"
+              />
+            </svg>
+          </NIcon>
           <span>{{ item.viewNumber }}</span>
         </span>
         <span v-if="item.likeNumber">
@@ -98,9 +106,11 @@ watch(
           <span>{{ item.likeNumber }}</span>
         </span>
         <template v-else>
-          <span v-for="category of item.categories.slice(0, 2)">
-            <VanIcon class="mr-0.5" name="apps-o" size="14px" color="white" />
-            <span>{{ category }}</span>
+          <span v-for="category of item.categories.slice(0, 2)" :key="category.name">
+            <NIcon class="mr-0.5" size="14" color="white">
+              <Icons.material.AutoAwesomeMosaicOutlined />
+            </NIcon>
+            <span>{{ category.name }}</span>
           </span>
         </template>
         <span class="absolute right-1">{{ item.length }}</span>

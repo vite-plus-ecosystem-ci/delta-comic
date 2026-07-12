@@ -26,12 +26,12 @@ const isShowAllList = shallowRef(false)
     >
       <!-- nav -->
       <div
-        class="van-hairline--bottom relative flex h-12 w-full items-end justify-center bg-(--van-background-2) pt-safe text-lg font-semibold"
+        class="dc-hairline--bottom relative flex h-12 w-full items-end justify-center bg-(--dc-surface) pt-safe text-lg font-semibold"
       >
         <span class="pb-1">关注</span>
       </div>
       <!-- tab -->
-      <div class="flex h-fit w-full justify-around bg-(--van-background-2) py-1 text-nowrap">
+      <div class="flex h-fit w-full justify-around bg-(--dc-surface) py-1 text-nowrap">
         <NButton
           tertiary
           :type="isOnAllPage ? 'primary' : 'tertiary'"
@@ -53,12 +53,12 @@ const isShowAllList = shallowRef(false)
       </div>
       <!-- more -->
       <div
-        class="relative flex w-full items-center bg-(--van-background-2) pt-3 pb-3 text-nowrap"
+        class="relative flex w-full items-center bg-(--dc-surface) pt-3 pb-3 text-nowrap"
         @click="isShowAllList = true"
       >
         <div class="ml-3 h-fit font-semibold">最常访问</div>
         <div
-          class="absolute top-safe-offset-3 right-3 flex items-center text-xs text-(--van-text-color-2)"
+          class="absolute top-safe-offset-3 right-3 flex items-center text-xs text-(--dc-text-secondary)"
         >
           更多
           <NIcon>
@@ -68,7 +68,7 @@ const isShowAllList = shallowRef(false)
       </div>
       <!-- authors -->
       <div
-        class="scrollbar flex h-fit w-full gap-1 overflow-x-auto overflow-y-hidden bg-(--van-background-2) px-1 py-1"
+        class="scrollbar flex h-fit w-full gap-1 overflow-x-auto overflow-y-hidden bg-(--dc-surface) px-1 py-1"
       >
         <DcState
           :state="subscribeQuery.state.value"
@@ -84,7 +84,7 @@ const isShowAllList = shallowRef(false)
             <template v-if="sub.type == 'author'">
               <DcAuthorIcon :size-spacing="12" :author="sub.author" />
               <div
-                class="van-multi-ellipsis--l2 mt-1 w-18 text-center text-xs text-wrap text-(--van-text-color-2)"
+                class="dc-clamp-2 mt-1 w-18 text-center text-xs text-wrap text-(--dc-text-secondary)"
               >
                 {{ sub.author.label }}
               </div>
@@ -108,7 +108,7 @@ const isShowAllList = shallowRef(false)
     >
       <div
         v-for="sub of <SubscribeDB.Item[]>data"
-        class="van-hairline--bottom relative w-full py-2"
+        class="dc-hairline--bottom relative w-full py-2"
         @click="
           () => {
             isShowAllList = false
@@ -117,14 +117,14 @@ const isShowAllList = shallowRef(false)
         "
       >
         <DcVar :value="sub.author" v-if="sub.type == 'author'" v-slot="{ value: author }">
-          <div class="van-ellipsis flex w-fit items-center pl-2 text-[16px] text-(--p-color)">
+          <div class="dc-ellipsis flex w-fit items-center pl-2 text-[16px] text-(--p-color)">
             <DcAuthorIcon :size-spacing="8.5" :author class="mx-2" />
             <div class="flex w-full flex-col text-nowrap">
               <div class="flex items-center text-(--nui-primary-color)">
                 {{ author.label }}
               </div>
               <div
-                class="-mt-0.5 flex max-w-2/3 items-center text-[11px] text-(--van-text-color-2)"
+                class="-mt-0.5 flex max-w-2/3 items-center text-[11px] text-(--dc-text-secondary)"
               >
                 {{ author.description }}
               </div>

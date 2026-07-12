@@ -94,7 +94,7 @@ const $dialog = useDialog()
           },
           {
             text: '删除',
-            color: 'var(--van-danger-color)',
+            color: 'var(--dc-error)',
             onTrigger(sel) {
               $dialog.create({
                 type: 'warning',
@@ -127,17 +127,17 @@ const $dialog = useDialog()
           <template #rightNav>
             <NIcon
               size="calc(var(--spacing) * 6.5)"
-              class="van-haptics-feedback"
-              color="var(--van-text-color-2)"
+              class="dc-interactive"
+              color="var(--dc-text-secondary)"
               @click="searcher && (searcher!.isSearching = true)"
             >
               <Icons.material.SearchFilled />
             </NIcon>
             <NIcon
               size="1.5rem"
-              class="van-haptics-feedback"
+              class="dc-interactive"
               @click="actionController!.showSelect = true"
-              color="var(--van-text-color-2)"
+              color="var(--dc-text-secondary)"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -154,8 +154,8 @@ const $dialog = useDialog()
             </NIcon>
             <NIcon
               size="calc(var(--spacing) * 6.5)"
-              class="van-haptics-feedback rotate-90"
-              color="var(--van-text-color-2)"
+              class="dc-interactive rotate-90"
+              color="var(--dc-text-secondary)"
               @click="isShowMore = true"
             >
               <Icons.material.MoreHorizRound />
@@ -164,8 +164,8 @@ const $dialog = useDialog()
           <template #bottomNav>
             <div class="mt-3 mb-4 flex w-full flex-col pl-5" v-if="card">
               <div class="mb-1 text-lg font-semibold">{{ card.title }}</div>
-              <div class="mb-2 text-sm text-(--van-text-color-2)">{{ card.description }}</div>
-              <div class="text-xs text-(--van-text-color-2)/80">{{ items.length }}个内容</div>
+              <div class="mb-2 text-sm text-(--dc-text-secondary)">{{ card.description }}</div>
+              <div class="text-xs text-(--dc-text-secondary)/80">{{ items.length }}个内容</div>
             </div>
           </template>
           <template #topNav>

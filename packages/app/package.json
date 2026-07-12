@@ -35,7 +35,6 @@
     "semver": "catalog:",
     "tauri-plugin-better-cors-fetch": "catalog:",
     "tauri-plugin-m3": "catalog:",
-    "vant": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
@@ -56,8 +55,7 @@
     "vite-plugin-wasm": "catalog:",
     "vite-plus": "catalog:",
     "vue-component-type-helpers": "catalog:",
-    "vue-tsc": "catalog:",
-    "vue-tsgo": "catalog:"
+    "vue-tsc": "catalog:"
   },
   "readme": "../../README.md"
 }

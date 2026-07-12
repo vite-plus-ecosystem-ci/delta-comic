@@ -42,6 +42,8 @@ export const deltaComic = (
     config(config: any) {
       return merge(config, {
         build: {
+          assetsInlineLimit: Number.POSITIVE_INFINITY,
+          cssCodeSplit: false,
           lib: {
             entry: './src/main.ts',
             fileName: 'index',
@@ -49,6 +51,7 @@ export const deltaComic = (
             name: `$$lib$$.__DcPlugin__${meta.name.id.replace('-', '_')}__`,
             formats: ['es'],
           },
+          rollupOptions: { output: { inlineDynamicImports: true } },
         },
       })
     },

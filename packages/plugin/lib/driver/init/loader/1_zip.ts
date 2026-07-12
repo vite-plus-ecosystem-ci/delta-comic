@@ -1,14 +1,37 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { convertFileSrc } from '@tauri-apps/api/core'
-import { join } from '@tauri-apps/api/path'
-import * as fs from '@tauri-apps/plugin-fs'
 import JSZip from 'jszip'
 
 import type { PluginConfigFactory } from '@/plugin'
 
-import { createNativeOperationId, decodeZipMeta, installZip, writeNativeTempFile } from '../native'
+import {
+  createPluginAssetUrl,
+  createPluginModuleUrl,
+  installZipFile,
+  isTauriRuntime,
+  listPluginFiles,
+  readPluginText,
+} from '../storage'
 import { PluginLoader, type PluginLoaderInstallContext } from '../utils'
-import { getPluginFsPath } from '../utils'
+
+export const rewriteCssAssetUrls = async (
+  cssPath: string,
+  css: string,
+  createAssetUrl: (path: string) => Promise<string>,
+) => {
+  const pattern = /url\(\s*(?:(["'])(.*?)\1|([^)'"\s][^)]*?))\s*\)/g
+  let output = ''
+  let cursor = 0
+  for (const match of css.matchAll(pattern)) {
+    const index = match.index
+    const rawUrl = (match[2] ?? match[3] ?? '').trim()
+    if (!rawUrl || /^(?:#|blob:|data:|https?:|\/\/)/i.test(rawUrl)) continue
+    const resolved = new URL(rawUrl, `https://plugin.local/${cssPath}`)
+    const assetUrl = await createAssetUrl(resolved.pathname.slice(1))
+    output += css.slice(cursor, index) + `url("${assetUrl}${resolved.search}${resolved.hash}")`
+    cursor = index + match[0].length
+  }
+  return output + css.slice(cursor)
+}
 
 export default new (class extends PluginLoader {
   public override name = 'zip'
@@ -17,10 +40,7 @@ export default new (class extends PluginLoader {
     context?: PluginLoaderInstallContext,
   ): Promise<PluginArchiveDB.Meta> {
     console.log('[loader zip] begin:', file)
-    const zipPath = await writeNativeTempFile(file)
-    console.log('[loader zip] temp:', zipPath)
-    const opId = createNativeOperationId()
-    return await installZip(zipPath, opId, progress => {
+    return await installZipFile(file, progress => {
       const percent = progress.total > 0 ? (progress.current / progress.total) * 90 : 0
       context?.report({
         description: progress.path ? `解压: ${progress.path}` : '解压插件',
@@ -36,41 +56,44 @@ export default new (class extends PluginLoader {
     pluginMeta: PluginArchiveDB.Archive,
   ): Promise<PluginConfigFactory | undefined> {
     if (!pluginMeta.meta.entry) throw new Error('not found entry')
-    const baseDir = await getPluginFsPath(pluginMeta.pluginName)
-    console.log('[loader zip] baseDir:', baseDir, pluginMeta.meta.entry)
-    const src = decodeURIComponent(
-      convertFileSrc(await join(baseDir, pluginMeta.meta.entry.jsPath), 'local'),
-    )
-    const config = await import(/* @vite-ignore */ src)
+    const files = await listPluginFiles(pluginMeta.pluginName)
+    const javascriptFiles = files.filter(path => /\.(?:js|mjs)$/i.test(path))
+    if (!isTauriRuntime() && javascriptFiles.length > 1) {
+      throw new Error(
+        `Web 端插件必须构建为单一 JavaScript 文件；发现: ${javascriptFiles.join(', ')}`,
+      )
+    }
+    const src = await createPluginModuleUrl(pluginMeta.pluginName, pluginMeta.meta.entry.jsPath)
+    const config = await import(/* @vite-ignore */ src).finally(() => {
+      if (src.startsWith('blob:')) URL.revokeObjectURL(src)
+    })
     const result = config.default as PluginConfigFactory | undefined
 
     if (!pluginMeta.meta.entry?.cssPath) return result
     const cssPath = pluginMeta.meta.entry.cssPath
 
     if (cssPath == 'auto') {
-      var filePath = ''
-      // take first
-      const files = await fs.readDir(baseDir)
-      for (const file of files) {
-        if (file.name.endsWith('.css')) {
-          var filePath = file.name
-          break
-        }
-      }
+      const discovered = files.find(path => path.endsWith('.css'))
+      if (!discovered) return result
+      var filePath = discovered
     } else var filePath = cssPath
 
-    const style = document.createElement('link')
-    style.addEventListener('error', err => {
-      throw err
-    })
-    style.rel = 'stylesheet'
-    style.href = decodeURIComponent(convertFileSrc(await join(baseDir, filePath), 'local'))
+    const style = document.createElement('style')
+    style.dataset.plugin = pluginMeta.pluginName
+    style.textContent = await rewriteCssAssetUrls(
+      filePath,
+      await readPluginText(pluginMeta.pluginName, filePath),
+      path => createPluginAssetUrl(pluginMeta.pluginName, path),
+    )
     document.head.appendChild(style)
 
     return result
   }
   public override async decodeMeta(file: File): Promise<PluginArchiveDB.Meta> {
-    return await decodeZipMeta(await writeNativeTempFile(file))
+    const zip = await JSZip.loadAsync(file)
+    const manifest = zip.file('manifest.json')
+    if (!manifest) throw new Error('plugin archive does not contain manifest.json')
+    return JSON.parse(await manifest.async('text')) as PluginArchiveDB.Meta
   }
 
   public override isMetaFile(file: File): boolean {

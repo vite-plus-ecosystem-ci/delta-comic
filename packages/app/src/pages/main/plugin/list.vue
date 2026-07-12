@@ -2,6 +2,7 @@
 import { PluginArchiveDB } from '@delta-comic/db'
 import { Install } from '@delta-comic/plugin'
 import { memoize } from 'es-toolkit'
+import type { DropdownOption } from 'naive-ui'
 import semver from 'semver'
 import { shallowReactive } from 'vue'
 
@@ -31,13 +32,44 @@ const getCardClass = (plugin: PluginArchiveDB.Archive) => {
 }
 
 const { toggle } = PluginArchiveDB.useToggleEnable()
+const { setKind } = PluginArchiveDB.useSetKind()
 
 const codeArchives = PluginArchiveDB.useQuery(
   db => db.selectAll().execute(),
   [],
   () => [],
 )
-const { remove } = PluginArchiveDB.useRemove()
+const actionsFor = (plugin: PluginArchiveDB.Archive): DropdownOption[] => [
+  { key: 'toggle', label: plugin.enable ? '禁用' : '启用' },
+  {
+    key: 'kind-normal',
+    label: '设为普通插件',
+    disabled: (plugin.meta.kind ?? 'normal') === 'normal',
+  },
+  { key: 'kind-preboot', label: '设为预启动插件', disabled: plugin.meta.kind === 'preboot' },
+  { key: 'update', label: '从下载源更新', disabled: updating.has(plugin.pluginName) },
+  { key: 'remove', label: '删除' },
+]
+
+const handleAction = async (plugin: PluginArchiveDB.Archive, key: string) => {
+  switch (key) {
+    case 'toggle':
+      await toggle({ keys: [plugin.pluginName] })
+      break
+    case 'kind-normal':
+      await setKind({ kind: 'normal', pluginName: plugin.pluginName })
+      break
+    case 'kind-preboot':
+      await setKind({ kind: 'preboot', pluginName: plugin.pluginName })
+      break
+    case 'update':
+      await updatePlugin(plugin)
+      break
+    case 'remove':
+      await Install.uninstallPlugin(plugin.pluginName)
+      await codeArchives.refetch()
+  }
+}
 </script>
 
 <template>
@@ -59,35 +91,27 @@ const { remove } = PluginArchiveDB.useRemove()
         >
           <template #header-extra>
             <!-- n-base-select-menu__empty -->
-            <span class="font-light text-(--text-color-3) italic">{{
-              plugin.enable ? '已启用' : '未启用'
-            }}</span>
-            <VanPopover
-              :actions="[
-                {
-                  text: plugin.enable ? '禁用' : '启用',
-                  onClick: () => void toggle({ keys: [plugin.pluginName] }),
-                },
-                { text: '删除', onClick: () => void remove({ keys: [plugin.pluginName] }) },
-                {
-                  text: '从下载源更新',
-                  disabled: updating.has(plugin.pluginName),
-                  onClick: () => updatePlugin(plugin),
-                },
-              ]"
-              placement="left-start"
-              @select="v => v.onClick()"
+            <NTag
+              class="ml-2"
+              size="small"
+              :type="plugin.meta.kind === 'preboot' ? 'warning' : 'default'"
             >
-              <template #reference>
-                <NButton circle quaternary class="ml-3!">
-                  <template #icon>
-                    <NIcon>
-                      <Icons.material.MenuRound />
-                    </NIcon>
-                  </template>
-                </NButton>
-              </template>
-            </VanPopover>
+              {{ plugin.meta.kind === 'preboot' ? '预启动' : '普通' }}
+            </NTag>
+            <span class="ml-2 font-light text-(--nui-text-color-3) italic">
+              {{ plugin.enable ? '已启用' : '未启用' }}
+            </span>
+            <NDropdown
+              :options="actionsFor(plugin)"
+              placement="bottom-end"
+              @select="(key: string | number) => handleAction(plugin, String(key))"
+            >
+              <NButton circle quaternary class="ml-3!" aria-label="插件操作">
+                <template #icon>
+                  <NIcon><Icons.material.MenuRound /></NIcon>
+                </template>
+              </NButton>
+            </NDropdown>
           </template>
           <span
             class="mr-3 font-bold text-(--nui-text-color-disabled) italic"
@@ -98,6 +122,12 @@ const { remove } = PluginArchiveDB.useRemove()
           <span class="text-(--nui-text-color-3)">{{ plugin.meta.description }}</span>
           <div class="w-full text-xs text-(--nui-text-color-disabled)">
             适应核心版本: {{ plugin.meta.version.supportCore }}
+          </div>
+          <div
+            v-if="plugin.meta.kind === 'preboot'"
+            class="mt-1 text-xs text-(--nui-warning-color)"
+          >
+            预启动类型和启用状态将在下次重启时应用
           </div>
           <div
             class="mt-1 flex w-full items-center gap-1 text-sm! font-bold"

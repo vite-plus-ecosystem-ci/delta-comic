@@ -39,11 +39,11 @@ const handleClick = (rawItem: uni.item.RawItem) => {
     <div
       v-if="isCardMode"
       @click="$router.force.push({ name: '/user/favourite/[id]', params: { id: card.createAt } })"
-      class="active:bg-gray van-haptics-feedback relative flex w-full flex-col items-center overflow-hidden rounded-xl border-none bg-(--van-background-2) bg-center p-3 text-(--van-text-color)"
+      class="active:bg-gray dc-interactive relative flex w-full flex-col items-center overflow-hidden rounded-xl border-none bg-(--dc-surface) bg-center p-3 text-(--dc-text)"
     >
       <div class="relative flex h-6 w-full items-center">
         <div class="text-lg font-semibold">{{ card.title }}</div>
-        <div class="absolute right-1 flex items-center text-[13px] text-(--van-text-color-2)">
+        <div class="absolute right-1 flex items-center text-[13px] text-(--dc-text-secondary)">
           <template v-if="card.private">
             <NIcon size="16px">
               <Icons.antd.LockOutlined />
@@ -72,7 +72,7 @@ const handleClick = (rawItem: uni.item.RawItem) => {
                 class="z-2 rounded-lg!"
                 fit="cover"
               />
-              <div class="van-multi-ellipsis--l2">{{ item.title }}</div>
+              <div class="dc-clamp-2">{{ item.title }}</div>
             </DcVar>
           </div>
         </template>
@@ -81,7 +81,7 @@ const handleClick = (rawItem: uni.item.RawItem) => {
     <div
       v-else
       @click="$router.force.push({ name: '/user/favourite/[id]', params: { id: card.createAt } })"
-      class="active:bg-gray van-haptics-feedback relative flex min-h-25 w-full items-center overflow-hidden rounded-xl border-none bg-(--van-background-2) bg-center p-3 text-(--van-text-color)"
+      class="active:bg-gray dc-interactive relative flex min-h-25 w-full items-center overflow-hidden rounded-xl border-none bg-(--dc-surface) bg-center p-3 text-(--dc-text)"
     >
       <DcVar :value="fItems[0].item" v-slot="{ value: item }">
         <div class="w-[40%]">
@@ -95,7 +95,9 @@ const handleClick = (rawItem: uni.item.RawItem) => {
           <div class="absolute top-1 w-full text-lg font-semibold">
             {{ card.title }}
           </div>
-          <div class="absolute bottom-4 flex w-full items-center text-sm text-(--van-text-color-2)">
+          <div
+            class="absolute bottom-4 flex w-full items-center text-sm text-(--dc-text-secondary)"
+          >
             <template v-if="card.private">
               <NIcon size="16px">
                 <Icons.antd.LockOutlined />

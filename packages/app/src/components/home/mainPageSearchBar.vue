@@ -7,8 +7,10 @@ import { computedAsync } from '@vueuse/core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
+import { NIcon } from 'naive-ui'
 import { useTemplateRef } from 'vue'
 
+import { Icons } from '@/icons'
 import { pluginName } from '@/symbol'
 import { getBarcodeList, type ThinkList } from '@/utils/search'
 
@@ -25,6 +27,11 @@ const handleSearch = (text: string) => {
 const inputEl = useTemplateRef('inputEl')
 
 defineExpose({ inputEl, isSearching })
+
+const clearSearch = () => {
+  text.value = ''
+  isSearching.value = false
+}
 
 const history = useNativeStore(pluginName, 'search.history', new Array<string>())
 const thinkListAbort = new ReuseableAbortController()
@@ -50,33 +57,38 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
       ]"
       class="absolute z-1000! flex h-9 items-center border border-solid border-gray-400 px-1 text-gray-400 transition-all duration-200"
     >
-      <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" @click="handleSearch(text)" />
+      <button
+        type="button"
+        class="inline-flex items-center border-0 bg-transparent p-0 text-gray-400"
+        aria-label="搜索"
+        @click="handleSearch(text)"
+      >
+        <NIcon size="1.5rem"><Icons.material.SearchFilled /></NIcon>
+      </button>
       <form action="/" @submit.prevent="handleSearch(text)" class="h-full w-full">
         <input
+          ref="inputEl"
+          v-model="text"
           type="search"
-          class="h-full w-full border-none bg-transparent text-(--van-text-color)!"
+          class="h-full w-full border-none bg-transparent text-(--dc-text-color)!"
           spellcheck="false"
           @focus="isSearching = true"
-          v-model="text"
           placeholder="搜索"
-          ref="inputEl"
         />
         <Motion
           :initial="{ opacity: 0 }"
           :animate="{ opacity: !isEmpty(text) ? 1 : 0 }"
           :transition="{ type: 'tween', duration: 0.1 }"
         >
-          <VanIcon
-            name="cross"
-            @click="
-              () => {
-                text = ''
-                isSearching = false
-              }
-            "
-            class="absolute! top-0 right-2 z-10 flex! h-full items-center font-bold transition-[transform,opacity]"
-            color="#9ca3af"
-          />
+          <button
+            type="button"
+            aria-label="清空搜索"
+            class="absolute! top-0 right-2 z-10 flex! h-full items-center border-0 bg-transparent p-0 text-gray-400 transition-[transform,opacity]"
+            :disabled="isEmpty(text)"
+            @click="clearSearch"
+          >
+            <NIcon size="1.25rem"><Icons.material.CloseRound /></NIcon>
+          </button>
         </Motion>
       </form>
     </div>
@@ -88,7 +100,7 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
       v-if="isSearching"
       :initial="{ opacity: 0 }"
       :animate="{ opacity: 0.5 }"
-      class="fixed top-safe-offset-[54px] left-0 z-10 h-screen w-screen bg-(--van-black)"
+      class="fixed top-safe-offset-[54px] left-0 z-10 h-screen w-screen bg-(--dc-black)"
     >
     </motion.div>
     <motion.div
@@ -98,16 +110,19 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
       v-if="isSearching"
       layout
       :transition="{ duration: 0.1 }"
-      class="fixed top-safe-offset-[54px] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
+      class="fixed top-safe-offset-[54px] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--dc-background-2) pt-1 pb-3 transition-all"
     >
       <DcCellGroup class="w-full">
         <template v-if="!isEmpty(thinkList)">
-          <template v-for="think of thinkList">
+          <template
+            v-for="(think, index) of thinkList"
+            :key="'text' in think ? `${think.value}:${index}` : index"
+          >
             <DcCell
               v-if="'text' in think"
               :title="think.text"
               @click="handleSearch((text = think.value))"
-              class="van-haptics-feedback w-full"
+              class="dc-haptics-feedback w-full"
             />
             <component v-else :is="think" />
           </template>

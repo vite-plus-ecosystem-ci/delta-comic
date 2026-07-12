@@ -1,6 +1,5 @@
 export interface ExternalLibKey {
   'vue': 'Vue'
-  'vant': 'Vant'
   'naive-ui': 'Naive'
   'vue-router': 'VR'
   'pinia': 'Pinia'
@@ -18,7 +17,6 @@ export type ExternalLib = {
 
 export const extendsDepends: ExternalLib = {
   'vue': 'window.$$lib$$.Vue',
-  'vant': 'window.$$lib$$.Vant',
   'naive-ui': 'window.$$lib$$.Naive',
   'pinia': 'window.$$lib$$.Pinia',
   'vue-router': 'window.$$lib$$.VR',

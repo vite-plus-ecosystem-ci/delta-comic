@@ -30,7 +30,7 @@ const showConfig = shallowRef(false)
 const { remove } = HistoryDB.useRemove()
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: HistoryDB.Item[]) => {
-  actionController.value!.showSelect = false
+  if (actionController.value) actionController.value.showSelect = false
   await remove({ keys: item.map(v => v.timestamp) })
   actionController.value?.selectList.clear()
 }
@@ -52,7 +52,7 @@ const $dialog = useDialog()
       :action="[
         {
           text: '删除',
-          color: 'var(--van-danger-color)',
+          color: 'var(--dc-error)',
           onTrigger(sel) {
             $dialog.create({
               type: 'warning',
@@ -72,17 +72,17 @@ const $dialog = useDialog()
         <template #rightNav>
           <NIcon
             size="calc(var(--spacing) * 6.5)"
-            class="van-haptics-feedback"
+            class="dc-interactive"
             @click="searcher && (searcher!.isSearching = true)"
-            color="var(--van-text-color-2)"
+            color="var(--dc-text-secondary)"
           >
             <Icons.material.SearchFilled />
           </NIcon>
           <NIcon
             size="calc(var(--spacing) * 6.5)"
-            class="van-haptics-feedback rotate-90"
+            class="dc-interactive rotate-90"
             @click="showConfig = true"
-            color="var(--van-text-color-2)"
+            color="var(--dc-text-secondary)"
           >
             <Icons.material.MoreHorizRound />
           </NIcon>
@@ -92,12 +92,10 @@ const $dialog = useDialog()
           <Searcher ref="searcher" v-model:filters-history="filters" />
         </template>
         <template #bottomNav>
-          <div
-            class="flex h-12 w-full items-center justify-end bg-(--van-background-2) pt-4 pr-3 pb-2"
-          >
+          <div class="flex h-12 w-full items-center justify-end bg-(--dc-surface) pt-4 pr-3 pb-2">
             <NIcon
               size="1.5rem"
-              class="van-haptics-feedback"
+              class="dc-interactive"
               @click="actionController!.showSelect = true"
             >
               <svg
@@ -125,28 +123,31 @@ const $dialog = useDialog()
           :padding="0"
           :minHeight="0"
         >
-          <VanSwipeCell class="relative w-full">
-            <component :is="SelectPacker" :it="item">
-              <HistoryCard :height="130" :item />
-            </component>
-            <template #right>
-              <VanButton
-                square
-                text="删除"
-                type="danger"
-                class="h-full!"
-                @click="removeItems([item])"
-              />
-            </template>
-          </VanSwipeCell>
+          <div class="mx-auto flex w-full max-w-5xl items-stretch border-b border-(--dc-border)">
+            <div class="min-w-0 flex-1">
+              <component :is="SelectPacker" :it="item">
+                <HistoryCard :height="130" :item />
+              </component>
+            </div>
+            <div class="flex w-18 shrink-0 items-center justify-center px-2 sm:w-24">
+              <NPopconfirm
+                positive-text="删除"
+                negative-text="取消"
+                @positive-click="removeItems([item])"
+              >
+                <template #trigger>
+                  <NButton type="error" secondary class="w-full">删除</NButton>
+                </template>
+                确认删除这条历史记录？
+              </NPopconfirm>
+            </div>
+          </div>
         </DcWaterfall>
       </Layout>
     </Action>
   </DcState>
-  <NDrawer v-model:show="showConfig" position="bottom" round class="bg-(--van-background)!">
-    <div class="m-(--van-cell-group-inset-padding) mt-4 mb-2! w-full font-semibold">
-      历史记录设置
-    </div>
+  <NDrawer v-model:show="showConfig" position="bottom" round class="bg-(--dc-background)!">
+    <div class="m-(--dc-content-padding) mt-4 mb-2! w-full font-semibold">历史记录设置</div>
     <DcCellGroup inset class="mb-6!">
       <DcCell
         center
@@ -155,7 +156,7 @@ const $dialog = useDialog()
         @click="config.data.value.recordHistory = !config.data.value.recordHistory"
       >
         <template #right-icon>
-          <VanSwitch size="large" v-model="config.data.value.recordHistory" />
+          <NSwitch size="large" v-model:value="config.data.value.recordHistory" @click.stop />
         </template>
       </DcCell>
     </DcCellGroup>
