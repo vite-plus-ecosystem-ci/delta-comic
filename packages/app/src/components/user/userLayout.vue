@@ -3,6 +3,8 @@ import { useResizeObserver } from '@vueuse/core'
 import { ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { Icons } from '@/icons'
+
 withDefaults(defineProps<{ title: string; isLoading?: boolean }>(), { isLoading: false })
 defineSlots<{ rightNav(): void; topNav(): void; bottomNav(): void; default(): void }>()
 const topBarEl = useTemplateRef('topBarEl')
@@ -22,13 +24,15 @@ const $router = useRouter()
     <div class="w-full bg-(--dc-surface) pt-safe"></div>
     <div class="flex w-full flex-col bg-(--dc-surface)" ref="topBarEl">
       <div class="relative flex h-13 w-full items-center justify-center text-lg! font-bold">
-        <VanIcon
-          name="arrow-left"
+        <NIcon
           size="calc(var(--spacing) * 6)"
-          class="dc-interactive absolute! left-3"
+          class="dc-interactive absolute! left-3 rotate-180"
           @click="$router.back()"
           color="var(--dc-text-secondary)"
-        />
+          aria-label="返回"
+        >
+          <Icons.material.ArrowForwardIosRound />
+        </NIcon>
         <span>{{ title }}</span>
         <div class="absolute right-0 flex h-full items-center justify-end gap-4 pr-2">
           <slot name="rightNav" />
