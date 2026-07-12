@@ -10,8 +10,8 @@
 
 ## app侧清单
 
-- [ ] 让`preboot`插件类型支持添加`config`
-- [ ] 为plugin添加`内置插件`功能，随应用打包存在，可以启用和禁用
-- [ ] 在完成上述内容后，将`core`整合进内部插件
+- [x] 让`preboot`插件类型支持添加`config`
+- [x] 为plugin添加`内置插件`功能，随应用打包存在，可以启用和禁用
+- [x] 在完成上述内容后，将`core`整合进内部插件
 
 以上内容存在一个非常简单的雏形，位于`packages/plugin/lib/features/core/feature.ts`，你完全可以改进或重构任何部分和实现

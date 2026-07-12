@@ -8,12 +8,20 @@
 - `normal`（默认）：开屏完成后由用户点击启动。进入应用后可在插件页执行“重新加载所有”，运行时会按
   依赖逆序调用 `onUnload`、移除注册项和样式，再按拓扑顺序重新加载。
 - `preboot`：manifest 设置 `kind: 'preboot'`。运行时会在 Vue `createApp` 之前加载模块并调用
-  `onPreboot`；Vue provider 挂载后再执行普通 booter。类型或启用状态的调整在下次重启生效。
+  `onPreboot`；Vue provider 挂载后再执行普通 booter。类型或启用状态的调整在下次重启生效。它声明的
+  `config` 会先完成注册和 SQLite 水合，因此 `onPreboot` 可以通过 `useConfig().$load(pointer)` 读取持久化值。
 
 ```ts
+const settings = new ConfigPointer('example.plugin', {
+  enabled: { type: 'switch', defaultValue: true, info: '启用预启动功能' },
+}, '示例插件')
+
 export default definePlugin({
   name: 'example.plugin',
+  config: [settings],
   onPreboot({ platform }) {
+    const enabled = useConfig().$load(settings).data.value.enabled
+    if (!enabled) return
     const controller = new AbortController()
     // 这里不能使用 useDialog/useMessage 等 Vue injection API。
     return () => controller.abort()
@@ -29,6 +37,18 @@ export default definePlugin({
   },
 })
 ```
+
+## 内置插件
+
+内置插件位于 `lib/features/<id>/feature.ts`，由 `import.meta.glob` 在构建期收集。定义使用
+`defineInnerPlugin({ meta, config, enabledByDefault })`；运行时会把定义同步到普通插件目录，保留用户已有的启停
+状态，再通过专用 `builtin` loader 进入同一套依赖计划、preboot、booter 和清理流程。
+
+内置插件随应用版本更新，不能被外部同 ID 插件覆盖，也不能单独更新、卸载或切换类型；用户仍可在插件管理页
+启用和禁用。被新版本移除的内置定义会从插件目录清理。
+
+`core` 是内置 `preboot` 插件，并拥有应用核心配置定义。由于界面、安装器和云服务都依赖这些设置，即使用户禁用
+core 的运行时，核心配置仍会以安全默认入口注册；禁用只影响 core 生命周期，启停在下次启动生效。
 
 `onPreboot` 可以返回清理函数。运行时在卸载时依次调用 `onUnload`、该清理函数，并移除 Global、模型注册、
 配置、依赖暴露和 `data-plugin` 样式。
