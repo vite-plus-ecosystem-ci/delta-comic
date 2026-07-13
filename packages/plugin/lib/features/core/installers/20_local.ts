@@ -1,20 +1,19 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import ky from 'ky'
 
-import { PluginInstaller, type PluginInstallerDescription } from '../utils'
+import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
+import { readLocalFile } from '../../../driver/init/native'
+import { isTauriRuntime } from '../../../driver/init/storage'
 
-export class _PluginInstallByFallbackUrl extends PluginInstaller {
+export class _PluginInstallByLocal extends PluginInstaller {
   public override description: PluginInstallerDescription = {
-    title: '通过任意URL安装插件',
-    description: '从你给定的url下载插件文件，并假设其为userscript',
+    title: '安装本地插件',
+    description: '输入以: "local:"开头，后接全路径的文本',
   }
-  public override name = 'fallbackUrl'
+  public override name = 'local'
   private async installer(input: string): Promise<File> {
-    const res = await ky.get(input, { retry: 3, timeout: 1000 * 60 * 5 }).blob()
-    const name = input.split('/').at(-1) ?? 'us.js'
-    return new File([res], name)
+    const path = decodeURIComponent(input.replace(/^local:/, ''))
+    return await readLocalFile(path)
   }
-
   public override async download(input: string): Promise<File> {
     const file = await this.installer(input)
     return file
@@ -27,10 +26,9 @@ export class _PluginInstallByFallbackUrl extends PluginInstaller {
     const file = await this.installer(input)
     return file
   }
-
   public override isMatched(input: string): boolean {
-    return URL.canParse(input)
+    return isTauriRuntime() && input.startsWith('local:')
   }
 }
 
-export default new _PluginInstallByFallbackUrl()
+export default new _PluginInstallByLocal()

@@ -1,8 +1,8 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import ky from 'ky'
 
-import { prepareDevScript } from '../native'
-import { PluginInstaller, type PluginInstallerDescription } from '../utils'
+import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
+import { prepareDevScript } from '../../../driver/init/native'
 
 export class _PluginInstallByDev extends PluginInstaller {
   public override description: PluginInstallerDescription = {

@@ -1,10 +1,9 @@
 import { useConfig as useDbConfig } from '@delta-comic/db'
 import type { FormResult } from '@delta-comic/model'
-import { defineStore } from 'pinia'
 import { computed, shallowReactive, type Ref } from 'vue'
 
 import type { ConfigDescription, ConfigPointer } from './configPointer'
-import { coreConfig } from './features/core/feature'
+import { coreConfig } from './features/core/config'
 
 export * from './configPointer'
 
@@ -15,40 +14,50 @@ export type ConfigSave<T> = {
   ready: Promise<void>
 }
 
-export const useConfig = defineStore('config', helper => {
-  const configDescription = shallowReactive(new Map<symbol, ConfigSave<any>>())
-
-  const $load = helper.action(
-    <T extends ConfigPointer>(pointer: T): ConfigSave<FormResult<T['config']>> => {
-      const v = configDescription.get(pointer.key)
-      if (!v) throw new Error(`not found config by plugin "${pointer.pluginName}"`)
-      return v
-    },
-    'load',
-  )
-
-  const $loadApp = helper.action(() => $load(coreConfig), 'loadApp')
-
-  const isSystemDark = matchMedia('(prefers-color-scheme: dark)').matches
-  const isDark = computed(() => {
-    if (!$isExistConfig(coreConfig)) return isSystemDark
-    const cfg = $load(coreConfig).data.value
-    switch (cfg.darkMode) {
+export class ConfigStore {
+  public readonly form = shallowReactive(new Map<symbol, ConfigSave<any>>())
+  private readonly darkMode = computed(() => {
+    if (!this.$isExistConfig(coreConfig)) return this.isSystemDark
+    const config = this.$load(coreConfig).data.value
+    switch (config.darkMode) {
       case 'light':
         return false
       case 'dark':
         return true
       case 'system':
       default:
-        return isSystemDark
+        return this.isSystemDark
     }
   })
-  const $isExistConfig = helper.action(
-    (pointer: ConfigPointer) => configDescription.has(pointer.key),
-    'isExistConfig',
-  )
-  const $registerConfig = helper.action((pointer: ConfigPointer) => {
-    const registered = configDescription.get(pointer.key)
+
+  private readonly isSystemDark =
+    globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+
+  public get isDark() {
+    return this.darkMode.value
+  }
+
+  public constructor() {
+    // Core settings remain available when the built-in core runtime is disabled.
+    this.$registerConfig(coreConfig)
+  }
+
+  public $load<T extends ConfigPointer>(pointer: T): ConfigSave<FormResult<T['config']>> {
+    const value = this.form.get(pointer.key)
+    if (!value) throw new Error(`not found config by plugin "${pointer.pluginName}"`)
+    return value
+  }
+
+  public $loadApp() {
+    return this.$load(coreConfig)
+  }
+
+  public $isExistConfig(pointer: ConfigPointer) {
+    return this.form.has(pointer.key)
+  }
+
+  public $registerConfig(pointer: ConfigPointer) {
+    const registered = this.form.get(pointer.key)
     if (registered) return registered
 
     const store = useDbConfig(pointer.pluginName, pointer.config)
@@ -58,26 +67,19 @@ export const useConfig = defineStore('config', helper => {
       name: pointer.pluginName,
       ready: (store as typeof store & { ready: Promise<void> }).ready,
     }
-    configDescription.set(pointer.key, saved)
+    this.form.set(pointer.key, saved)
     return saved
-  }, 'registerConfig')
-  /** @deprecated Use `$registerConfig`. */
-  const $resignerConfig = $registerConfig
-  const $unregisterConfig = helper.action((pointer: ConfigPointer) => {
-    configDescription.delete(pointer.key)
-  }, 'unregisterConfig')
-
-  // Core settings remain available when the built-in core runtime is disabled.
-  $registerConfig(coreConfig)
-
-  return {
-    isDark,
-    form: configDescription,
-    $loadApp,
-    $load,
-    $isExistConfig,
-    $registerConfig,
-    $resignerConfig,
-    $unregisterConfig,
   }
-})
+
+  /** @deprecated Use `$registerConfig`. */
+  public $resignerConfig(pointer: ConfigPointer) {
+    return this.$registerConfig(pointer)
+  }
+
+  public $unregisterConfig(pointer: ConfigPointer) {
+    this.form.delete(pointer.key)
+  }
+}
+
+let configStore: ConfigStore | undefined
+export const useConfig = () => (configStore ??= new ConfigStore())

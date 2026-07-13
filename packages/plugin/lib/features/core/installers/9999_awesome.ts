@@ -1,7 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import ky from 'ky'
 
-import { PluginInstaller, type PluginInstallerDescription } from '../utils'
+import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
 
 const linkBase = `https://raw.githubusercontent.com/delta-comic/awesome-plugins/refs/heads/main/pages`
 

@@ -1,4 +1,5 @@
 import { isFunction } from 'es-toolkit/compat'
+import type { App } from 'vue'
 
 import type { ConfigPointer } from '@/configPointer'
 
@@ -52,8 +53,9 @@ export interface PluginConfigValues {
 export type DefineResult = { api?: Record<string, string | undefined | false> }
 export type Platform = 'tauri' | 'web'
 export interface PluginConfigHooks {
-  /** Runs before Vue createApp. Preboot plugins must avoid Vue injection APIs in this hook. */
+  /** Runs after app.use() registration and before app.mount() for preboot plugins. */
   onPreboot?(context: {
+    app: App
     platform: Platform
     safe: boolean
   }): (() => Promise<void> | void) | Promise<(() => Promise<void> | void) | void> | void

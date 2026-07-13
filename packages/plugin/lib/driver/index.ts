@@ -3,6 +3,8 @@ export * from './loadPlan'
 export * from './runtime'
 export * from './runtimePlan'
 export * from './builtIn'
+export * from './extensions'
+export * from './extensionTypes'
 export type { PluginLoadingInfo } from './loader'
 
 export * as Booter from './booter'

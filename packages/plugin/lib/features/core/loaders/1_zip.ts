@@ -3,6 +3,7 @@ import JSZip from 'jszip'
 
 import type { PluginConfigFactory } from '@/plugin'
 
+import { PluginLoader, type PluginLoaderInstallContext } from '../../../driver/extensionTypes'
 import {
   createPluginAssetUrl,
   createPluginModuleUrl,
@@ -10,8 +11,7 @@ import {
   isTauriRuntime,
   listPluginFiles,
   readPluginText,
-} from '../storage'
-import { PluginLoader, type PluginLoaderInstallContext } from '../utils'
+} from '../../../driver/init/storage'
 
 export const rewriteCssAssetUrls = async (
   cssPath: string,

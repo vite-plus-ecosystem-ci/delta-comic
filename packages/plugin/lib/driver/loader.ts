@@ -1,23 +1,17 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import { Mutex } from 'es-toolkit'
-import { sortBy } from 'es-toolkit/compat'
 import type { Ref } from 'vue'
 
+import { builtInPluginRegistry } from '@/features/registry'
 import type { PluginConfig, PluginConfigFactory } from '@/plugin'
 
 import { bootPlugin } from './booter'
+import { isBuiltInPlugin } from './builtIn'
 import { cleanupPlugin } from './cleanup'
+import { runtimeExtensions } from './extensions'
 import { isTauriRuntime } from './init/storage'
-import type { PluginLoader } from './init/utils'
 
-const rawLoaders = import.meta.glob<PluginLoader>(
-  ['./init/loader/*_*.ts', '!./init/loader/*.test.ts'],
-  { eager: true, import: 'default' },
-)
-export const loaders = sortBy(Object.entries(rawLoaders), ([fname]) =>
-  // oxlint-disable-next-line no-useless-escape
-  Number(fname.match(/[\d\.]+(?=_)/)?.[0]),
-).map(v => v[1])
+export const loaders = runtimeExtensions.loaders.values
 
 const loadLocks = <Record<string, Mutex>>{}
 const getLoadLock = (pluginName: string) => (loadLocks[pluginName] ??= new Mutex())
@@ -96,10 +90,11 @@ export const bootResolvedConfig = async (
 
 export const loadPluginConfig = async (meta: PluginArchiveDB.Archive) => {
   const lock = getLoadLock(meta.pluginName)
-  const loader = loaders.find(value => value.name === meta.loaderName)
-  if (!loader) throw new Error(`未找到加载器 "${meta.loaderName}"，插件: ${meta.pluginName}`)
   try {
     await lock.acquire()
+    if (isBuiltInPlugin(meta)) return builtInPluginRegistry.get(meta.pluginName)?.config
+    const loader = loaders.find(value => value.name === meta.loaderName)
+    if (!loader) throw new Error(`未找到加载器 "${meta.loaderName}"，插件: ${meta.pluginName}`)
     return await loader.load(meta)
   } finally {
     lock.release()

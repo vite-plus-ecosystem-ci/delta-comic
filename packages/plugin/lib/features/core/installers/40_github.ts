@@ -5,7 +5,7 @@ import semver from 'semver'
 
 import pkg from '../../../../package.json'
 import { useConfig } from '../../../config'
-import { PluginInstaller, type PluginInstallerDescription } from '../utils'
+import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
 
 type GitHubRelease = Awaited<ReturnType<Octokit['rest']['repos']['listReleases']>>['data'][number]
 

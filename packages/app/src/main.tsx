@@ -49,12 +49,6 @@ await initializePlatform().then(v => {
 const pinia = createPinia()
 setActivePinia(pinia)
 
-const preboot = await DcPlugin.pluginRuntime.preparePreboot()
-if (preboot.reloadRequired) {
-  location.reload()
-  await new Promise<never>(() => {})
-}
-
 const app = createApp(
   defineComponent(() => {
     const themeColor = Color('#fb7299').hex()
@@ -108,6 +102,12 @@ app.use(pinia)
 app.use(Pc.PiniaColada)
 
 app.use(router)
+
+const preboot = await DcPlugin.pluginRuntime.preparePreboot(app)
+if (preboot.reloadRequired) {
+  location.reload()
+  await new Promise<never>(() => {})
+}
 
 const meta = document.createElement('meta')
 meta.name = 'naive-ui-style'

@@ -1,6 +1,6 @@
 import type { PluginConfig } from '@/plugin'
 
-import { PluginBooter, type PluginBooterSetMeta } from '../utils'
+import { PluginBooter, type PluginBooterSetMeta } from '../../../driver/extensionTypes'
 
 import { testApi } from './utils'
 

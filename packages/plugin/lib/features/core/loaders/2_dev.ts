@@ -2,9 +2,9 @@ import type { PluginArchiveDB } from '@delta-comic/db'
 
 import type { PluginConfigFactory } from '@/plugin'
 
-import { decodeDevMeta } from '../native'
-import { installDevCode, readPluginText } from '../storage'
-import { PluginLoader } from '../utils'
+import { PluginLoader } from '../../../driver/extensionTypes'
+import { decodeDevMeta } from '../../../driver/init/native'
+import { installDevCode, readPluginText } from '../../../driver/init/storage'
 
 export default new (class extends PluginLoader {
   public override name = 'dev'

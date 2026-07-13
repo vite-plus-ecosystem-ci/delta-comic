@@ -2,7 +2,7 @@ import { uni } from '@delta-comic/model'
 
 import type { PluginConfig } from '@/plugin'
 
-import { PluginBooter, type PluginBooterSetMeta } from '../utils'
+import { PluginBooter, type PluginBooterSetMeta } from '../../../driver/extensionTypes'
 
 import { testResourceApi } from './utils'
 

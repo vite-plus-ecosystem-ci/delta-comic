@@ -1,5 +1,5 @@
 import { db, type PluginArchiveDB } from '@delta-comic/db'
-import { ref, type Ref } from 'vue'
+import { ref, type App, type Ref } from 'vue'
 
 import { useConfig } from '@/config'
 import { Global } from '@/global'
@@ -16,6 +16,7 @@ import {
   selectPluginsForPhase,
   type ClientPluginKind,
 } from './runtimePlan'
+import { pluginStore } from './store'
 
 const recoveryKey = 'delta-comic:preboot-recovery'
 
@@ -80,8 +81,9 @@ class PluginRuntime {
     return { operation, progress }
   }
 
-  async preparePreboot(): Promise<{ reloadRequired: boolean }> {
+  async preparePreboot(app: App): Promise<{ reloadRequired: boolean }> {
     await this.ensureBuiltInPlugins()
+    await pluginStore.$refreshI18nNames()
     const allPlugins = await db.selectFrom('plugin').selectAll().execute()
     this.captureStartupSnapshot(allPlugins)
     const plugins = selectPluginsForPhase(
@@ -115,7 +117,7 @@ class PluginRuntime {
             await Promise.all(
               (config.config ?? []).map(pointer => configStore.$registerConfig(pointer).ready),
             )
-            const cleanup = await config.onPreboot?.({ platform, safe: true })
+            const cleanup = await config.onPreboot?.({ app, platform, safe: true })
             if (cleanup) this.prebootCleanups.set(config.name, cleanup)
             this.preparedPreboot.set(config.name, config)
           })
@@ -185,6 +187,8 @@ class PluginRuntime {
 
     await removePluginFiles(pluginName)
     await db.deleteFrom('plugin').where('pluginName', '=', pluginName).execute()
+    await pluginStore.$refreshI18nNames()
+    pluginStore.$touch()
     if (errors.length > 0) {
       throw new AggregateError(errors, `plugin "${pluginName}" was removed with cleanup errors`)
     }
@@ -218,7 +222,12 @@ class PluginRuntime {
   }
 
   private ensureBuiltInPlugins() {
-    return (this.builtInSynchronization ??= synchronizeBuiltInPlugins())
+    return (this.builtInSynchronization ??= import('../features/core/runtime').then(
+      async ({ registerCoreRuntimeExtensions }) => {
+        registerCoreRuntimeExtensions()
+        await synchronizeBuiltInPlugins()
+      },
+    ))
   }
 
   private captureStartupSnapshot(plugins: PluginArchiveDB.Archive[]) {
@@ -233,6 +242,7 @@ class PluginRuntime {
 
   private async loadKind(kind: 'normal', progress: Ref<Record<string, PluginLoadingInfo>>) {
     await this.ensureBuiltInPlugins()
+    await pluginStore.$refreshI18nNames()
     const allPlugins = await db
       .selectFrom('plugin')
       .where('enable', 'is', true)

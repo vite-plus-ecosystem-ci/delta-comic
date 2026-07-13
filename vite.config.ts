@@ -24,6 +24,7 @@ export default defineConfig({
       'packages/plugin',
       'packages/server',
       'packages/server-admin',
+      'packages/ui',
       'packages/utils',
     ],
   },

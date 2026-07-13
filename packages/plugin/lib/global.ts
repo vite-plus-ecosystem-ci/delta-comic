@@ -1,4 +1,5 @@
 import { SourcedKeyMap, uni } from '@delta-comic/model'
+import { environmentRegistry } from '@delta-comic/ui'
 import { SharedFunction } from '@delta-comic/utils'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { shallowReactive, type Component, type Raw } from 'vue'
@@ -6,8 +7,8 @@ import { shallowReactive, type Component, type Raw } from 'vue'
 import type { Search, Share, Subscribe, User } from '@/plugin'
 
 import { usePluginStore } from './driver'
+import { runtimeExtensions } from './driver/extensions'
 import { OfflineShareRound, TagOutlined } from './driver/icon'
-import type { GlobalInjectionsConfig } from './env'
 
 class _Global {
   public share = shallowReactive(
@@ -25,7 +26,6 @@ class _Global {
   public globalNodes = shallowReactive(new Array<Raw<Component>>())
 
   private readonly globalNodeOwners = new Map<Raw<Component>, string>()
-  private readonly envExtendOwners = new Map<GlobalInjectionsConfig, string>()
   private readonly registrationOwners: string[] = []
 
   /**
@@ -35,7 +35,9 @@ class _Global {
   public async withRegistrationOwner<T>(plugin: string, action: () => Promise<T>): Promise<T> {
     this.registrationOwners.push(plugin)
     try {
-      return await action()
+      return await runtimeExtensions.withOwner(plugin, () =>
+        environmentRegistry.withOwner(plugin, action),
+      )
     } finally {
       this.registrationOwners.pop()
     }
@@ -51,12 +53,6 @@ class _Global {
     return component
   }
 
-  public addEnvExtend(config: GlobalInjectionsConfig, plugin = this.registrationOwner) {
-    this.envExtends.add(config)
-    if (plugin) this.envExtendOwners.set(config, plugin)
-    return config
-  }
-
   /** Removes only registrations owned by the requested plugin. */
   public removeOwnedRegistrations(plugin: string) {
     for (let index = this.globalNodes.length - 1; index >= 0; index--) {
@@ -65,11 +61,8 @@ class _Global {
       this.globalNodes.splice(index, 1)
       this.globalNodeOwners.delete(component)
     }
-    for (const config of this.envExtends) {
-      if (this.envExtendOwners.get(config) !== plugin) continue
-      this.envExtends.delete(config)
-      this.envExtendOwners.delete(config)
-    }
+    environmentRegistry.removeOwner(plugin)
+    runtimeExtensions.removeOwner(plugin)
   }
 
   public tabbar = shallowReactive(new Map<string, Search.Tabbar[]>())
@@ -107,8 +100,6 @@ class _Global {
     const old = this.mainLists.get(plugin) ?? []
     this.mainLists.set(plugin, old.concat(mainLists))
   }
-
-  public envExtends = shallowReactive(new Set<GlobalInjectionsConfig>())
 }
 
 export const Global = new _Global()

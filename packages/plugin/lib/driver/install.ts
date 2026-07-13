@@ -1,26 +1,18 @@
 import { PluginArchiveDB, db } from '@delta-comic/db'
 import { createDownloadMessage, type DownloadMessageBind } from '@delta-comic/ui'
 import { isString } from 'es-toolkit'
-import { sortBy } from 'es-toolkit/compat'
 
 import { useConfig } from '@/config'
 
 import { isBuiltInPlugin, isBuiltInPluginName } from './builtIn'
-import type { PluginInstaller } from './init/utils'
+import { runtimeExtensions } from './extensions'
 import { loaders } from './loader'
 import { pluginRuntime } from './runtime'
+import { pluginStore } from './store'
 
 const clampProgress = (progress: number) => Math.min(100, Math.max(0, progress))
 
-const rawInstallers = import.meta.glob<PluginInstaller>('./init/installer/*_*.ts', {
-  eager: true,
-  import: 'default',
-})
-export const installers = sortBy(Object.entries(rawInstallers), ([fname]) =>
-  Number(fname.match(/[\d.]+(?=_)/)?.[0]),
-)
-  .map(v => v[1])
-  .reverse()
+export const installers = runtimeExtensions.installers.values
 
 export const installDepends = (
   m: DownloadMessageBind,
@@ -72,20 +64,17 @@ const installPluginFile = async (
 
     v.description = '写入数据库'
     v.progress = 95
-    const { upsert } = PluginArchiveDB.useUpsert()
-    await upsert({
-      archives: [
-        {
-          displayName: meta.name.display,
-          enable: true,
-          installerName,
-          installInput,
-          loaderName: loader.name,
-          meta,
-          pluginName: meta.name.id,
-        },
-      ],
-    })
+    await pluginStore.$upsertArchives([
+      {
+        displayName: meta.name.display,
+        enable: true,
+        installerName,
+        installInput,
+        loaderName: loader.name,
+        meta,
+        pluginName: meta.name.id,
+      },
+    ])
     v.progress = 100
     return meta
   })
@@ -152,8 +141,7 @@ export const updatePlugin = async (
       return meta
     })
 
-    const { upsert } = PluginArchiveDB.useUpsert()
-    await upsert({ archives: [{ ...pluginMeta, meta }] })
+    await pluginStore.$upsertArchives([{ ...pluginMeta, meta }])
 
     await installDepends(m, meta, __installedPlugins)
   })

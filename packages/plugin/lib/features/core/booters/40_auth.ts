@@ -8,7 +8,7 @@ import { usePluginStore } from '@/driver/store'
 import { Global } from '@/global'
 import type { Auth, PluginConfig } from '@/plugin'
 
-import { PluginBooter, type PluginBooterSetMeta } from '../utils'
+import { PluginBooter, type PluginBooterSetMeta } from '../../../driver/extensionTypes'
 
 const authPopupMutex = new Mutex()
 

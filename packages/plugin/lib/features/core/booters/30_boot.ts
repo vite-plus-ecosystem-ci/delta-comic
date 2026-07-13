@@ -1,7 +1,7 @@
 import { declareDepType, provide } from '@/depends'
 import type { PluginConfig } from '@/plugin'
 
-import { PluginBooter } from '../utils'
+import { PluginBooter } from '../../../driver/extensionTypes'
 
 class _ExposeBootPlugin extends PluginBooter {
   public override name = '自定义初始化'

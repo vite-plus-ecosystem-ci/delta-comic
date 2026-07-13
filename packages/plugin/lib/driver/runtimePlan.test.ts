@@ -29,7 +29,7 @@ describe('client plugin runtime plan', () => {
     expect(pluginKind(archive('legacy'))).toBe('normal')
   })
 
-  it('loads only preboot plugins before createApp', () => {
+  it('loads only preboot plugins in the pre-mount phase', () => {
     const plugins = [archive('normal'), archive('early', 'preboot')]
     expect(selectPluginsForPhase(plugins, 'preboot').map(plugin => plugin.pluginName)).toEqual([
       'early',

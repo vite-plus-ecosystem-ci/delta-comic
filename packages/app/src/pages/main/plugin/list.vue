@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { PluginArchiveDB } from '@delta-comic/db'
-import { Install } from '@delta-comic/plugin'
+import { Install, usePluginStore } from '@delta-comic/plugin'
 import { memoize } from 'es-toolkit'
 import type { DropdownOption } from 'naive-ui'
 import semver from 'semver'
-import { shallowReactive } from 'vue'
+import { shallowReactive, watch } from 'vue'
 
 import { Icons } from '@/icons'
 
@@ -39,6 +39,8 @@ const codeArchives = PluginArchiveDB.useQuery(
   [],
   () => [],
 )
+const pluginStore = usePluginStore()
+watch(pluginStore.revision, () => codeArchives.refetch())
 const isBuiltIn = (plugin: PluginArchiveDB.Archive) => plugin.loaderName === 'builtin'
 const actionsFor = (plugin: PluginArchiveDB.Archive): DropdownOption[] => {
   const actions: DropdownOption[] = [{ key: 'toggle', label: plugin.enable ? '禁用' : '启用' }]
