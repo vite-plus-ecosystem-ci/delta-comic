@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   plan:
+    if: contains(github.event.head_commit.message, '[pub]')
     runs-on: ubuntu-latest
     outputs:
       has-release: ${{ steps.release-plan.outputs.has-release }}
