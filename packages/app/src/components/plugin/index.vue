@@ -19,6 +19,7 @@ import { Icons } from '@/icons'
 import Config from '@/pages/main/plugin/config.vue'
 import Download from '@/pages/main/plugin/download.vue'
 import List from '@/pages/main/plugin/list.vue'
+import Shop from '@/pages/main/plugin/shop.vue'
 
 import pkg from '../../../package.json'
 
@@ -47,6 +48,12 @@ const pluginPages = computed(
         comp: Download,
       },
       {
+        label: t('plugin.menu.market'),
+        key: 'shop',
+        icon: renderIcon(Icons.material.ShoppingBagOutlined),
+        comp: Shop,
+      },
+      {
         label: t('plugin.menu.config'),
         key: 'config',
         icon: renderIcon(Icons.antd.SettingOutlined),
@@ -59,7 +66,7 @@ const menuOptions = computed<MenuOption[]>(() => [
   ...pluginPages.value,
   { label: t('plugin.menu.version', { version: pkg.version }), key: 'version', disabled: true },
 ])
-const pageSelect = shallowRef<'config' | 'download' | 'list'>('list')
+const pageSelect = shallowRef<'config' | 'download' | 'list' | 'shop'>('list')
 
 const bootingSteps = ref<Record<string, PluginLoadingInfo>>()
 const $dialog = useDialog()

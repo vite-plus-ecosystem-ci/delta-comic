@@ -34,7 +34,14 @@ const createInstaller = (
       const [, version, name] = new URL(url).pathname.split('/')
       if (name === 'manifest.json') {
         return new Blob([
-          JSON.stringify({ version: { plugin: version, supportCore: supportByVersion[version] } }),
+          JSON.stringify({
+            author: 'delta-comic',
+            description: 'GitHub installer fixture',
+            entry: { jsPath: 'index.mjs' },
+            name: { display: 'Fixture', id: 'fixture' },
+            require: [],
+            version: { plugin: version, supportCore: supportByVersion[version] },
+          }),
         ])
       }
       return new Blob([version])

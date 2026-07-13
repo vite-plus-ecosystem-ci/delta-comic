@@ -2,20 +2,30 @@
 import { pluginRuntime } from '@delta-comic/plugin'
 import { type MenuOption, NIcon } from 'naive-ui'
 import type { Component } from 'vue'
-import { h, shallowRef } from 'vue'
+import { computed, h, shallowRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { Icons } from '@/icons'
 definePage({ redirect: { name: '/main/plugin/list' } })
 const router = useRouter()
+const { t } = useI18n()
 
 const icon = (icon: Component) => () => h(NIcon, null, { default: () => h(icon) })
-const menuOptions = [
-  { label: '管理', key: 'list', icon: icon(Icons.material.AutoAwesomeMosaicOutlined) },
-  { label: '安装', key: 'download', icon: icon(Icons.material.FileDownloadOutlined) },
-  { label: '市场', key: 'shop', icon: icon(Icons.material.ShoppingBagOutlined) },
-  { label: '配置', key: 'config', icon: icon(Icons.antd.SettingOutlined) },
-] as MenuOption[]
+const menuOptions = computed<MenuOption[]>(() => [
+  {
+    label: t('plugin.menu.manage'),
+    key: 'list',
+    icon: icon(Icons.material.AutoAwesomeMosaicOutlined),
+  },
+  {
+    label: t('plugin.menu.install'),
+    key: 'download',
+    icon: icon(Icons.material.FileDownloadOutlined),
+  },
+  { label: t('plugin.menu.market'), key: 'shop', icon: icon(Icons.material.ShoppingBagOutlined) },
+  { label: t('plugin.menu.config'), key: 'config', icon: icon(Icons.antd.SettingOutlined) },
+])
 
 const reloading = shallowRef(false)
 const reloadPlugins = async () => {
@@ -24,7 +34,7 @@ const reloadPlugins = async () => {
   try {
     const { operation } = pluginRuntime.reloadNormal()
     await operation
-    window.$message.success('普通插件已重新加载')
+    window.$message.success(t('plugin.reload.success'))
   } catch (error) {
     window.$message.error(error instanceof Error ? error.message : String(error))
   } finally {
@@ -45,7 +55,7 @@ const reloadPlugins = async () => {
       responsive
     />
     <NButton class="mr-2" secondary type="primary" :loading="reloading" @click="reloadPlugins">
-      重新加载所有
+      {{ t('plugin.reload.action') }}
     </NButton>
   </div>
   <div class="h-[calc(100%-var(--safe-area-inset-top)-52px)] w-full">

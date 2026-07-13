@@ -1,14 +1,15 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import ky from 'ky'
 
 import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
+import {
+  AwesomeRegistryClient,
+  marketplaceDownloadToInstallInput,
+  type AwesomePluginListing,
+} from '../../../marketplace'
 
-const linkBase = `https://raw.githubusercontent.com/delta-comic/awesome-plugins/refs/heads/main/pages`
-
-interface ItemSchema {
-  author: string[]
-  download: string
-  id: string
+export interface AwesomeInstallerRegistry {
+  findListing(id: string): Promise<AwesomePluginListing>
+  loadManifest(listing: AwesomePluginListing): Promise<PluginArchiveDB.Meta | undefined>
 }
 
 export class _PluginInstallByAwesome extends PluginInstaller {
@@ -17,12 +18,21 @@ export class _PluginInstallByAwesome extends PluginInstaller {
     description: '输入形如: "ap:jmcomic"的内容',
   }
   public override name = 'awesome'
+  public constructor(
+    private readonly registry: AwesomeInstallerRegistry = new AwesomeRegistryClient(),
+  ) {
+    super()
+  }
+
+  private async listing(input: string) {
+    const match = /^ap:([A-Za-z0-9][A-Za-z0-9_-]{0,63})$/.exec(input)
+    if (!match) throw new Error(`无效的 awesome-plugins 安装标识: ${input}`)
+    return await this.registry.findListing(match[1])
+  }
+
   private async installer(input: string): Promise<File | string> {
-    const id = input.replace(/^ap:/, '')
-    const data = await ky
-      .get<ItemSchema>(`${id}.json`, { timeout: 1000 * 30, baseUrl: linkBase })
-      .json()
-    return data.download
+    const listing = await this.listing(input)
+    return marketplaceDownloadToInstallInput(listing.download)
   }
   public override async download(input: string): Promise<File | string> {
     const file = await this.installer(input)
@@ -33,11 +43,13 @@ export class _PluginInstallByAwesome extends PluginInstaller {
     return file
   }
   public override async fetchPluginMetaFile(input: string): Promise<File | string> {
-    const file = await this.installer(input)
-    return file
+    const listing = await this.listing(input)
+    const manifest = await this.registry.loadManifest(listing)
+    if (!manifest) return marketplaceDownloadToInstallInput(listing.download)
+    return new File([JSON.stringify(manifest)], 'manifest.json', { type: 'application/json' })
   }
   public override isMatched(input: string): boolean {
-    return /^ap:[A-Za-z0-9\-_]+$/.test(input)
+    return /^ap:[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(input)
   }
 }
 

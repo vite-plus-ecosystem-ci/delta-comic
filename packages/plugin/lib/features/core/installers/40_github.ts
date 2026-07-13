@@ -1,11 +1,11 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import { Octokit } from '@octokit/rest'
 import ky from 'ky'
-import semver from 'semver'
 
 import pkg from '../../../../package.json'
 import { useConfig } from '../../../config'
 import { PluginInstaller, type PluginInstallerDescription } from '../../../driver/extensionTypes'
+import { isPluginManifestCompatible, parsePluginManifest } from '../../../manifest'
 
 type GitHubRelease = Awaited<ReturnType<Octokit['rest']['repos']['listReleases']>>['data'][number]
 
@@ -48,9 +48,7 @@ const parseRepository = (input: string) => {
 
 const decodeManifest = async (blob: Blob): Promise<PluginArchiveDB.Meta | undefined> => {
   try {
-    const manifest = JSON.parse(await blob.text()) as Partial<PluginArchiveDB.Meta>
-    if (typeof manifest.version?.supportCore !== 'string') return undefined
-    return manifest as PluginArchiveDB.Meta
+    return parsePluginManifest(JSON.parse(await blob.text()))
   } catch {
     return undefined
   }
@@ -87,7 +85,7 @@ export class _PluginInstallByNormalUrl extends PluginInstaller {
 
         const manifest = await this.dependencies.downloadAsset(manifestAsset.browser_download_url)
         const meta = await decodeManifest(manifest)
-        if (!meta || !semver.satisfies(this.dependencies.coreVersion, meta.version.supportCore)) {
+        if (!meta || !isPluginManifestCompatible(meta, this.dependencies.coreVersion)) {
           continue
         }
         return { manifest, plugin }
