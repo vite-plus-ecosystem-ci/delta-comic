@@ -1,23 +1,40 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
-const jsonVersionPaths = [
-  '../package.json',
-  '../packages/app/package.json',
-  '../packages/app/src-tauri/tauri.conf.json',
-  '../packages/db/package.json',
-  '../packages/model/package.json',
-  '../packages/plugin/package.json',
-  '../packages/ui/package.json',
-  '../packages/utils/package.json',
-]
-const cargoTomlPaths = ['../packages/app/src-tauri/Cargo.toml', '../Cargo.toml']
-const cargoLockPackageNames = [
+export const jsonVersionPaths = [
+  'package.json',
+  'packages/app/package.json',
+  'packages/app/src-tauri/tauri.conf.json',
+  'packages/db/package.json',
+  'packages/model/package.json',
+  'packages/plugin/package.json',
+  'packages/ui/package.json',
+  'packages/utils/package.json',
+] as const
+
+export const cargoTomlVersionPaths = [
+  ['packages/app/src-tauri/Cargo.toml', 'package'],
+  ['Cargo.toml', 'workspace.package'],
+] as const
+
+export const cargoLockPackageNames = [
   'delta-comic',
   'tauri-plugin-db',
   'tauri-plugin-plugin',
   'tauri-plugin-utils',
-]
+] as const
+
+export const versionAssetPaths = [
+  ...jsonVersionPaths,
+  ...cargoTomlVersionPaths.map(([path]) => path),
+  'Cargo.lock',
+] as const
+
+export const rootDir = join(import.meta.dirname, '..')
+
+const semverPattern =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 
 function replaceVersion(raw: string, pattern: RegExp, version: string, label: string) {
   if (!pattern.test(raw)) throw new Error(`Unable to find version field in ${label}`)
@@ -25,58 +42,80 @@ function replaceVersion(raw: string, pattern: RegExp, version: string, label: st
   return raw.replace(pattern, `$1${version}$2`)
 }
 
-async function setJsonVersion(path: string, version: string) {
-  const raw = await readFile(path, { encoding: 'utf-8' })
-  const pkg = JSON.parse(raw) as { version: string }
-  pkg.version = version
-  await writeFile(path, `${JSON.stringify(pkg, null, 2)}${raw.endsWith('\n') ? '\n' : ''}`, {
-    encoding: 'utf-8',
-  })
+export function assertVersion(version: string) {
+  if (!semverPattern.test(version)) throw new Error(`Invalid semantic version: ${version}`)
 }
 
-async function setCargoTomlVersion(
-  path: string,
-  version: string,
-  section: 'package' | 'workspace.package',
-) {
-  const raw = await readFile(path, { encoding: 'utf-8' })
-  const pattern =
-    section === 'workspace.package'
-      ? /(\[workspace\.package\][\s\S]*?^version = ")[^"]+(")/m
-      : /(\[package\][\s\S]*?^version = ")[^"]+(")/m
-  await writeFile(path, replaceVersion(raw, pattern, version, section), { encoding: 'utf-8' })
-}
+export class VersionSynchronizer {
+  private readonly cwd: string
 
-async function setCargoLockVersion(version: string) {
-  const path = join(import.meta.dirname, '../Cargo.lock')
-  const raw = await readFile(path, { encoding: 'utf-8' })
-  let next = raw
-
-  for (const name of cargoLockPackageNames) {
-    next = replaceVersion(
-      next,
-      new RegExp(`(\\[\\[package\\]\\]\\nname = "${name}"\\nversion = ")[^"]+(")`, 'g'),
-      version,
-      `Cargo.lock package ${name}`,
-    )
+  constructor(cwd = rootDir) {
+    this.cwd = cwd
   }
 
-  await writeFile(path, next, { encoding: 'utf-8' })
+  private async setJsonVersion(path: string, version: string) {
+    const raw = await readFile(path, { encoding: 'utf-8' })
+    const pkg = JSON.parse(raw) as { version?: string }
+    if (typeof pkg.version !== 'string') throw new Error(`Unable to find version field in ${path}`)
+    await writeFile(path, replaceVersion(raw, /("version"\s*:\s*")[^"]+(")/, version, path), {
+      encoding: 'utf-8',
+    })
+  }
+
+  private async setCargoTomlVersion(
+    path: string,
+    version: string,
+    section: 'package' | 'workspace.package',
+  ) {
+    const raw = await readFile(path, { encoding: 'utf-8' })
+    const pattern =
+      section === 'workspace.package'
+        ? /(\[workspace\.package\][\s\S]*?^version = ")[^"]+(")/m
+        : /(\[package\][\s\S]*?^version = ")[^"]+(")/m
+    await writeFile(path, replaceVersion(raw, pattern, version, `${path} [${section}]`), {
+      encoding: 'utf-8',
+    })
+  }
+
+  private async setCargoLockVersion(version: string) {
+    const path = join(this.cwd, 'Cargo.lock')
+    const raw = await readFile(path, { encoding: 'utf-8' })
+    let next = raw
+
+    for (const name of cargoLockPackageNames) {
+      next = replaceVersion(
+        next,
+        new RegExp(`(\\[\\[package\\]\\]\\r?\\nname = "${name}"\\r?\\nversion = ")[^"]+(")`, 'g'),
+        version,
+        `Cargo.lock package ${name}`,
+      )
+    }
+
+    await writeFile(path, next, { encoding: 'utf-8' })
+  }
+
+  async setVersion(version: string) {
+    assertVersion(version)
+
+    for (const path of jsonVersionPaths) {
+      await this.setJsonVersion(join(this.cwd, path), version)
+    }
+
+    for (const [path, section] of cargoTomlVersionPaths) {
+      await this.setCargoTomlVersion(join(this.cwd, path), version, section)
+    }
+
+    await this.setCargoLockVersion(version)
+  }
 }
 
 export async function setVersion(version: string) {
-  for (const p of jsonVersionPaths) {
-    const path = join(import.meta.dirname, p)
-    await setJsonVersion(path, version)
-  }
-
-  for (const [index, p] of cargoTomlPaths.entries()) {
-    const path = join(import.meta.dirname, p)
-    await setCargoTomlVersion(path, version, index === 0 ? 'package' : 'workspace.package')
-  }
-
-  await setCargoLockVersion(version)
+  await new VersionSynchronizer().setVersion(version)
 }
 
-const version = process.argv[2]
-if (version) await setVersion(version)
+const isCli = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (isCli) {
+  const version = process.argv[2]
+  if (!version) throw new Error('Usage: node ./script/set-version.mts <version>')
+  await setVersion(version)
+}
