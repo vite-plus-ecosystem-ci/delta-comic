@@ -18,3 +18,5 @@
 ## app侧清单
 
 - [ ] 为app编写一个插件市场功能，具体参考<https://github.com/delta-comic/awesome-plugins/blob/main/docs/delta-comic-integration-prompt.md>
+- [ ] 整理当前所有的硬编码ui文本，转化为i18n
+- [ ] 为i18n添加一种语言: zhTW(台湾风格的繁体中文)

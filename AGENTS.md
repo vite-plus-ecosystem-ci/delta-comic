@@ -49,3 +49,7 @@ In cloud environments, use `pnpm exec vp`.
 - **插件系统**: 分级可扩展架构，Rust 端提供命令 API，TS 端通过 Composition API 注入页面和功能
 - **线上仓库**: <https://github.com/delta-comic/delta-comic.git>
 - **依赖管理**: 使用 pnpm catalog 统一管理所有依赖版本（见 `pnpm-workspace.yaml`）
+
+## 要点
+
+- 添加ui文本记得使用i18n
