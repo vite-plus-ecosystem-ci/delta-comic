@@ -22,11 +22,11 @@ const randomProvider = computed(() =>
     .map(v => v.search?.fetchRandomItems)
     .filter(v => !!v),
 )
-const getRandomItems = (signal?: AbortSignal) => {
+const getRandomItems = async (signal: AbortSignal) => {
   const providers = randomProvider.value
-  if (providers.length === 0) return Promise.resolve([])
+  if (providers.length === 0) return []
   const index = Math.floor(Math.random() * providers.length)
-  return providers[index]!(signal)
+  return await providers[index]!(signal)
 }
 
 let index = 0

@@ -33,3 +33,8 @@ export const failedDependencies = (
   plugin: PluginArchiveDB.Archive,
   failedPluginNames: ReadonlySet<string>,
 ) => plugin.meta.require.filter(dependency => failedPluginNames.has(dependency.id)).map(v => v.id)
+
+export const filterPluginsBySelection = (
+  plugins: PluginArchiveDB.Archive[],
+  pluginNames?: ReadonlySet<string>,
+) => (pluginNames ? plugins.filter(plugin => pluginNames.has(plugin.pluginName)) : plugins)

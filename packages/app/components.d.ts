@@ -37,6 +37,7 @@ declare module 'vue' {
     FavouriteSelect: typeof import('./src/components/favouriteSelect.vue')['default']
     ForkSelect: typeof import('./src/components/forkSelect.vue')['default']
     HistoryCard: typeof import('./src/components/user/historyCard.vue')['default']
+    HotMainListBlock: typeof import('./src/components/home/HotMainListBlock.vue')['default']
     ListAction: typeof import('./src/components/listAction.vue')['default']
     ListSearcher: typeof import('./src/components/listSearcher.vue')['default']
     LoadList: typeof import('./src/components/plugin/loadList.vue')['default']

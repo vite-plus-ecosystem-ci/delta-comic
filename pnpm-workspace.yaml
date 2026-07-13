@@ -91,6 +91,7 @@ catalog:
   vite-plus: latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
   vue: ^3.5.39
+  vue-i18n: ^11.4.6
   vue-component-type-helpers: ^3.3.3
   vue-router: ^5.1.0
   wrangler: 4.105.0

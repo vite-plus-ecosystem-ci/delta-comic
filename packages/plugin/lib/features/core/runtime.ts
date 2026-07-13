@@ -1,6 +1,7 @@
 import { registerBooter, registerInstaller, registerLoader } from '../../driver/extensions'
 
 import configSetter from './booters/0_configSetter'
+import i18n from './booters/5_i18n'
 import apiTest from './booters/10_apiTest'
 import resourceTest from './booters/20_resourceTest'
 import boot from './booters/30_boot'
@@ -21,6 +22,7 @@ export const registerCoreRuntimeExtensions = () => {
   registered = true
 
   registerBooter(configSetter, { order: 0 })
+  registerBooter(i18n, { order: 5 })
   registerBooter(apiTest, { order: 10 })
   registerBooter(resourceTest, { order: 20 })
   registerBooter(boot, { order: 30 })

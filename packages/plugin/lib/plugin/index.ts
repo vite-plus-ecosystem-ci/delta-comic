@@ -2,6 +2,7 @@ import { isFunction } from 'es-toolkit/compat'
 import type { App } from 'vue'
 
 import type { ConfigPointer } from '@/configPointer'
+import type { PluginLocaleMessages } from '@/i18n'
 
 import type * as Share from './share'
 export type * as Share from './share'
@@ -39,6 +40,8 @@ export interface PluginConfigValues {
   api?: Record<string, Api.Config>
   user?: User.Config
   auth?: Auth.Config
+  /** Locale messages are merged in plugin load order; later plugins may override existing keys. */
+  i18n?: PluginLocaleMessages
   otherProgress?: OtherProgress.Config[]
   search?: Search.Config
   /**

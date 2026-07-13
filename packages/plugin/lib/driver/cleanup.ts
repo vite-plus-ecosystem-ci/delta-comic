@@ -3,6 +3,7 @@ import { uni } from '@delta-comic/model'
 import { useConfig } from '@/config'
 import { declareDepType, defaultDependencyRegistry } from '@/depends'
 import { Global } from '@/global'
+import { pluginI18n } from '@/i18n'
 import type { PluginConfig } from '@/plugin'
 
 import { releasePluginObjectUrls } from './init/storage'
@@ -35,6 +36,7 @@ export const cleanupPlugin = (config: PluginConfig) => {
   attempt(() => Global.topButton.delete(plugin))
   attempt(() => Global.mainLists.delete(plugin))
   attempt(() => Global.removeOwnedRegistrations(plugin))
+  attempt(() => pluginI18n.remove(plugin))
   attempt(() => removeSourcedEntries(Global.share, plugin))
   attempt(() => removeSourcedEntries(Global.shareToken, plugin))
   attempt(() => removeSourcedEntries(Global.userActions, plugin))

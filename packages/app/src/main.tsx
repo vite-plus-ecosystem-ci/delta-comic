@@ -15,7 +15,10 @@ import {
   NMessageProvider,
   NDialogProvider,
   NLoadingBarProvider,
-  zhCN,
+  dateEnUS,
+  dateZhCN,
+  enUS as naiveEnUS,
+  zhCN as naiveZhCN,
   type GlobalThemeOverrides,
   darkTheme,
   lightTheme,
@@ -26,11 +29,12 @@ import { createPinia, setActivePinia } from 'pinia'
 
 import '@/index.css'
 import * as Vue from 'vue'
-import { createApp, defineComponent, watch } from 'vue'
+import { computed, createApp, defineComponent, watch } from 'vue'
 import * as VR from 'vue-router'
 import { DataLoaderPlugin } from 'vue-router/experimental'
 
 import AppSetup from './AppSetup.vue'
+import { i18n, resolveAppLocale } from './i18n'
 import { initializePlatform } from './platform'
 import { router } from './router'
 
@@ -54,6 +58,21 @@ const app = createApp(
     const themeColor = Color('#fb7299').hex()
     const themeColorDark = Color(themeColor).darken(0.2).hex()
     const config = DcPlugin.useConfig()
+    const locale = computed(() => resolveAppLocale(config.$loadApp().data.value.language))
+    const naiveLocale = computed(() =>
+      locale.value === 'zh-CN'
+        ? { dateLocale: dateZhCN, locale: naiveZhCN }
+        : { dateLocale: dateEnUS, locale: naiveEnUS },
+    )
+
+    watch(
+      locale,
+      value => {
+        i18n.global.locale.value = value
+        document.documentElement.lang = value
+      },
+      { immediate: true },
+    )
 
     const themeOverrides = reactiveComputed<GlobalThemeOverrides>(() => ({
       common: {
@@ -75,7 +94,8 @@ const app = createApp(
     )
     return () => (
       <NConfigProvider
-        locale={zhCN}
+        locale={naiveLocale.value.locale}
+        dateLocale={naiveLocale.value.dateLocale}
         abstract
         theme={config.isDark ? darkTheme : lightTheme}
         themeOverrides={themeOverrides}
@@ -100,6 +120,8 @@ app.use(DataLoaderPlugin, { router })
 app.use(pinia)
 
 app.use(Pc.PiniaColada)
+
+app.use(i18n)
 
 app.use(router)
 

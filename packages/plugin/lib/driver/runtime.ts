@@ -12,6 +12,7 @@ import { bootResolvedConfig, type PluginLoadingInfo, loadPluginConfig } from './
 import { formatPluginLoadPlanError, planPluginLoadOrder } from './loadPlan'
 import {
   failedDependencies,
+  filterPluginsBySelection,
   pluginKind,
   selectPluginsForPhase,
   type ClientPluginKind,
@@ -29,6 +30,10 @@ export interface PrebootRecovery {
 export interface PluginRuntimeOperation {
   operation: Promise<void>
   progress: Ref<Record<string, PluginLoadingInfo>>
+}
+
+export interface LoadNormalOptions {
+  pluginNames?: readonly string[]
 }
 
 type ActivePlugin = { config: PluginConfig; kind: ClientPluginKind }
@@ -53,7 +58,13 @@ class PluginRuntime {
   private startupSnapshotReady = false
   private prebootActivated = false
 
-  loadNormal(): PluginRuntimeOperation {
+  public get activeNormalPluginNames() {
+    return [...this.active.entries()]
+      .filter(([, plugin]) => plugin.kind === 'normal')
+      .map(([name]) => name)
+  }
+
+  loadNormal(options: LoadNormalOptions = {}): PluginRuntimeOperation {
     if (this.normalOperation) throw new Error('normal plugins are already loading')
     if (this.preparedPreboot.size > 0 && !this.prebootActivated) {
       throw new Error('preboot plugins have not finished activating')
@@ -62,17 +73,17 @@ class PluginRuntime {
       throw new Error('normal plugins are already active; use reloadNormal()')
     }
     const progress = ref<Record<string, PluginLoadingInfo>>({})
-    const operation = this.loadKind('normal', progress)
+    const operation = this.loadKind('normal', progress, options)
     this.trackNormalOperation(operation)
     return { operation, progress }
   }
 
-  reloadNormal(): PluginRuntimeOperation {
+  reloadNormal(options: LoadNormalOptions = {}): PluginRuntimeOperation {
     if (this.normalOperation) throw new Error('normal plugins are already loading')
     const progress = ref<Record<string, PluginLoadingInfo>>({})
     const operation = (async () => {
       const unloadErrors = await this.unloadKind('normal')
-      await this.loadKind('normal', progress)
+      await this.loadKind('normal', progress, options)
       if (unloadErrors.length > 0) {
         throw new AggregateError(unloadErrors, 'some plugins failed to unload cleanly')
       }
@@ -240,7 +251,11 @@ class PluginRuntime {
     this.startupSnapshotReady = true
   }
 
-  private async loadKind(kind: 'normal', progress: Ref<Record<string, PluginLoadingInfo>>) {
+  private async loadKind(
+    kind: 'normal',
+    progress: Ref<Record<string, PluginLoadingInfo>>,
+    options: LoadNormalOptions,
+  ) {
     await this.ensureBuiltInPlugins()
     await pluginStore.$refreshI18nNames()
     const allPlugins = await db
@@ -249,11 +264,9 @@ class PluginRuntime {
       .selectAll()
       .execute()
     this.captureStartupSnapshot(allPlugins)
-    const plugins = selectPluginsForPhase(
-      allPlugins,
-      kind,
-      this.startupPrebootNames,
-      this.activePrebootNames,
+    const plugins = filterPluginsBySelection(
+      selectPluginsForPhase(allPlugins, kind, this.startupPrebootNames, this.activePrebootNames),
+      options.pluginNames ? new Set(options.pluginNames) : undefined,
     )
     const plan = planPluginLoadOrder(plugins)
     const planError = formatPluginLoadPlanError(plan)

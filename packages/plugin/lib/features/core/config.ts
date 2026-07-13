@@ -16,6 +16,17 @@ export const coreConfig = new ConfigPointer(
         { label: '跟随系统', value: 'system' },
       ],
     },
+    language: {
+      type: 'radio',
+      defaultValue: 'system',
+      info: '界面语言',
+      comp: 'select',
+      selects: [
+        { label: '简体中文', value: 'zh-CN' },
+        { label: 'English', value: 'en-US' },
+        { label: '跟随系统', value: 'system' },
+      ],
+    },
     easilyTitle: { type: 'switch', defaultValue: false, info: '简化标题(实验性功能)' },
     githubToken: {
       type: 'string',

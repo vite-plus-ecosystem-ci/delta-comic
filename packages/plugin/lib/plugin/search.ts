@@ -20,8 +20,10 @@ export interface Config {
 
   barcode?: Barcode[]
 
-  fetchRandomItems?: (signal: AbortSignal) => uni.item.Item[]
+  fetchRandomItems?: ItemProvider
 }
+
+export type ItemProvider = (signal: AbortSignal) => uni.item.Item[] | PromiseLike<uni.item.Item[]>
 
 export interface SearchMethod {
   name: string
@@ -36,11 +38,11 @@ export interface SearchMethod {
 
 export interface HotLevelboard {
   name: string
-  content: (signal: AbortSignal) => uni.item.Item[]
+  content: ItemProvider
 }
 export interface HotMainList {
   name: string
-  content: (signal: AbortSignal) => uni.item.Item[]
+  content: ItemProvider
   onClick?(): any
 }
 export interface HotTopButton {

@@ -1,4 +1,5 @@
 import type { PluginConfig } from '@/plugin'
+import { runOtherProgress } from '@/plugin/otherProgress'
 
 import { PluginBooter, type PluginBooterSetMeta } from '../../../driver/extensionTypes'
 
@@ -7,12 +8,7 @@ class _TestPluginResource extends PluginBooter {
   public override async call(cfg: PluginConfig, setMeta: PluginBooterSetMeta): Promise<any> {
     if (!cfg.otherProgress?.length) return
 
-    for (const process of cfg.otherProgress) {
-      setMeta({ name: process.name, description: '' })
-      await process.call(description => {
-        setMeta({ name: process.name, description })
-      })
-    }
+    await runOtherProgress(cfg.otherProgress, { setMeta })
   }
 }
 export default new _TestPluginResource()

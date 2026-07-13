@@ -8,10 +8,13 @@ import {
   NSpin,
   NTabPane,
   NTabs,
+  useDialog,
   useMessage,
 } from 'naive-ui'
-import { type Component, h, ref, shallowRef, watch } from 'vue'
+import { computed, type Component, h, ref, shallowRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+import { pluginStartupMemory } from '@/features/pluginStartup/PluginStartupMemory'
 import { Icons } from '@/icons'
 import Config from '@/pages/main/plugin/config.vue'
 import Download from '@/pages/main/plugin/download.vue'
@@ -22,52 +25,101 @@ import pkg from '../../../package.json'
 import ActionButtonGroup from './actionButtonGroup.vue'
 import LoadList from './loadList.vue'
 
+const props = defineProps<{ startupReady: boolean }>()
 const show = defineModel<boolean>('show', { required: true })
 const isBooted = defineModel<boolean>('isBooted', { required: true })
+const { t } = useI18n()
 const renderIcon = (icon: Component) => () => h(NIcon, null, { default: () => h(icon) })
 
-const pluginPages = [
-  {
-    label: '管理',
-    key: 'list',
-    icon: renderIcon(Icons.material.AutoAwesomeMosaicOutlined),
-    comp: List,
-  },
-  {
-    label: '安装',
-    key: 'download',
-    icon: renderIcon(Icons.material.FileDownloadOutlined),
-    comp: Download,
-  },
-  { label: '配置', key: 'config', icon: renderIcon(Icons.antd.SettingOutlined), comp: Config },
-] as const
+const pluginPages = computed(
+  () =>
+    [
+      {
+        label: t('plugin.menu.manage'),
+        key: 'list',
+        icon: renderIcon(Icons.material.AutoAwesomeMosaicOutlined),
+        comp: List,
+      },
+      {
+        label: t('plugin.menu.install'),
+        key: 'download',
+        icon: renderIcon(Icons.material.FileDownloadOutlined),
+        comp: Download,
+      },
+      {
+        label: t('plugin.menu.config'),
+        key: 'config',
+        icon: renderIcon(Icons.antd.SettingOutlined),
+        comp: Config,
+      },
+    ] as const,
+)
 
-const menuOptions: MenuOption[] = [
-  ...pluginPages,
-  { label: `版本: ${pkg.version}`, key: 'version', disabled: true },
-]
-const pageSelect = shallowRef<(typeof pluginPages)[number]['key']>('list')
+const menuOptions = computed<MenuOption[]>(() => [
+  ...pluginPages.value,
+  { label: t('plugin.menu.version', { version: pkg.version }), key: 'version', disabled: true },
+])
+const pageSelect = shallowRef<'config' | 'download' | 'list'>('list')
 
 const bootingSteps = ref<Record<string, PluginLoadingInfo>>()
-const boot = async (safe = false) => {
-  if (bootingSteps.value || isBooted.value) return $message.warning('正在启动中')
+const $dialog = useDialog()
+const $message = useMessage()
+
+const promptToRemember = (safe: boolean) => {
+  $dialog.info({
+    title: t('plugin.startup.remember.title'),
+    content: t('plugin.startup.remember.content'),
+    positiveText: t('plugin.startup.remember.positive'),
+    negativeText: t('plugin.startup.remember.negative'),
+    closable: false,
+    maskClosable: false,
+    onPositiveClick() {
+      pluginStartupMemory.remember(pluginRuntime.activeNormalPluginNames, safe)
+    },
+    onNegativeClick() {
+      pluginStartupMemory.clear()
+    },
+  })
+}
+
+const boot = async (safe = false, pluginNames?: readonly string[], remembered = false) => {
+  if (!props.startupReady) return $message.warning(t('plugin.startup.prebootLoading'))
+  if (bootingSteps.value || isBooted.value) return $message.warning(t('plugin.startup.loading'))
   window.$$safe$$ = safe
-  const { operation, progress } = pluginRuntime.loadNormal()
+  const { operation, progress } = pluginRuntime.loadNormal({ pluginNames })
   const watcher = watch(progress, steps => (bootingSteps.value = steps), {
     immediate: true,
     deep: true,
   })
   try {
     await operation
+    if (Object.values(progress.value).some(value => value.progress.status === 'error')) {
+      show.value = true
+      return $message.error(t('plugin.startup.errors.partialFailure'))
+    }
     isBooted.value = true
     show.value = false
+    if (!remembered) promptToRemember(safe)
+  } catch (error) {
+    show.value = true
+    $message.error(error instanceof Error ? error.message : String(error))
   } finally {
     watcher.stop()
     bootingSteps.value = undefined
   }
 }
 
-const $message = useMessage()
+let rememberedStartupAttempted = false
+watch(
+  () => props.startupReady,
+  ready => {
+    if (!ready || rememberedStartupAttempted) return
+    rememberedStartupAttempted = true
+    const preference = pluginStartupMemory.read()
+    if (preference) void boot(preference.safe, preference.pluginNames, true)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -98,8 +150,16 @@ const $message = useMessage()
       <!-- boot button group -->
       <ActionButtonGroup
         :actions="[
-          { title: '安全启动', icon: Icons.antd.SafetyOutlined, onClick: () => boot(true) },
-          { title: '启动', icon: Icons.material.CheckRound, onClick: () => boot(false) },
+          {
+            title: t('plugin.startup.actions.safeStart'),
+            icon: Icons.antd.SafetyOutlined,
+            onClick: () => boot(true),
+          },
+          {
+            title: t('plugin.startup.actions.start'),
+            icon: Icons.material.CheckRound,
+            onClick: () => boot(false),
+          },
         ]"
       />
       <template #description>

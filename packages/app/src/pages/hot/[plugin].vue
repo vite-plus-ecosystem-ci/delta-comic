@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SourcedValue, uni } from '@delta-comic/model'
 import { Global, usePluginStore } from '@delta-comic/plugin'
+import { useQuery } from '@pinia/colada'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -17,6 +18,10 @@ const selectLevel = computed(() => selectLevelKey.stringify([plugin.value, selec
 const source = computed(() =>
   Global.levelboard.get(plugin.value)?.find(v => v.name == select.value),
 )
+const items = useQuery({
+  key: () => ['hot-levelboard', plugin.value, select.value],
+  query: async ({ signal }) => (source.value ? await source.value.content(signal) : []),
+})
 
 const getItemCard = (item: uni.item.Item) => uni.item.Item.itemCards.get(item.contentType)
 const getColor = (index: number) => {
@@ -74,7 +79,7 @@ const routeToLevel = (source: string) => {
     >
       <DcList
         v-if="source"
-        :source="{ type: 'query', value: source.content() }"
+        :source="{ type: 'query', value: items }"
         :minHeight="140"
         v-slot="{ item, index, height }"
         class="size-full!"

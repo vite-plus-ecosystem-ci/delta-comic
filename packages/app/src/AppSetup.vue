@@ -33,6 +33,7 @@ useStyleTag(injectStyle)
 
 const isBooted = shallowRef(false)
 const showContent = shallowRef(false)
+const startupReady = shallowRef(false)
 const prebootRecovery = shallowRef(pluginRuntime.readRecovery())
 
 const dismissPrebootRecovery = () => {
@@ -43,6 +44,7 @@ const dismissPrebootRecovery = () => {
 onMounted(async () => {
   const result = await pluginRuntime.activatePreboot()
   if (result.reloadRequired) location.reload()
+  else startupReady.value = true
 })
 </script>
 
@@ -86,7 +88,7 @@ onMounted(async () => {
   <Suspense v-if="isBooted">
     <App />
   </Suspense>
-  <Plugin v-model:show="showContent" v-model:is-booted="isBooted" />
+  <Plugin v-model:show="showContent" v-model:is-booted="isBooted" :startup-ready="startupReady" />
   <PrebootRecoveryAlert
     v-if="prebootRecovery"
     :recovery="prebootRecovery"

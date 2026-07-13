@@ -1,7 +1,12 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
 import { describe, expect, it } from 'vite-plus/test'
 
-import { failedDependencies, pluginKind, selectPluginsForPhase } from './runtimePlan'
+import {
+  failedDependencies,
+  filterPluginsBySelection,
+  pluginKind,
+  selectPluginsForPhase,
+} from './runtimePlan'
 
 const archive = (
   pluginName: string,
@@ -64,5 +69,12 @@ describe('client plugin runtime plan', () => {
     expect(failedDependencies(archive('child', 'normal', ['parent']), new Set(['parent']))).toEqual(
       ['parent'],
     )
+  })
+
+  it('restores only the remembered normal plugin selection', () => {
+    const plugins = [archive('first'), archive('second'), archive('early', 'preboot')]
+    expect(
+      filterPluginsBySelection(plugins, new Set(['second'])).map(plugin => plugin.pluginName),
+    ).toEqual(['second'])
   })
 })
