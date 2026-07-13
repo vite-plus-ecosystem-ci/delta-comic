@@ -7,6 +7,8 @@ import type {
   ServerPluginScriptTrigger,
 } from '../../../lib/plugin'
 
+import type { PluginDatabaseBinding } from './plugins.database'
+
 export interface ScriptRow {
   plugin_id: string
   source: string
@@ -184,7 +186,10 @@ export class CloudflarePluginSandboxLoader implements PluginSandboxLoader {
 }
 
 export class DynamicWorkerPluginRunner {
-  constructor(private readonly loader: PluginSandboxLoader) {}
+  constructor(
+    private readonly loader: PluginSandboxLoader,
+    private readonly database: () => PluginDatabaseBinding,
+  ) {}
 
   async run(
     script: Pick<ServerPluginScript, 'pluginId' | 'source'>,
@@ -194,11 +199,38 @@ export class DynamicWorkerPluginRunner {
   ): Promise<unknown> {
     const mainModule = 'plugin.mjs'
     const source = `
+const createDatabase = binding => {
+  const states = new WeakMap()
+  const prepare = (query, values = []) => {
+    const statement = Object.freeze({
+      all: () => binding.all(query, values),
+      bind: (...nextValues) => prepare(query, nextValues),
+      first: columnName => binding.first(query, values, columnName),
+      raw: options => binding.raw(query, values, options),
+      run: () => binding.run(query, values),
+    })
+    states.set(statement, { query, values })
+    return statement
+  }
+  return Object.freeze({
+    batch: statements => binding.batch(statements.map(statement => {
+      const state = states.get(statement)
+      if (!state) throw new TypeError('database.batch only accepts prepared statements')
+      return state
+    })),
+    dump: () => binding.dump(),
+    exec: query => binding.exec(query),
+    prepare,
+  })
+}
+
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const payload = await request.json()
     const input = payload.input
     const context = Object.freeze(payload.context)
+    const database = createDatabase(env.DATABASE)
+    const db = database
     const execute = async () => {
 ${script.source}
     }
@@ -208,8 +240,8 @@ ${script.source}
 }`
     const code: WorkerLoaderWorkerCode = {
       compatibilityDate: '2026-07-02',
-      globalOutbound: null,
-      limits: { cpuMs: 50, subRequests: 0 },
+      env: { DATABASE: this.database() },
+      limits: { cpuMs: 50 },
       mainModule,
       modules: { [mainModule]: { js: source } },
     }
@@ -321,14 +353,20 @@ export class ServerPluginScriptService {
   }
 }
 
-export const createPluginScriptService = (env: Pick<Env, 'DB' | 'PLUGIN_LOADER'>) =>
+export const createPluginScriptService = (
+  env: Pick<Env, 'DB' | 'PLUGIN_LOADER'>,
+  ctx: ExecutionContext,
+) =>
   new ServerPluginScriptService(
     new ServerPluginScriptRepository(env.DB),
-    new DynamicWorkerPluginRunner(new CloudflarePluginSandboxLoader(env.PLUGIN_LOADER)),
+    new DynamicWorkerPluginRunner(new CloudflarePluginSandboxLoader(env.PLUGIN_LOADER), () =>
+      ctx.exports.PluginDatabase({}),
+    ),
   )
 
 export const runScheduledPluginScripts = (
   env: Pick<Env, 'DB' | 'PLUGIN_LOADER'>,
+  ctx: ExecutionContext,
   scheduledTime: number,
   cron: string,
-) => createPluginScriptService(env).runDue(scheduledTime, cron)
+) => createPluginScriptService(env, ctx).runDue(scheduledTime, cron)

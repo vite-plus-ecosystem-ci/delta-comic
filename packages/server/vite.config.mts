@@ -19,5 +19,12 @@ export default defineConfig({
     extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts'],
   },
   root,
-  test: { environment: 'node', include: ['app/**/*.test.ts', 'lib/**/*.test.ts'], root },
+  test: {
+    alias: {
+      'cloudflare:workers': fileURLToPath(new URL('./test/cloudflareWorkers.ts', import.meta.url)),
+    },
+    environment: 'node',
+    include: ['app/**/*.test.ts', 'lib/**/*.test.ts'],
+    root,
+  },
 })

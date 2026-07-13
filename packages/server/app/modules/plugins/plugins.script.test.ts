@@ -63,6 +63,30 @@ class RecordingSandbox implements PluginSandboxLoader {
   }
 }
 
+const emptyD1Result: D1Result = {
+  meta: {
+    changed_db: false,
+    changes: 0,
+    duration: 0,
+    last_row_id: 0,
+    rows_read: 0,
+    rows_written: 0,
+    size_after: 0,
+  },
+  results: [],
+  success: true,
+}
+
+const database = {
+  all: async () => emptyD1Result,
+  batch: async () => [],
+  dump: async () => new ArrayBuffer(0),
+  exec: async () => ({ count: 0, duration: 0 }),
+  first: async () => null,
+  raw: async () => [],
+  run: async () => emptyD1Result,
+}
+
 const createService = () => {
   const repository = new MemoryScriptRepository()
   const sandbox = new RecordingSandbox()
@@ -73,7 +97,7 @@ const createService = () => {
     sandbox,
     service: new ServerPluginScriptService(
       repository,
-      new DynamicWorkerPluginRunner(sandbox),
+      new DynamicWorkerPluginRunner(sandbox, () => database),
       () => ++now,
       () => `run-${++id}`,
     ),
@@ -117,10 +141,16 @@ describe('server plugin scripts', () => {
       input: { value: 3 },
     })
     expect(sandbox.code).toMatchObject({
-      globalOutbound: null,
-      limits: { cpuMs: 50, subRequests: 0 },
+      env: { DATABASE: database },
+      limits: { cpuMs: 50 },
       mainModule: 'plugin.mjs',
     })
+    expect(sandbox.code).not.toHaveProperty('globalOutbound')
+    expect(sandbox.code).not.toHaveProperty('limits.subRequests')
+    const source = sandbox.code?.modules['plugin.mjs']
+    expect(source).toHaveProperty('js')
+    expect((source as { js: string }).js).toContain('const database = createDatabase(env.DATABASE)')
+    expect((source as { js: string }).js).toContain('const db = database')
     expect(repository.runs).toHaveLength(1)
   })
 

@@ -19,9 +19,9 @@ export const pluginRoutes = new Elysia({
   .use(serverContext)
   .use(adminGuard)
   .resolve(({ db, request }) => {
-    const { env } = getRuntime(request)
+    const { ctx, env } = getRuntime(request)
     return {
-      pluginScriptService: createPluginScriptService(env),
+      pluginScriptService: createPluginScriptService(env, ctx),
       pluginService: createPluginService(db),
     }
   })

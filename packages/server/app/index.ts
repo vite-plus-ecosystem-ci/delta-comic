@@ -12,6 +12,8 @@ import { syncModule } from './modules/sync/sync.module'
 import { cors } from './shared/http/cors'
 import { apiSuccessSchema, errorResponse, ok } from './shared/response'
 
+export { PluginDatabase } from './modules/plugins/plugins.database'
+
 const healthResponseSchema = t.Object({
   service: t.Literal('delta-comic-server'),
   status: t.Literal('ok'),
@@ -97,6 +99,6 @@ export default {
     return compiled.fetch(request)
   },
   scheduled(controller: ScheduledController, env: AppEnv, ctx: ExecutionContext) {
-    ctx.waitUntil(runScheduledPluginScripts(env, controller.scheduledTime, controller.cron))
+    ctx.waitUntil(runScheduledPluginScripts(env, ctx, controller.scheduledTime, controller.cron))
   },
 } satisfies ExportedHandler<AppEnv>
