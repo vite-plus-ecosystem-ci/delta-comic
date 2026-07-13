@@ -43,7 +43,6 @@ export default defineConfig({
         'packages/server-admin/src/main.ts',
         'packages/server-admin/src/shared/{api,components}/types.ts',
         'packages/ui/lib/components/form/type.ts',
-        'script/{release-notes,set-version,update-version,version-packages}.mts',
       ],
       thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
     },

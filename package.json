@@ -28,6 +28,7 @@
     "set-ver": "node ./script/set-version.mts",
     "tauri": "vp run --filter app tauri",
     "test": "vp test",
+    "test:coverage": "vp test run --coverage",
     "typecheck": "vp run -r typecheck",
     "vp:install": "vp install"
   },
@@ -37,6 +38,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@typescript/native-preview": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "commitlint-plugin-cspell": "catalog:",
     "cspell": "catalog:",
     "oxlint-tsgolint": "catalog:",
