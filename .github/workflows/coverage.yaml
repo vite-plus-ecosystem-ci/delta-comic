@@ -1,11 +1,11 @@
-name: 单元测试
+name: 测试覆盖率
 
 on:
   push:
     paths:
       - 'packages/**'
       - 'script/**'
-      - '.github/workflows/test.yaml'
+      - '.github/workflows/coverage.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -15,7 +15,7 @@ on:
     paths:
       - 'packages/**'
       - 'script/**'
-      - '.github/workflows/test.yaml'
+      - '.github/workflows/coverage.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -26,7 +26,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  coverage:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - name: Test
+      - name: Test coverage
         run: |
           vp run lib-build
-          vp test run
+          vp test run --coverage
