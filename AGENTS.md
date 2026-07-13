@@ -32,6 +32,7 @@ In cloud environments, use `pnpm exec vp`.
 
 ### 格式
 
+- 提交遵循Angular规则，但描述内容使用中文，如`feat(ui): 实现了列表组件`
 - 组件样式必须使用PascalCase，例如: `<NButton></NButton>`、`<DcList></DcList>`
 - 格式化请使用`vp fmt`和`vp lint`，最好不要手动修复格式问题
 - 最好遵守`dry`(不要重复自己)规则

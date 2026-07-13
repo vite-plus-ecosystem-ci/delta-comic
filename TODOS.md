@@ -10,35 +10,11 @@
 
 该清单内容位于`项目根目录/TODOS.md`
 
+## 工程清单
+
+- [ ] 将版本与发布控制切换为semantic-release控制，保证现有版本控制功能全部正常(如版本号推断等)
+- [ ] 配置覆盖率测试，基线80%，你只需要添加，不需要补齐测试(但新功能的测试还要有)
+
 ## app侧清单
 
-- [x] 对preboot的加载流程做调整，在`createApp`和所有`use`后，但在`mount`前，并且让钩子拿到app实例
-- [x] plugin包下的env原本是想做一个类似`provide`和`inject`类型的注入系统，现在希望你将她移动到ui包下，用vue单文件组件重新实现它，注意使用泛型泛型组件明确定义
-- [x] 从plugin包中彻底移除`pinia`和`piniaColada`来减轻复杂度，用class作为代替实现
-- [x] 让preboot插件可以添加`installer`,`loader`,`booter`
-  - [x] 完成后将现有`installer`,`loader`,`booter`移入`core`，你可以重新设计目录结构
-- [x] 添加一个`记忆插件选择`功能，在启动应用并加载完插件后，询问用户是否记忆以供下次自动启动
-- [x] 使用`vue-i18n`插件为应用提供国际化能力；此外，插件可以添加/覆盖语言内容(不要求全部替换)；`naive-ui`组件库提供了它自身的i18n功能。你最好使用切分为ts文件来保存不同的语言，他可以提供类型补全优势
-- [x] 让插件的`otherProgress`提供可配置的并行能力，类似:
-  ```ts
-  [
-    {
-      name:"A",
-      async: true
-    }, {
-      name:"B",
-      async: true
-    }, {
-      name:"C"
-    }, {
-      name:"D",
-      async: true
-    }
-  ]
-  ```
-  此时A和B并行运行；但C等待AB运行完之后运行；D由等待C运行结束运行；但是由于D是最后的步骤，所以加载系统不等待D运行结束，该插件视为完成加载，D保持后台运行。
-  总之：多个相邻的async项对于下个非async视为同一个任务等待运行；多个相邻的async项(或单个)不阻塞插件加载完成。
-
-## server侧清单
-
-- [x] 让`任意运行脚本`的插件可以任意访问外部网络和数据库
+- [ ] 为app编写一个插件市场功能，具体参考<https://github.com/delta-comic/awesome-plugins/blob/main/docs/delta-comic-integration-prompt.md>
