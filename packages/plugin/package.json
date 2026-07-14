@@ -46,7 +46,6 @@
     "ky": "catalog:",
     "lz-string": "catalog:",
     "semver": "catalog:",
-    "vite-plugin-externals": "catalog:",
     "vite-plugin-monkey": "catalog:"
   },
   "devDependencies": {

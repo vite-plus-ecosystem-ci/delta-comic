@@ -1,8 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { extendsDepends } from '@delta-comic/utils/vite'
+import { exposeHostLibraries, extendsDepends } from '@delta-comic/utils/vite'
 import { merge } from 'es-toolkit'
 import JSZip from 'jszip'
-import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
 
 type DeltaComicBundleAssetSource = string | Uint8Array
@@ -41,6 +40,8 @@ export const deltaComic = (
     name: 'delta-comic-shared-runtime-guard',
     enforce: 'pre',
     resolveId(source) {
+      if (Object.hasOwn(externalGlobals, source)) return
+
       const externalRoot = Object.keys(externalGlobals).find(root => source.startsWith(`${root}/`))
       if (!externalRoot && !source.startsWith('@vue/')) return
 
@@ -90,12 +91,9 @@ export const deltaComic = (
       this.emitFile({ type: 'asset', fileName: 'manifest.json', source: manifest })
     },
   }
-  const externals = external(
-    Object.fromEntries(
-      Object.entries(externalGlobals).map(([key, val]) => [key, val.split('.').slice(1)]),
-    ),
-    { disableInServe: false },
-  ) as DeltaComicPluginOption
+  const externals = exposeHostLibraries({
+    libraries: externalGlobals,
+  }) as unknown as DeltaComicPluginOption
 
   return [
     sharedRuntimeGuard,

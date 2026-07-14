@@ -45,7 +45,6 @@ export default defineConfig(
         })()
 
         return [
-          exposeHostLibraries({ entry: fileURLToPath(new URL('./src/main.tsx', import.meta.url)) }),
           // @ts-ignore
           wasm(),
           VueRouter({ dts: 'typed-router.d.ts' }),
@@ -60,6 +59,7 @@ export default defineConfig(
             dtsTsx: false,
           }),
           tailwindcss(),
+          exposeHostLibraries({ entry: fileURLToPath(new URL('./src/main.tsx', import.meta.url)) }),
         ]
       }),
       resolve: {
