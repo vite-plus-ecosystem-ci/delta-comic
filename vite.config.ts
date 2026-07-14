@@ -15,6 +15,10 @@ export default defineConfig({
   lint: lint as OxlintConfig,
   run: { cache: { tasks: true, scripts: true } },
   test: {
+    clearMocks: true,
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary', 'html', 'lcov'],
