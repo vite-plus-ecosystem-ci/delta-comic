@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import '../test/setup'
@@ -27,7 +27,10 @@ const waitForExpect = async (assertion: () => void) => {
   throw lastError
 }
 
-const mockSqliteStore = async (initialValues: Array<[string, string]> = []) => {
+const mockSqliteStore = async (
+  initialValues: Array<[string, string]> = [],
+  options: { loadError?: Error; saveError?: Error } = {},
+) => {
   const values = new Map(initialValues)
   const calls: Array<{ command: string; payload: Partial<StorePayload> }> = []
 
@@ -38,6 +41,7 @@ const mockSqliteStore = async (initialValues: Array<[string, string]> = []) => {
         return {
           values: (payload: StorePayload) => ({
             execute: async () => {
+              if (options.saveError) throw options.saveError
               calls.push({ command: 'replaceInto', payload })
               values.set(nativeStoreKey(payload), payload.value)
             },
@@ -54,6 +58,7 @@ const mockSqliteStore = async (initialValues: Array<[string, string]> = []) => {
               return this
             },
             async executeTakeFirst() {
+              if (options.loadError) throw options.loadError
               calls.push({ command: 'selectFrom', payload })
               const value = values.get(nativeStoreKey(payload as Omit<StorePayload, 'value'>))
               return value === undefined ? undefined : { value }
@@ -67,6 +72,11 @@ const mockSqliteStore = async (initialValues: Array<[string, string]> = []) => {
   const { useNativeStore } = await import('./index')
   return { calls, useNativeStore, values }
 }
+
+afterEach(() => {
+  vi.useRealTimers()
+  globalThis.localStorage.clear()
+})
 
 describe('useNativeStore', () => {
   it('hydrates state from sqlite storage and persists deep changes', async () => {
@@ -96,6 +106,7 @@ describe('useNativeStore', () => {
     const state = useNativeStore('settings', 'theme', { mode: 'light' })
 
     await flushNativeStore()
+    await waitForExpect(() => expect(state.value).toEqual({ mode: 'legacy' }))
     await vi.advanceTimersByTimeAsync(100)
 
     expect(state.value).toEqual({ mode: 'legacy' })
@@ -111,9 +122,55 @@ describe('useNativeStore', () => {
     const state = useNativeStore('settings', 'theme', defaultValue)
 
     await flushNativeStore()
+    await waitForExpect(() =>
+      expect(warn).toHaveBeenCalledWith(
+        '[db] failed to parse native store value',
+        expect.any(SyntaxError),
+      ),
+    )
 
     expect(state.value).toEqual(defaultValue)
     expect(state.value).not.toBe(defaultValue)
-    warn.mockRestore()
+  })
+
+  it('recovers from sqlite load failures without exposing a mutable default object', async () => {
+    const defaultValue = { mode: 'light' }
+    const { useNativeStore } = await mockSqliteStore([], {
+      loadError: new Error('database unavailable'),
+    })
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    const state = useNativeStore('settings', 'theme', defaultValue)
+    await flushNativeStore()
+    await waitForExpect(() =>
+      expect(warn).toHaveBeenCalledWith(
+        '[db] failed to load native store value',
+        expect.objectContaining({ message: 'database unavailable' }),
+      ),
+    )
+
+    expect(state.value).toEqual(defaultValue)
+    expect(state.value).not.toBe(defaultValue)
+  })
+
+  it('contains asynchronous persistence failures after state changes', async () => {
+    vi.useFakeTimers()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const { useNativeStore } = await mockSqliteStore(
+      [['settings:theme', JSON.stringify({ mode: 'dark' })]],
+      { saveError: new Error('disk full') },
+    )
+    const state = useNativeStore('settings', 'theme', { mode: 'light' })
+    await flushNativeStore()
+    await waitForExpect(() => expect(state.value).toEqual({ mode: 'dark' }))
+
+    state.value.mode = 'blue'
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(100)
+
+    expect(warn).toHaveBeenCalledWith(
+      '[db] failed to persist native store value',
+      expect.objectContaining({ message: 'disk full' }),
+    )
   })
 })

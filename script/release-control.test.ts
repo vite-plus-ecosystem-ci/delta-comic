@@ -4,7 +4,11 @@ import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ReleaseHistoryBootstrap, type GitRunner } from './bootstrap-release-history.mts'
+import {
+  readCurrentVersion,
+  ReleaseHistoryBootstrap,
+  type GitRunner,
+} from './bootstrap-release-history.mts'
 import { createReleasePlugin, type CommandRunner } from './semantic-release-plugin.mts'
 import {
   cargoLockPackageNames,
@@ -93,6 +97,21 @@ describe('ReleaseHistoryBootstrap', () => {
     await expect(new ReleaseHistoryBootstrap(git).ensureBaseline('2.3.0')).resolves.toBe(false)
     expect(git).toHaveBeenCalledOnce()
   })
+
+  it('reports when the configured migration file cannot be found', async () => {
+    const git = vi.fn<GitRunner>(async args => ({
+      status: args[0] === 'rev-parse' ? 1 : 0,
+      stdout: '',
+    }))
+
+    await expect(
+      new ReleaseHistoryBootstrap(git, 'missing.config.mjs').ensureBaseline('2.3.0'),
+    ).rejects.toThrow('Unable to locate the commit that added missing.config.mjs')
+  })
+
+  it('reads the current workspace version from the root manifest', async () => {
+    await expect(readCurrentVersion()).resolves.toBe('2.3.0')
+  })
 })
 
 describe('semantic-release monorepo plugin', () => {
@@ -124,5 +143,32 @@ describe('semantic-release monorepo plugin', () => {
       ['vp', ['run', 'lib-build']],
       ['vp', ['pm', 'publish', '-r', '--no-git-checks', '--provenance']],
     ])
+  })
+
+  it('requires an npm token before publishing', async () => {
+    const plugin = createReleasePlugin()
+
+    await expect(
+      plugin.verifyConditions({}, { env: {}, nextRelease: { version: '3.0.0' } }),
+    ).rejects.toThrow('NPM_TOKEN is required')
+  })
+
+  it('validates release versions and skips GitHub output outside Actions', async () => {
+    const writeOutput = vi.fn()
+    const plugin = createReleasePlugin({ writeOutput })
+
+    await expect(
+      plugin.verifyRelease({}, { env: {}, nextRelease: { version: 'next' } }),
+    ).rejects.toThrow('Invalid semantic version')
+    await plugin.verifyRelease({}, { env: {}, nextRelease: { version: '3.0.0' } })
+    expect(writeOutput).not.toHaveBeenCalled()
+  })
+
+  it('does not publish packages when the library build fails', async () => {
+    const publishCommand = vi.fn<CommandRunner>().mockRejectedValueOnce(new Error('build failed'))
+    const plugin = createReleasePlugin({ publishCommand })
+
+    await expect(plugin.publish()).rejects.toThrow('build failed')
+    expect(publishCommand).toHaveBeenCalledExactlyOnceWith('vp', ['run', 'lib-build'])
   })
 })

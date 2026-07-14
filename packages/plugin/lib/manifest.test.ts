@@ -31,4 +31,78 @@ describe('Delta Comic plugin manifest', () => {
       'safe relative path',
     )
   })
+
+  it('preserves optional runtime, integrity and dependency metadata', () => {
+    const full = {
+      ...manifest,
+      entry: { jsPath: 'dist/index.mjs' },
+      integrity: { algorithm: 'sha256', digest: 'abc123' },
+      kind: 'preboot',
+      require: [{ id: 'layout' }, { download: 'ap:reader', id: 'reader' }],
+    }
+
+    expect(parsePluginManifest(full)).toMatchObject(full)
+    expect(
+      parsePluginManifest({ ...full, integrity: { algorithm: 'blake3', digest: 'def456' } }),
+    ).toMatchObject({ integrity: { algorithm: 'blake3', digest: 'def456' } })
+    expect(parsePluginManifest({ ...full, kind: 'normal' })).toMatchObject({ kind: 'normal' })
+  })
+
+  it.each([
+    ['array manifest', [], 'manifest must be an object'],
+    ['unsafe dot id', { ...manifest, name: { ...manifest.name, id: '..' } }, 'unsafe path segment'],
+    [
+      'unsafe slash id',
+      { ...manifest, name: { ...manifest.name, id: 'group/plugin' } },
+      'unsafe path segment',
+    ],
+    ['non-array dependencies', { ...manifest, require: {} }, 'manifest.require must be an array'],
+    [
+      'non-object dependency',
+      { ...manifest, require: [null] },
+      'manifest.require[0] must be an object',
+    ],
+    [
+      'invalid dependency download',
+      { ...manifest, require: [{ download: 42, id: 'layout' }] },
+      'manifest.require[0].download must be a string',
+    ],
+    [
+      'missing dependency id',
+      { ...manifest, require: [{}] },
+      'manifest.require[0].id must be a non-empty string',
+    ],
+    [
+      'absolute entry',
+      { ...manifest, entry: { jsPath: '/index.mjs' } },
+      'manifest.entry.jsPath must be a safe relative path',
+    ],
+    [
+      'backslash traversal',
+      { ...manifest, entry: { cssPath: '..\\index.css', jsPath: 'index.mjs' } },
+      'manifest.entry.cssPath must be a safe relative path',
+    ],
+    [
+      'invalid kind',
+      { ...manifest, kind: 'system' },
+      'manifest.kind must be "normal" or "preboot"',
+    ],
+    [
+      'non-object integrity',
+      { ...manifest, integrity: 'sha256:abc' },
+      'manifest.integrity must be an object',
+    ],
+    [
+      'invalid integrity algorithm',
+      { ...manifest, integrity: { algorithm: 'md5', digest: 'abc' } },
+      'manifest.integrity.algorithm is unsupported',
+    ],
+    [
+      'empty integrity digest',
+      { ...manifest, integrity: { algorithm: 'sha256', digest: '' } },
+      'manifest.integrity.digest must be a non-empty string',
+    ],
+  ])('rejects %s', (_case, value, message) => {
+    expect(() => parsePluginManifest(value)).toThrow(message as string)
+  })
 })

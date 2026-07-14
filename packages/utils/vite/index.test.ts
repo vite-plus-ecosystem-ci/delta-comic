@@ -83,6 +83,32 @@ describe('host external libraries', () => {
     expect(result?.code).toContain('Promise.resolve(window.$$lib$$.DcDb)')
   })
 
+  it('rewrites namespace re-exports and every named re-export shape', async () => {
+    const plugin = externalizeSharedRuntime()
+    const source = [
+      `export * as VueRuntime from 'vue'`,
+      `export { default } from 'naive-ui'`,
+      `export { default as Router, createRouter as makeRouter } from 'vue-router'`,
+    ].join('\n')
+    const result = await plugin.transform.call(context, source, '/repo/src/bridge.ts')
+
+    expect(result?.code).toContain('export const VueRuntime = window.$$lib$$.Vue')
+    expect(result?.code).toContain(
+      'export default window.$$lib$$.Naive.default ?? window.$$lib$$.Naive',
+    )
+    expect(result?.code).toContain(
+      'export const Router = window.$$lib$$.VR.default ?? window.$$lib$$.VR',
+    )
+    expect(result?.code).toContain('export const makeRouter = window.$$lib$$.VR.createRouter')
+  })
+
+  it('keeps side-effect-only imports valid while removing the external dependency', async () => {
+    const plugin = externalizeSharedRuntime()
+    const result = await plugin.transform.call(context, `import 'vue'`, '/repo/src/plugin.ts')
+
+    expect(result?.code).toBe('')
+  })
+
   it('supports default imports while preserving global-only package compatibility', async () => {
     const plugin = externalizeSharedRuntime()
     const result = await plugin.transform.call(
@@ -108,6 +134,22 @@ describe('host external libraries', () => {
     )
   })
 
+  it('accepts clean and similarly named output graphs', () => {
+    const plugin = externalizeSharedRuntime()
+    const cleanContext = {
+      ...context,
+      getModuleIds() {
+        return [
+          String.raw`C:\repo\node_modules\vueuse\dist\index.js`,
+          '/repo/node_modules/@pinia/plugin-shared/dist/index.js',
+          '/repo/src/main.ts',
+        ][Symbol.iterator]()
+      },
+    }
+
+    expect(() => plugin.generateBundle.call(cleanContext)).not.toThrow()
+  })
+
   it('rejects star re-exports instead of silently dropping them', async () => {
     const plugin = externalizeSharedRuntime()
 
@@ -121,5 +163,44 @@ describe('host external libraries', () => {
     const result = await plugin.transform.call(context, '', 'C:/repo/src/main.tsx')
 
     expect(result?.code).toBe(`import ${JSON.stringify(virtualModuleId)}\n`)
+  })
+
+  it('delegates to plugin externalization when no host entry is configured', async () => {
+    const plugin = exposeHostLibraries({ libraries: { custom: 'window.Custom' } })
+
+    expect(plugin.config()).toEqual({ optimizeDeps: { exclude: ['custom'] } })
+    const result = await plugin.transform.call(
+      context,
+      `import { api } from 'custom'`,
+      '/repo/plugin.ts',
+    )
+    expect(result?.code).toBe('const api = window.Custom.api\n')
+  })
+
+  it('returns undefined for unmatched virtual ids and dynamic expressions', async () => {
+    const plugin = exposeHostLibraries({ entry: '/repo/src/main.ts' })
+
+    expect(plugin.resolveId?.('virtual:unrelated')).toBeUndefined()
+    expect(plugin.load?.('\0virtual:unrelated')).toBeUndefined()
+    await expect(
+      plugin.transform.call(
+        context,
+        `const moduleId = 'vue'; import(moduleId)`,
+        '/repo/src/lazy.ts',
+      ),
+    ).resolves.toBeUndefined()
+  })
+
+  it('adds the host bridge before transforming imports in a queried entry module', async () => {
+    const plugin = exposeHostLibraries({ entry: '/repo/src/main.ts' })
+    const result = await plugin.transform.call(
+      context,
+      `import { ref } from 'vue'`,
+      '/repo/src/main.ts?worker',
+    )
+
+    expect(result?.code).toBe(
+      `import ${JSON.stringify(virtualModuleId)}\nconst ref = window.$$lib$$.Vue.ref\n`,
+    )
   })
 })

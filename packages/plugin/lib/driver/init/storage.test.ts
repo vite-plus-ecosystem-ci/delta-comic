@@ -1,13 +1,52 @@
 import JSZip from 'jszip'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
+const nativeMocks = vi.hoisted(() => ({
+  appLocalDataDir: vi.fn(async () => '/app-data'),
+  convertFileSrc: vi.fn((path: string) => `asset://${path}`),
+  createNativeOperationId: vi.fn(() => 'native-operation'),
+  exists: vi.fn(async () => true),
+  installZip: vi.fn(),
+  invoke: vi.fn(),
+  join: vi.fn(async (...parts: string[]) => parts.join('/')),
+  readDir: vi.fn(),
+  readFile: vi.fn(),
+  remove: vi.fn(),
+  writeNativeTempFile: vi.fn(async () => '/tmp/plugin.zip'),
+}))
+
+vi.mock('@tauri-apps/api/core', () => ({
+  convertFileSrc: nativeMocks.convertFileSrc,
+  invoke: nativeMocks.invoke,
+}))
+vi.mock('@tauri-apps/api/path', () => ({
+  appLocalDataDir: nativeMocks.appLocalDataDir,
+  join: nativeMocks.join,
+}))
+vi.mock('@tauri-apps/plugin-fs', () => ({
+  exists: nativeMocks.exists,
+  readDir: nativeMocks.readDir,
+  readFile: nativeMocks.readFile,
+  remove: nativeMocks.remove,
+}))
+vi.mock('./native', () => ({
+  createNativeOperationId: nativeMocks.createNativeOperationId,
+  installZip: nativeMocks.installZip,
+  writeNativeTempFile: nativeMocks.writeNativeTempFile,
+}))
+
 import {
   decodeDevMetaFromCode,
   digestPluginBytes,
+  createPluginAssetUrl,
+  createPluginModuleUrl,
   installDevCode,
   installZipFile,
   listPluginFiles,
+  readPluginFile,
   readPluginText,
+  releasePluginObjectUrls,
+  removePluginFiles,
 } from './storage'
 
 const meta = {
@@ -119,12 +158,46 @@ describe('browser plugin storage', () => {
 
   it('decodes userscript metadata without native IPC', () => {
     expect(decodeDevMetaFromCode(code)).toEqual(meta)
+    expect(() => decodeDevMetaFromCode('export default {}')).toThrow(
+      'not found @description metadata',
+    )
+    expect(() => decodeDevMetaFromCode('// @description {invalid-json}')).toThrow(SyntaxError)
   })
 
   it('stores development plugins in the browser fallback', async () => {
     await installDevCode(code)
 
     expect(await readPluginText('web-plugin', 'us.js')).toBe(code)
+  })
+
+  it('creates typed browser URLs and releases only the tracked asset URLs', async () => {
+    vi.stubGlobal('indexedDB', undefined)
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValueOnce('blob:module')
+      .mockReturnValueOnce('blob:asset')
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
+    await installDevCode(code)
+
+    await expect(createPluginModuleUrl('web-plugin', 'us.js')).resolves.toBe('blob:module')
+    await expect(createPluginAssetUrl('web-plugin', 'us.js')).resolves.toBe('blob:asset')
+    expect(createObjectURL.mock.calls[1]?.[0]).toMatchObject({ type: 'application/octet-stream' })
+
+    releasePluginObjectUrls('web-plugin')
+    releasePluginObjectUrls('web-plugin')
+    expect(revokeObjectURL).toHaveBeenCalledExactlyOnceWith('blob:asset')
+  })
+
+  it('removes all browser files and rejects subsequent reads', async () => {
+    vi.stubGlobal('indexedDB', undefined)
+    await installDevCode(code)
+
+    await removePluginFiles('web-plugin')
+
+    await expect(listPluginFiles('web-plugin')).resolves.toEqual([])
+    await expect(readPluginFile('web-plugin', '/us.js')).rejects.toThrow(
+      'plugin file not found: web-plugin//us.js',
+    )
   })
 
   it('rejects plugin ids that could escape their storage namespace', async () => {
@@ -149,6 +222,46 @@ describe('browser plugin storage', () => {
     await expect(installZipFile(new File([], 'plugin.zip'))).rejects.toThrow('extract failed')
     expect(await readPluginText(pluginId, 'us.js')).toBe(previousCode)
     expect(await listPluginFiles(pluginId)).toEqual(['us.js'])
+  })
+
+  it('extracts safe zip entries atomically and reports progress', async () => {
+    vi.stubGlobal('indexedDB', undefined)
+    const archive = new JSZip()
+    archive.file('manifest.json', JSON.stringify(meta))
+    archive.file('index.mjs', 'export default 1')
+    archive.file('images/cover.png', new Uint8Array([1, 2, 3]))
+    archive.file('/absolute.js', 'ignored')
+    const bytes = await archive.generateAsync({ type: 'uint8array' })
+    const progress = vi.fn()
+
+    await expect(
+      installZipFile(new File([Uint8Array.from(bytes)], 'plugin.zip'), progress),
+    ).resolves.toMatchObject({
+      name: { id: 'web-plugin' },
+      integrity: { digest: expect.any(String) },
+    })
+
+    await expect(listPluginFiles('web-plugin')).resolves.toEqual([
+      'manifest.json',
+      'index.mjs',
+      'images/cover.png',
+    ])
+    expect(progress).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ current: 0, phase: 'start', total: 4 }),
+    )
+    expect(progress).toHaveBeenLastCalledWith(
+      expect.objectContaining({ current: 4, phase: 'done', total: 4 }),
+    )
+  })
+
+  it('rejects archives without a manifest before replacing installed files', async () => {
+    const archive = new JSZip().file('index.mjs', 'export default 1')
+    const bytes = await archive.generateAsync({ type: 'uint8array' })
+
+    await expect(installZipFile(new File([Uint8Array.from(bytes)], 'plugin.zip'))).rejects.toThrow(
+      'plugin archive does not contain manifest.json',
+    )
   })
 
   it('waits for the IndexedDB transaction to commit before publishing an update', async () => {
@@ -203,5 +316,57 @@ describe('browser plugin storage', () => {
 
     controlled.complete()
     await expect(files).resolves.toEqual(['index.mjs'])
+  })
+})
+
+describe('native plugin storage bridges', () => {
+  const enableTauri = () => vi.stubGlobal('window', { __TAURI_INTERNALS__: {} })
+
+  it('reads, lists, resolves and removes files through Tauri APIs', async () => {
+    enableTauri()
+    nativeMocks.readFile.mockResolvedValueOnce(new Uint8Array([65, 66]))
+    nativeMocks.readDir.mockResolvedValueOnce([
+      { isFile: true, name: 'index.mjs' },
+      { isFile: false, name: 'assets' },
+    ])
+
+    await expect(readPluginText('native-plugin', 'index.mjs')).resolves.toBe('AB')
+    await expect(listPluginFiles('native-plugin')).resolves.toEqual(['index.mjs'])
+    await expect(createPluginModuleUrl('native-plugin', 'index.mjs')).resolves.toBe(
+      'asset:///app-data/plugin/native-plugin/index.mjs',
+    )
+    await expect(createPluginAssetUrl('native-plugin', 'cover.png')).resolves.toBe(
+      'asset:///app-data/plugin/native-plugin/cover.png',
+    )
+    await removePluginFiles('native-plugin')
+
+    expect(nativeMocks.readFile).toHaveBeenCalledWith('/app-data/plugin/native-plugin/index.mjs')
+    expect(nativeMocks.remove).toHaveBeenCalledWith('/app-data/plugin/native-plugin/', {
+      recursive: true,
+    })
+  })
+
+  it('preserves computed integrity around native development and zip installs', async () => {
+    enableTauri()
+    nativeMocks.invoke.mockResolvedValueOnce({ ...meta, description: 'native dev' })
+    nativeMocks.installZip.mockResolvedValueOnce({ ...meta, description: 'native zip' })
+    const progress = vi.fn()
+    const file = new File([new Uint8Array([1, 2, 3])], 'plugin.zip')
+
+    await expect(installDevCode(code)).resolves.toMatchObject({
+      description: 'native dev',
+      integrity: { digest: expect.any(String) },
+    })
+    await expect(installZipFile(file, progress)).resolves.toMatchObject({
+      description: 'native zip',
+      integrity: { digest: expect.any(String) },
+    })
+
+    expect(nativeMocks.invoke).toHaveBeenCalledWith('plugin:plugin|install_dev', { code })
+    expect(nativeMocks.installZip).toHaveBeenCalledWith(
+      '/tmp/plugin.zip',
+      'native-operation',
+      progress,
+    )
   })
 })
