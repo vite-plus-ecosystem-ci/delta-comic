@@ -22,4 +22,12 @@ describe('admin feature registry', () => {
     ])
     expect(featureRoutes.map(route => route.path)).toContain('/plugins')
   })
+
+  it('lazy-loads every registered feature page', async () => {
+    for (const route of featureRoutes) {
+      expect(route.component).toBeTypeOf('function')
+      const module = await (route.component as () => Promise<{ default: unknown }>)()
+      expect(module.default).toBeDefined()
+    }
+  }, 15_000)
 })
