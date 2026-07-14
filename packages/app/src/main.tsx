@@ -1,15 +1,11 @@
 import 'core-js'
-import * as DcDb from '@delta-comic/db'
-import * as DcModel from '@delta-comic/model'
-import * as DcPlugin from '@delta-comic/plugin'
-import * as DcUi from '@delta-comic/ui'
+import { pluginRuntime, useConfig } from '@delta-comic/plugin'
+import { configureUiI18n, type UiMessageKey, type UiMessageParams } from '@delta-comic/ui'
 
 import './logger'
-import * as DcUtils from '@delta-comic/utils'
-import * as Pc from '@pinia/colada'
+import { PiniaColada } from '@pinia/colada'
 import { reactiveComputed, useDark } from '@vueuse/core'
 import Color from 'color'
-import * as Naive from 'naive-ui'
 import {
   NConfigProvider,
   NMessageProvider,
@@ -26,13 +22,10 @@ import {
   lightTheme,
   NGlobalStyle,
 } from 'naive-ui'
-import * as Pinia from 'pinia'
 import { createPinia, setActivePinia } from 'pinia'
 
 import '@/index.css'
-import * as Vue from 'vue'
 import { computed, createApp, defineComponent, watch } from 'vue'
-import * as VR from 'vue-router'
 import { DataLoaderPlugin } from 'vue-router/experimental'
 
 import AppSetup from './AppSetup.vue'
@@ -40,8 +33,7 @@ import { i18n, resolveAppLocale } from './i18n'
 import { initializePlatform } from './platform'
 import { router } from './router'
 
-window.$$lib$$ = { Vue, Naive, VR, Pinia, DcModel, DcUi, DcPlugin, DcUtils, DcDb, Pc }
-DcUi.configureUiI18n((key: DcUi.UiMessageKey, params?: DcUi.UiMessageParams) =>
+configureUiI18n((key: UiMessageKey, params?: UiMessageParams) =>
   i18n.global.t(`ui.${key}`, params as Record<string, number | string>),
 )
 
@@ -62,7 +54,7 @@ const app = createApp(
   defineComponent(() => {
     const themeColor = Color('#fb7299').hex()
     const themeColorDark = Color(themeColor).darken(0.2).hex()
-    const config = DcPlugin.useConfig()
+    const config = useConfig()
     const locale = computed(() => resolveAppLocale(config.$loadApp().data.value.language))
     const naiveLocale = computed(() => {
       switch (locale.value) {
@@ -129,13 +121,13 @@ app.use(DataLoaderPlugin, { router })
 
 app.use(pinia)
 
-app.use(Pc.PiniaColada)
+app.use(PiniaColada)
 
 app.use(i18n)
 
 app.use(router)
 
-const preboot = await DcPlugin.pluginRuntime.preparePreboot(app)
+const preboot = await pluginRuntime.preparePreboot(app)
 if (preboot.reloadRequired) {
   location.reload()
   await new Promise<never>(() => {})

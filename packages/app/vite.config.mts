@@ -12,6 +12,7 @@ export default defineConfig(
     ({
       plugins: lazyPlugins(async () => {
         const [
+          { exposeHostLibraries },
           { default: tailwindcss },
           { default: vue },
           { default: vueJsx },
@@ -22,6 +23,7 @@ export default defineConfig(
           { default: wasm },
           { default: VueRouter },
         ] = await Promise.all([
+          import('@delta-comic/utils/vite'),
           import('@tailwindcss/vite'),
           import('@vitejs/plugin-vue'),
           import('@vitejs/plugin-vue-jsx'),
@@ -43,6 +45,7 @@ export default defineConfig(
         })()
 
         return [
+          exposeHostLibraries({ entry: fileURLToPath(new URL('./src/main.tsx', import.meta.url)) }),
           // @ts-ignore
           wasm(),
           VueRouter({ dts: 'typed-router.d.ts' }),
