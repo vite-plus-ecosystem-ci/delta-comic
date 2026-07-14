@@ -27,7 +27,6 @@ export default defineConfig({
         'packages/plugin/{lib,vite}/**/*.ts',
         'packages/server/{app,lib}/**/*.ts',
         'packages/server-admin/src/**/*.{ts,tsx,vue}',
-        'packages/server-config/lib/**/*.ts',
         'packages/ui/{lib,vite}/**/*.{ts,tsx,vue}',
         'packages/utils/{lib,vite}/**/*.ts',
       ],

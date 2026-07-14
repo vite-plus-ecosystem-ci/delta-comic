@@ -1,7 +1,8 @@
-import { serverModules } from '@delta-comic/server-config'
 import { openapi } from '@elysiajs/openapi'
 import { Elysia, t } from 'elysia'
 import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
+
+import { serverModules } from '../lib/config'
 
 import { bindRuntime, type AppEnv } from './env'
 import { adminModule } from './modules/admin/admin.module'

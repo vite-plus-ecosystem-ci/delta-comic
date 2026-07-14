@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@delta-comic/server": "workspace:",
-    "@delta-comic/server-config": "workspace:",
     "@delta-comic/ui": "workspace:",
     "@vueuse/core": "catalog:",
     "naive-ui": "catalog:",

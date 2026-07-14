@@ -1,10 +1,10 @@
+import { type AppEnv, readNumberVar } from '@/env'
+
 import {
   defaultServerRuntimeConfig,
   serverModules,
   type ServerModuleDefinition,
-} from '@delta-comic/server-config'
-
-import { type AppEnv, readNumberVar } from '@/env'
+} from '../../../lib/config'
 
 import { D1AdminMetricsRepository, type AdminMetricsRepository } from './admin.repository'
 import type {

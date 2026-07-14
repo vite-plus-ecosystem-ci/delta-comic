@@ -1,3 +1,5 @@
+import { syncCollectionNames, type SyncCollection } from './sync/collections'
+
 export type ServerModuleKey =
   | 'admin'
   | 'auth'
@@ -104,14 +106,6 @@ export const defaultServerRuntimeConfig = {
   healthPath: '/api/health',
 } as const satisfies ServerRuntimeConfig
 
-export const serverCollections = [
-  'itemStore',
-  'favouriteCard',
-  'favouriteItem',
-  'history',
-  'recentView',
-  'subscribe',
-  'config',
-] as const
+export const serverCollections = syncCollectionNames
 
-export type ServerCollection = (typeof serverCollections)[number]
+export type ServerCollection = SyncCollection

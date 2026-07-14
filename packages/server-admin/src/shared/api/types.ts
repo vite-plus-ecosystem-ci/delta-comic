@@ -1,4 +1,4 @@
-import type { ServerModuleDefinition } from '@delta-comic/server-config'
+import type { ServerModuleDefinition } from '@delta-comic/server'
 
 export interface AdminModuleRuntime {
   available: boolean

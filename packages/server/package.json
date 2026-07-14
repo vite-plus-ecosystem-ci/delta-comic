@@ -23,7 +23,6 @@
     "typecheck": "tsgo -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
   "dependencies": {
-    "@delta-comic/server-config": "workspace:",
     "@elysia/eden": "catalog:",
     "ky": "catalog:",
     "semver": "catalog:"
