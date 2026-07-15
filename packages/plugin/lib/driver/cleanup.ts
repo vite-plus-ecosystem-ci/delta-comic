@@ -32,6 +32,7 @@ export const cleanupPlugin = (config: PluginConfig) => {
   attempt(() => Global.tabbar.delete(plugin))
   attempt(() => Global.categories.delete(plugin))
   attempt(() => Global.barcode.delete(plugin))
+  attempt(() => Global.hotSearch.delete(plugin))
   attempt(() => Global.levelboard.delete(plugin))
   attempt(() => Global.topButton.delete(plugin))
   attempt(() => Global.mainLists.delete(plugin))

@@ -84,6 +84,12 @@ class _Global {
     this.barcode.set(plugin, old.concat(barcode))
   }
 
+  public hotSearch = shallowReactive(new Map<string, Search.HotSearchProvider[]>())
+  public addHotSearch(plugin: string, ...providers: Search.HotSearchProvider[]) {
+    const old = this.hotSearch.get(plugin) ?? []
+    this.hotSearch.set(plugin, old.concat(providers))
+  }
+
   public levelboard = shallowReactive(new Map<string, Search.HotLevelboard[]>())
   public addLevelboard(plugin: string, ...levelboard: Search.HotLevelboard[]) {
     const old = this.levelboard.get(plugin) ?? []

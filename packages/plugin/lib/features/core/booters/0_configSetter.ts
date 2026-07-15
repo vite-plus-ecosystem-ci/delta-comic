@@ -43,6 +43,9 @@ class _ConfigSetter extends PluginBooter {
       if (search.barcode) {
         for (const barcode of search.barcode ?? []) Global.addBarcode(plugin, barcode)
       }
+      if (search.hotSearch) {
+        for (const provider of search.hotSearch) Global.addHotSearch(plugin, provider)
+      }
     }
     if (user) {
       if (user.card) uni.user.User.userCards.set(plugin, user.card)

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Global } from '@delta-comic/plugin'
-import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
+import { computed, provide, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import userIcon from '@/assets/images/userIcon.webp'
-import ExtendableSearchBar from '@/components/home/mainPageSearchBar.vue'
+import MainPageSearchBar from '@/components/home/mainPageSearchBar.vue'
 import { Icons } from '@/icons'
 import { useAppStore } from '@/stores/app'
 import { isShowMainHomeNavBar } from '@/symbol'
@@ -16,13 +16,7 @@ provide(isShowMainHomeNavBar, isShowNavBar)
 
 definePage({ redirect: { name: '/main/home/random' } })
 
-const extendableSearchBar = useTemplateRef('extendableSearchBar')
-
-const toSearchInHideMode = async () => {
-  isShowNavBar.value = true
-  await nextTick()
-  extendableSearchBar.value?.inputEl?.focus()
-}
+const openSearch = () => $router.force.push({ name: '/main/search' })
 
 const app = useAppStore()
 
@@ -62,17 +56,13 @@ const tabs = computed(() => [
           :src="app.activatedUser?.avatar ?? userIcon"
           :fallback="userIcon"
           round
-          v-if="!extendableSearchBar?.isSearching"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']"
           class="fixed top-safe-offset-2 ml-1 size-10.25! transition-transform duration-200"
         />
       </Teleport>
     </div>
-    <ExtendableSearchBar ref="extendableSearchBar" />
-    <div
-      class="ml-auto flex shrink-0 items-center gap-3 px-3"
-      v-if="!extendableSearchBar?.isSearching"
-    >
+    <MainPageSearchBar @activate="openSearch" />
+    <div class="ml-auto flex shrink-0 items-center gap-3 px-3">
       <button
         type="button"
         class="dc-interactive rounded-full p-1"
@@ -105,7 +95,7 @@ const tabs = computed(() => [
     <button
       type="button"
       :aria-label="t('search.actions.expand')"
-      @click="toSearchInHideMode"
+      @click="openSearch"
       class="dc-interactive absolute! top-1/2 right-0 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-(--dc-surface) p-1 text-(--dc-text-secondary) shadow transition-transform duration-200"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']"
     >

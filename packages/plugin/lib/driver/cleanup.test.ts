@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => {
     defaultDependencyDelete: vi.fn(),
     fork: registry(),
     globalRemoveOwned: vi.fn(),
+    hotSearch: registry(),
     itemCards: registry(),
     itemTranslator: registry(),
     layouts: registry(),
@@ -63,6 +64,7 @@ vi.mock('@/global', () => ({
   Global: {
     barcode: mocks.barcode,
     categories: mocks.categories,
+    hotSearch: mocks.hotSearch,
     levelboard: mocks.levelboard,
     mainLists: mocks.mainLists,
     removeOwnedRegistrations: mocks.globalRemoveOwned,
@@ -150,6 +152,7 @@ describe('plugin cleanup', () => {
     for (const registry of [
       mocks.categories,
       mocks.barcode,
+      mocks.hotSearch,
       mocks.levelboard,
       mocks.topButton,
       mocks.mainLists,

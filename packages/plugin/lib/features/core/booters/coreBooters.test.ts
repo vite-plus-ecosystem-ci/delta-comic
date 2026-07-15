@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => {
     addBarcode: vi.fn(),
     addCategories: vi.fn(),
     addGlobalNode: vi.fn(),
+    addHotSearch: vi.fn(),
     addLevelboard: vi.fn(),
     addMainList: vi.fn(),
     addTabbar: vi.fn(),
@@ -86,6 +87,7 @@ vi.mock('@/global', () => ({
     addBarcode: mocks.addBarcode,
     addCategories: mocks.addCategories,
     addGlobalNode: mocks.addGlobalNode,
+    addHotSearch: mocks.addHotSearch,
     addLevelboard: mocks.addLevelboard,
     addMainList: mocks.addMainList,
     addTabbar: mocks.addTabbar,
@@ -130,6 +132,7 @@ describe('core registration booters', () => {
       contentPage: {},
       itemCard: {},
       itemTranslator: vi.fn(),
+      hotSearch: { title: 'hot search' },
       layout: {},
       levelBoard: { name: 'level' },
       mainList: { name: 'main' },
@@ -168,6 +171,7 @@ describe('core registration booters', () => {
             mainListCard: [values.mainList],
             topButton: [values.topButton],
           },
+          hotSearch: [values.hotSearch],
           tabbar: [values.tabbar],
         },
         share: { initiative: [values.share], tokenListen: [values.shareToken] },
@@ -199,6 +203,7 @@ describe('core registration booters', () => {
     expect(mocks.addLevelboard).toHaveBeenCalledWith('fixture', values.levelBoard)
     expect(mocks.addTopButton).toHaveBeenCalledWith('fixture', values.topButton)
     expect(mocks.addBarcode).toHaveBeenCalledWith('fixture', values.barcode)
+    expect(mocks.addHotSearch).toHaveBeenCalledWith('fixture', values.hotSearch)
     expect(mocks.userCards.set).toHaveBeenCalledWith('fixture', values.userCard)
     expect(mocks.userEditorBase.set).toHaveBeenCalledWith('fixture', values.userEditor)
     expect(mocks.userActions.set).toHaveBeenCalledWith(['fixture', 'follow'], values.userAction)

@@ -55,6 +55,7 @@ beforeEach(() => {
     Global.tabbar,
     Global.categories,
     Global.barcode,
+    Global.hotSearch,
     Global.levelboard,
     Global.topButton,
     Global.mainLists,
@@ -90,6 +91,7 @@ describe('global plugin registrations', () => {
     Global.addTabbar('fixture', { name: 'two' } as never)
     Global.addCategories('fixture', { name: 'category' } as never)
     Global.addBarcode('fixture', { name: 'barcode' } as never)
+    Global.addHotSearch('fixture', { title: 'hot search' } as never)
     Global.addLevelboard('fixture', { name: 'level' } as never)
     Global.addTopButton('fixture', { name: 'button' } as never)
     Global.addMainList('fixture', { name: 'list' } as never)
@@ -97,6 +99,7 @@ describe('global plugin registrations', () => {
     expect(Global.tabbar.get('fixture')).toEqual([{ name: 'one' }, { name: 'two' }])
     expect(Global.categories.get('fixture')).toHaveLength(1)
     expect(Global.barcode.get('fixture')).toHaveLength(1)
+    expect(Global.hotSearch.get('fixture')).toHaveLength(1)
     expect(Global.levelboard.get('fixture')).toHaveLength(1)
     expect(Global.topButton.get('fixture')).toHaveLength(1)
     expect(Global.mainLists.get('fixture')).toHaveLength(1)

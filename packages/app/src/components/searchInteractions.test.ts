@@ -1,4 +1,4 @@
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import type { SetupContext } from 'vue'
 
@@ -143,36 +143,23 @@ describe('MainPageSearchBar', () => {
   let wrapper: VueWrapper | undefined
 
   beforeEach(() => {
-    barcode.mockReset().mockResolvedValue([{ text: 'Barcode result', value: 'isbn:42' }])
-    history.value = ['Batman', 'Watchmen']
-    preventBackRefs.length = 0
-    routeCall.mockReset().mockResolvedValue(undefined)
+    routeCall.mockReset()
   })
 
   afterEach(() => wrapper?.unmount())
 
-  it('loads generated suggestions, persists submitted text and routes to search', async () => {
-    wrapper = mount(MainPageSearchBar, { props: { isSearching: false, text: '' } })
-    const input = wrapper.get('input[type="search"]')
-    await flushPromises()
+  it('acts as a route trigger instead of opening an in-place search panel', async () => {
+    wrapper = mount(MainPageSearchBar)
 
-    expect(barcode).toHaveBeenCalledWith('', expect.any(AbortSignal))
+    await wrapper.get('button[aria-label="search.actions.open"]').trigger('click')
 
-    await input.setValue('Delta')
-    await wrapper.get('form').trigger('submit')
-    expect(history.value).toEqual(['Delta', 'Batman', 'Watchmen'])
-    expect(routeCall).toHaveBeenCalledExactlyOnceWith('routeToSearch', 'Delta')
+    expect(wrapper.emitted('activate')).toEqual([[]])
+    expect(wrapper.find('input').exists()).toBe(false)
   })
 
-  it('binds focus/back state and resets both models through clear', async () => {
-    wrapper = mount(MainPageSearchBar, { props: { isSearching: false, text: 'query' } })
-    const input = wrapper.get('input[type="search"]')
+  it('uses the translated search placeholder as its visible label', () => {
+    wrapper = mount(MainPageSearchBar)
 
-    await input.trigger('focus')
-    expect(wrapper.emitted('update:isSearching')).toEqual([[true]])
-    await wrapper.get('button[aria-label="search.actions.clear"]').trigger('click')
-
-    expect(wrapper.emitted('update:text')).toContainEqual([''])
-    expect(wrapper.emitted('update:isSearching')).toContainEqual([false])
+    expect(wrapper.text()).toContain('search.placeholder.short')
   })
 })

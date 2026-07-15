@@ -20,6 +20,9 @@ export interface Config {
 
   barcode?: Barcode[]
 
+  /** Search landing-page sections supplied by this plugin. */
+  hotSearch?: HotSearchProvider[]
+
   fetchRandomItems?: ItemProvider
 }
 
@@ -34,6 +37,28 @@ export interface SearchMethod {
     input: string,
     signal: AbortSignal,
   ): PromiseLike<({ text: string; value: string } | Component)[]>
+}
+
+export interface HotSearchTarget {
+  /** Search method key declared by the same plugin. */
+  method: string
+  /** Falls back to the search method's default sort when omitted. */
+  sort?: string
+}
+
+export interface HotSearchItem {
+  text: string
+  /** Search input used after selection. Defaults to `text`. */
+  value?: string
+  badge?: { text: string; tone?: 'accent' | 'warning' }
+  /** Overrides the provider target for this item. */
+  target?: HotSearchTarget
+}
+
+export interface HotSearchProvider {
+  title: string
+  target: HotSearchTarget
+  fetchItems(signal: AbortSignal): PromiseLike<HotSearchItem[]> | HotSearchItem[]
 }
 
 export interface HotLevelboard {
