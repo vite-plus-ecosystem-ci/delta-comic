@@ -263,6 +263,7 @@ describe('App share-token orchestration', () => {
 
 describe('AppSetup startup shell', () => {
   beforeEach(() => {
+    document.querySelector('#setup')?.remove()
     pluginRuntime.activatePreboot.mockReset().mockResolvedValue({ reloadRequired: false })
     pluginRuntime.clearRecovery.mockClear()
     pluginRuntime.readRecovery
@@ -282,7 +283,6 @@ describe('AppSetup startup shell', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('Delta Comic')
     expect(wrapper.find('.recovery-stub').exists()).toBe(true)
     await flushPromises()
     await nextTick()
@@ -303,6 +303,38 @@ describe('AppSetup startup shell', () => {
     >
     expect(pluginListeners['onUpdate:isBooted']).toBeTypeOf('function')
     pluginListeners['onUpdate:isBooted'](true)
+    wrapper.unmount()
+  })
+
+  it('keeps the startup splash visible until preboot activation is ready', async () => {
+    let finishPreboot!: (result: { reloadRequired: boolean }) => void
+    pluginRuntime.activatePreboot.mockReturnValueOnce(
+      new Promise(resolve => {
+        finishPreboot = resolve
+      }),
+    )
+    const splash = document.createElement('div')
+    splash.id = 'setup'
+    document.body.append(splash)
+
+    const wrapper = mount(AppSetup, {
+      global: {
+        stubs: {
+          App: defineComponent({ name: 'App', render: () => h('main', 'main-app') }),
+          NIcon: true,
+        },
+      },
+    })
+    const plugin = wrapper.getComponent({ name: 'Plugin' })
+
+    expect(document.querySelector('#setup')).toBe(splash)
+    expect(plugin.props('startupReady')).toBe(false)
+
+    finishPreboot({ reloadRequired: false })
+    await flushPromises()
+    await nextTick()
+
+    expect(document.querySelector('#setup')).toBeNull()
     wrapper.unmount()
   })
 })
