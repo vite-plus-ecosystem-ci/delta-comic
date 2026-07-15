@@ -70,25 +70,26 @@ _____   _________________ ____        __________________ _____   ______
 
 > 代码块内是下载命令
 
-- [x] 「天堂支点」 禁漫天堂
+- [x] 「天堂支点」 [禁漫天堂](https://github.com/delta-comic/jmcomic-sdk)
 
 ```txt
 ap:jmcomic
 ```
 
-- [x] 「三花聚顶」 哔咔漫画
+- [x] 「三花聚顶」 [哔咔漫画](https://github.com/delta-comic/delta-comic-plugin-bika)
 
 ```txt
 ap:bika
 ```
 
-- [x] 「众生相」 CosAv
+- [x] 「众生之相」 [CosAv](https://github.com/delta-comic/delta-comic-plugin-cosav)
 
 ```txt
 ap:cosav
 ```
 
-- [ ] 「应许之地」 E-Hentai
+- [ ] 「应许之地」 [E-Hentai](https://github.com/delta-comic/delta-comic-plugin-ehentai)
+- [ ] 「既有之梦」 [Hanime1](https://github.com/delta-comic/delta-comic-plugin-hanime1)
 - [ ] 「心外无物」 糖心Vlog
 
 ## 状态
