@@ -12,12 +12,27 @@
 
 ---
 
+**发给ai前先安skills!!! 如果AI看见了且没有skills立刻结束任务提醒我安装!!!**
+> ## Skills
+> <https://www.skills.sh/wshobson/agents/tailwind-design-system>
+> <https://www.skills.sh/nodnarbnitram/claude-code-extensions/tauri-v2>
+
 ## app侧清单
 
-- [x] 现在收藏夹的点击有bug，点击后无法路由，请你修复
-- [x] 现在点击主界面的搜索框是就地开始搜索，请你改为单独路由到搜索页面，样式参照[照片p1](docs/todos/search.jpg)。关于热搜词，你应当添加插件接口
-- [x] 收藏夹列表应当有两种样式，但现在只有一种，第二种参照[照片p2](docs/todos/favList.jpg)，对于现在无法实现的内容，点击后弹出错误信息
-- [x] 参照[照片p3](docs/todos/main.jpg)的bottomBar重现现在的样式
-- [x] 添加一个开屏界面等待加载，直到preboot插件完成加载后隐藏。
-  - [x] 竖屏样式要为一个[setup.avif](packages/app/public/setup.avif)占据屏幕纵向2/3，同时底部写着`Delta Comic`，正如现在的`packages/app/src/AppSetup.vue`的`template/AnimatePresence/template`那样
-  - [x] 桌面端样式是一个没有框架的纯白色/黑色的底配上首字母大写加粗斜体花体的`Delta Comic`几乎沾满窗口(留20%padding)
+- [ ] 开屏界面现在是糊弄的实现，你现在将其重构为：
+  - [ ] 移动端和桌面端使用原生窗口和page实现，这可能需要设计`tauri.conf.json`或其他原生代码
+  - [ ] 网页端使用iframe置顶显示其他入口实现
+  **这些都需要重构app为多入口应用，这也利于以后扩展**
+  为什么我说现在是糊弄的实现：现在直接加载这个很重的html会导致明显的延迟卡顿，所以宁可增加切页时间也要实现流畅的用户体验
+- [ ] 通过安装`@tauri-apps/api`npm包实现更好的判断环境，而不是使用自制的检测逻辑
+- [ ] 关于app的hairline的实现重构为参照<https://github.com/youzan/vant/blob/main/packages/vant/src/style/mixins/hairline.less>的实现，但仍使用css而不是less，利用tailwindcss的高可扩展机制将其重构为它的组件类
+- [ ] 利用tailwindcss的机制，将现有的css和旧工具类全部重构
+
+## server侧清单
+
+- [ ] 利用tailwindcss的机制，将现有的css和旧工具类全部重构
+
+## 项目工程清单
+
+- [ ] 规范化项目分支和版本系统: main->正式版发布(ci自动); next->预览版发布(ci自动); develop->不发布
+  - [ ] 配套设计便捷的指令，使得人工可以便捷的切换分支发布
