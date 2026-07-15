@@ -4,17 +4,14 @@ import { useI18n } from 'vue-i18n'
 
 import { Icons } from '@/icons'
 
+import AppNavigationItem from './AppNavigationItem.vue'
+
 defineProps<{ active: string }>()
 defineEmits<{ create: [] }>()
 const { t } = useI18n()
 
 const items = computed<Array<{ icon: Component; key: string; label: string; to: string }>>(() => [
-  {
-    icon: Icons.material.AutoAwesomeMosaicOutlined,
-    key: 'home',
-    label: t('navigation.home'),
-    to: '/main/home',
-  },
+  { icon: Icons.other.HomeTab, key: 'home', label: t('navigation.home'), to: '/main/home' },
   {
     icon: Icons.other.SubscribeTab,
     key: 'subscribe',
@@ -27,42 +24,30 @@ const items = computed<Array<{ icon: Component; key: string; label: string; to: 
     label: t('navigation.plugin'),
     to: '/main/plugin',
   },
-  { icon: Icons.antd.UserOutlined, key: 'user', label: t('navigation.user'), to: '/main/user' },
+  { icon: Icons.other.UserTab, key: 'user', label: t('navigation.user'), to: '/main/user' },
 ])
 </script>
 
 <template>
   <nav class="app-navigation" :aria-label="t('navigation.aria.main')">
     <div class="app-navigation__brand" aria-hidden="true">Δ</div>
-    <RouterLink
-      v-for="item in items.slice(0, 2)"
+    <AppNavigationItem
+      v-for="item in items"
       :key="item.key"
-      :class="{ 'app-navigation__item--active': active === item.key }"
+      :active="active === item.key"
+      :icon="item.icon"
+      :label="item.label"
       :to="item.to"
-      class="app-navigation__item"
-    >
-      <NIcon size="22"><component :is="item.icon" /></NIcon>
-      <span>{{ item.label }}</span>
-    </RouterLink>
-    <NButton
+      :class="`app-navigation__item--${item.key}`"
+    />
+    <button
       class="app-navigation__create"
-      type="primary"
-      circle
+      type="button"
       :aria-label="t('navigation.aria.createFork')"
       @click="$emit('create')"
     >
-      <template #icon><Icons.other.ForkTab /></template>
-    </NButton>
-    <RouterLink
-      v-for="item in items.slice(2)"
-      :key="item.key"
-      :class="{ 'app-navigation__item--active': active === item.key }"
-      :to="item.to"
-      class="app-navigation__item"
-    >
-      <NIcon size="22"><component :is="item.icon" /></NIcon>
-      <span>{{ item.label }}</span>
-    </RouterLink>
+      <NIcon size="36"><Icons.material.PlusFilled /></NIcon>
+    </button>
   </nav>
 </template>
 
@@ -77,46 +62,75 @@ const items = computed<Array<{ icon: Component; key: string; label: string; to: 
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
   height: calc(var(--dc-navigation-height) + var(--safe-area-inset-bottom));
-  padding: 4px max(8px, var(--safe-area-inset-right)) var(--safe-area-inset-bottom)
+  padding: 5px max(8px, var(--safe-area-inset-right)) var(--safe-area-inset-bottom)
     max(8px, var(--safe-area-inset-left));
   border-top: 1px solid var(--dc-border);
-  background: color-mix(in srgb, var(--dc-surface) 90%, transparent);
-  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--dc-surface) 94%, transparent);
+  box-shadow: 0 -8px 30px rgb(0 0 0 / 8%);
+  backdrop-filter: blur(22px) saturate(140%);
 }
 
 .app-navigation__brand {
   display: none;
 }
 
-.app-navigation__item {
-  display: flex;
-  min-width: 0;
-  height: 48px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border-radius: 14px;
-  color: var(--dc-text-secondary);
-  font-size: 11px;
-  text-decoration: none;
-  transition:
-    color 160ms ease,
-    background 160ms ease;
+.app-navigation :deep(.app-navigation-item) {
+  grid-row: 1;
 }
 
-.app-navigation__item:hover,
-.app-navigation__item--active {
-  color: var(--p-color);
-  background: color-mix(in srgb, var(--p-color) 10%, transparent);
+.app-navigation__item--home {
+  grid-column: 1;
+}
+
+.app-navigation__item--subscribe {
+  grid-column: 2;
+}
+
+.app-navigation__item--plugin {
+  grid-column: 4;
+}
+
+.app-navigation__item--user {
+  grid-column: 5;
 }
 
 .app-navigation__create {
-  width: 44px;
-  height: 44px;
-  margin: auto;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--p-color) 30%, transparent);
+  display: grid;
+  grid-row: 1;
+  grid-column: 3;
+  width: 58px;
+  height: 58px;
+  margin: -10px auto 0;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 21px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--p-color) 84%, white),
+    var(--p-color)
+  );
+  box-shadow:
+    0 10px 24px color-mix(in srgb, var(--p-color) 32%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 28%);
+  color: white;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    filter 160ms ease;
+}
+
+.app-navigation__create:hover {
+  filter: brightness(1.04);
+}
+
+.app-navigation__create:active {
+  transform: scale(0.94);
+}
+
+.app-navigation__create:focus-visible {
+  outline: 2px solid var(--p-color);
+  outline-offset: 3px;
 }
 
 @media (min-width: 960px) {
@@ -144,9 +158,33 @@ const items = computed<Array<{ icon: Component; key: string; label: string; to: 
     font-weight: 800;
   }
 
-  .app-navigation__item {
-    height: 58px;
-    font-size: 12px;
+  .app-navigation :deep(.app-navigation-item) {
+    grid-column: 1;
+  }
+
+  .app-navigation__item--home {
+    grid-row: 2;
+  }
+
+  .app-navigation__item--subscribe {
+    grid-row: 3;
+  }
+
+  .app-navigation__item--plugin {
+    grid-row: 5;
+  }
+
+  .app-navigation__item--user {
+    grid-row: 6;
+  }
+
+  .app-navigation__create {
+    grid-row: 4;
+    grid-column: 1;
+    width: 52px;
+    height: 52px;
+    margin: auto;
+    border-radius: 18px;
   }
 }
 </style>

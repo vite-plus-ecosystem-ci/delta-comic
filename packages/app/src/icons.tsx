@@ -380,6 +380,37 @@ export namespace Icons.material {
 }
 
 export namespace Icons.other {
+  export const HomeTab = () => (
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+      <g
+        fill='none'
+        stroke='currentColor'
+        stroke-width='1.7'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+      >
+        <path d='M3.5 10.6 12 3.8l8.5 6.8v8.1a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z'></path>
+        <path d='M8.5 15.2c1.1 1.35 5.9 1.35 7 0'></path>
+      </g>
+    </svg>
+  )
+
+  export const UserTab = () => (
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+      <g
+        fill='none'
+        stroke='currentColor'
+        stroke-width='1.7'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+      >
+        <path d='m8.2 3.2 3.8 3.6 3.8-3.6'></path>
+        <rect x='3.2' y='7.3' width='17.6' height='13.2' rx='3.2'></rect>
+        <path d='M8.4 13.1v1.2M15.6 13.1v1.2'></path>
+      </g>
+    </svg>
+  )
+
   export const HotLevel = () => (
     <svg
       xmlns='http://www.w3.org/2000/svg'
