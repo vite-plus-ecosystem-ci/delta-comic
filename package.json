@@ -43,10 +43,11 @@
     "commitlint-plugin-cspell": "catalog:",
     "cspell": "catalog:",
     "happy-dom": "catalog:",
-    "oxlint-tsgolint": "catalog:",
     "semantic-release": "^25.0.7",
     "typescript": "catalog:",
-    "vite-plus": "catalog:"
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "badges": [
     {
