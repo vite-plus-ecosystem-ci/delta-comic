@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { open } from '@tauri-apps/plugin-shell'
 import { useCssVar, useEventListener } from '@vueuse/core'
 import MarkdownIt, { type Options } from 'markdown-it'
 import { computed } from 'vue'
@@ -31,6 +30,8 @@ const md = computed(() => {
 const messageKey = `markdown-router-${Math.random()}`
 
 const pColor = useCssVar('--p-color')
+const isTauriRuntime = () =>
+  typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
 
 const htmlTemplateUrl = computed(() =>
   createTemplate({
@@ -38,14 +39,38 @@ const htmlTemplateUrl = computed(() =>
     isDark: $props.isDarkMode,
     content: md.value.render($props.markdown, $props.env),
     messageKey,
+    delegateLinkOpen: isTauriRuntime(),
   }),
 )
 
+const openInBrowser = (href: string) => {
+  window.open(href, '_blank', 'noopener,noreferrer')
+}
+
+const openExternalLink = (href: string) => {
+  if (!isTauriRuntime()) {
+    openInBrowser(href)
+    return
+  }
+
+  void import('@tauri-apps/plugin-shell')
+    .then(({ open }) => open(href))
+    .catch(() => openInBrowser(href))
+}
+
 useEventListener('message', ev => {
-  const event = ev
-  const data = event.data as { href: string; type?: string }
-  if (data.type != messageKey) return
-  open(data.href)
+  const data: unknown = ev.data
+  if (
+    typeof data !== 'object' ||
+    data === null ||
+    !('type' in data) ||
+    data.type !== messageKey ||
+    !('href' in data) ||
+    typeof data.href !== 'string'
+  ) {
+    return
+  }
+  openExternalLink(data.href)
 })
 </script>
 

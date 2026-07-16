@@ -4,6 +4,7 @@ import { useConfig } from '@delta-comic/plugin'
 import { DcState } from '@delta-comic/ui'
 import { useDialog } from 'naive-ui'
 import { shallowRef, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import Action from '@/components/listAction.vue'
 import Searcher from '@/components/listSearcher.vue'
@@ -30,7 +31,7 @@ const showConfig = shallowRef(false)
 const { remove } = HistoryDB.useRemove()
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: HistoryDB.Item[]) => {
-  actionController.value!.showSelect = false
+  if (actionController.value) actionController.value.showSelect = false
   await remove({ keys: item.map(v => v.timestamp) })
   actionController.value?.selectList.clear()
 }
@@ -38,6 +39,7 @@ const removeItems = async (item: HistoryDB.Item[]) => {
 const filters = useNativeStore(pluginName, 'history.filter', new Array<string>())
 
 const $dialog = useDialog()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -51,15 +53,15 @@ const $dialog = useDialog()
       ref="actionController"
       :action="[
         {
-          text: '删除',
-          color: 'var(--van-danger-color)',
+          text: t('common.actions.delete'),
+          color: 'var(--dc-error)',
           onTrigger(sel) {
             $dialog.create({
               type: 'warning',
-              title: '警告',
-              content: `你确认删除${sel.length}项?`,
-              positiveText: '确定',
-              negativeText: '取消',
+              title: t('common.dialog.warning'),
+              content: t('common.dialog.confirmDeleteItems', { count: sel.length }),
+              positiveText: t('common.actions.confirm'),
+              negativeText: t('common.actions.cancel'),
               onPositiveClick: () => removeItems(sel),
             })
           },
@@ -68,21 +70,21 @@ const $dialog = useDialog()
       :values="histories"
       v-slot="{ ActionBar, SelectPacker }"
     >
-      <Layout title="历史记录">
+      <Layout :title="t('history.title')">
         <template #rightNav>
           <NIcon
             size="calc(var(--spacing) * 6.5)"
-            class="van-haptics-feedback"
+            class="dc-interactive"
             @click="searcher && (searcher!.isSearching = true)"
-            color="var(--van-text-color-2)"
+            color="var(--dc-text-secondary)"
           >
             <Icons.material.SearchFilled />
           </NIcon>
           <NIcon
             size="calc(var(--spacing) * 6.5)"
-            class="van-haptics-feedback rotate-90"
+            class="dc-interactive rotate-90"
             @click="showConfig = true"
-            color="var(--van-text-color-2)"
+            color="var(--dc-text-secondary)"
           >
             <Icons.material.MoreHorizRound />
           </NIcon>
@@ -92,12 +94,10 @@ const $dialog = useDialog()
           <Searcher ref="searcher" v-model:filters-history="filters" />
         </template>
         <template #bottomNav>
-          <div
-            class="flex h-12 w-full items-center justify-end bg-(--van-background-2) pt-4 pr-3 pb-2"
-          >
+          <div class="flex h-12 w-full items-center justify-end bg-(--dc-surface) pt-4 pr-3 pb-2">
             <NIcon
               size="1.5rem"
-              class="van-haptics-feedback"
+              class="dc-interactive"
               @click="actionController!.showSelect = true"
             >
               <svg
@@ -125,37 +125,44 @@ const $dialog = useDialog()
           :padding="0"
           :minHeight="0"
         >
-          <VanSwipeCell class="relative w-full">
-            <component :is="SelectPacker" :it="item">
-              <HistoryCard :height="130" :item />
-            </component>
-            <template #right>
-              <VanButton
-                square
-                text="删除"
-                type="danger"
-                class="h-full!"
-                @click="removeItems([item])"
-              />
-            </template>
-          </VanSwipeCell>
+          <div class="mx-auto flex w-full max-w-5xl items-stretch border-b border-(--dc-border)">
+            <div class="min-w-0 flex-1">
+              <component :is="SelectPacker" :it="item">
+                <HistoryCard :height="130" :item />
+              </component>
+            </div>
+            <div class="flex w-18 shrink-0 items-center justify-center px-2 sm:w-24">
+              <NPopconfirm
+                :positive-text="t('common.actions.delete')"
+                :negative-text="t('common.actions.cancel')"
+                @positive-click="removeItems([item])"
+              >
+                <template #trigger>
+                  <NButton type="error" secondary class="w-full">
+                    {{ t('common.actions.delete') }}
+                  </NButton>
+                </template>
+                {{ t('history.confirmDelete') }}
+              </NPopconfirm>
+            </div>
+          </div>
         </DcWaterfall>
       </Layout>
     </Action>
   </DcState>
-  <NDrawer v-model:show="showConfig" position="bottom" round class="bg-(--van-background)!">
-    <div class="m-(--van-cell-group-inset-padding) mt-4 mb-2! w-full font-semibold">
-      历史记录设置
+  <NDrawer v-model:show="showConfig" position="bottom" round class="bg-(--dc-background)!">
+    <div class="m-(--dc-content-padding) mt-4 mb-2! w-full font-semibold">
+      {{ t('history.settings.title') }}
     </div>
     <DcCellGroup inset class="mb-6!">
       <DcCell
         center
-        title="追踪历史记录"
-        label="记录并展示新的历史足迹"
+        :title="t('history.settings.tracking')"
+        :label="t('history.settings.trackingDescription')"
         @click="config.data.value.recordHistory = !config.data.value.recordHistory"
       >
         <template #right-icon>
-          <VanSwitch size="large" v-model="config.data.value.recordHistory" />
+          <NSwitch size="large" v-model:value="config.data.value.recordHistory" @click.stop />
         </template>
       </DcCell>
     </DcCellGroup>

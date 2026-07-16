@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
 import { ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+
+import { Icons } from '@/icons'
 
 withDefaults(defineProps<{ title: string; isLoading?: boolean }>(), { isLoading: false })
 defineSlots<{ rightNav(): void; topNav(): void; bottomNav(): void; default(): void }>()
@@ -11,6 +14,7 @@ useResizeObserver(topBarEl, () => {
   height.value = topBarEl.value?.getBoundingClientRect().height ?? 0
 })
 const $router = useRouter()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -19,16 +23,18 @@ const $router = useRouter()
     class="h-[calc(100%-var(--safe-area-inset-top))] w-full"
     contentClass="size-full"
   >
-    <div class="w-full bg-(--van-background-2) pt-safe"></div>
-    <div class="flex w-full flex-col bg-(--van-background-2)" ref="topBarEl">
+    <div class="w-full bg-(--dc-surface) pt-safe"></div>
+    <div class="flex w-full flex-col bg-(--dc-surface)" ref="topBarEl">
       <div class="relative flex h-13 w-full items-center justify-center text-lg! font-bold">
-        <VanIcon
-          name="arrow-left"
+        <NIcon
           size="calc(var(--spacing) * 6)"
-          class="van-haptics-feedback absolute! left-3"
+          class="dc-interactive absolute! left-3 rotate-180"
           @click="$router.back()"
-          color="var(--van-text-color-2)"
-        />
+          color="var(--dc-text-secondary)"
+          :aria-label="t('common.actions.back')"
+        >
+          <Icons.material.ArrowForwardIosRound />
+        </NIcon>
         <span>{{ title }}</span>
         <div class="absolute right-0 flex h-full items-center justify-end gap-4 pr-2">
           <slot name="rightNav" />

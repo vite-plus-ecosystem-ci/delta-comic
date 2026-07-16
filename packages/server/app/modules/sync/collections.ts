@@ -19,12 +19,14 @@ export const syncCollections = {
   itemStore: {
     applyOrder: 10,
     deleteOrder: 90,
-    getEntityId: (input: unknown) => requireField(assertRecord(input, 'itemStore'), 'key', 'itemStore'),
+    getEntityId: (input: unknown) =>
+      requireField(assertRecord(input, 'itemStore'), 'key', 'itemStore'),
   },
   favouriteCard: {
     applyOrder: 20,
     deleteOrder: 80,
-    getEntityId: (input: unknown) => requireField(assertRecord(input, 'favouriteCard'), 'createAt', 'favouriteCard'),
+    getEntityId: (input: unknown) =>
+      requireField(assertRecord(input, 'favouriteCard'), 'createAt', 'favouriteCard'),
   },
   favouriteItem: {
     applyOrder: 30,
@@ -37,12 +39,14 @@ export const syncCollections = {
   history: {
     applyOrder: 40,
     deleteOrder: 60,
-    getEntityId: (input: unknown) => requireField(assertRecord(input, 'history'), 'itemKey', 'history'),
+    getEntityId: (input: unknown) =>
+      requireField(assertRecord(input, 'history'), 'itemKey', 'history'),
   },
   recentView: {
     applyOrder: 40,
     deleteOrder: 60,
-    getEntityId: (input: unknown) => requireField(assertRecord(input, 'recentView'), 'itemKey', 'recentView'),
+    getEntityId: (input: unknown) =>
+      requireField(assertRecord(input, 'recentView'), 'itemKey', 'recentView'),
   },
   subscribe: {
     applyOrder: 40,
@@ -55,13 +59,16 @@ export const syncCollections = {
   config: {
     applyOrder: 50,
     deleteOrder: 50,
-    getEntityId: (input: unknown) => requireField(assertRecord(input, 'config'), 'belongTo', 'config'),
+    getEntityId: (input: unknown) =>
+      requireField(assertRecord(input, 'config'), 'belongTo', 'config'),
   },
 } as const
 
 export type SyncCollectionConfig = (typeof syncCollections)[keyof typeof syncCollections]
 
-export const syncCollectionNames = Object.keys(syncCollections) as Array<keyof typeof syncCollections>
+export const syncCollectionNames = Object.keys(syncCollections) as Array<
+  keyof typeof syncCollections
+>
 
 export const isSyncCollection = (value: string): value is keyof typeof syncCollections =>
   value in syncCollections

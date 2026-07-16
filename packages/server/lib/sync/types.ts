@@ -4,12 +4,7 @@ export type { SyncCollection } from './collections'
 
 export type SyncAction = 'upsert' | 'delete'
 
-export type SyncOperationResult =
-  | 'applied'
-  | 'replayed'
-  | 'ignored_stale'
-  | 'conflict'
-  | 'failed'
+export type SyncOperationResult = 'applied' | 'replayed' | 'ignored_stale' | 'conflict' | 'failed'
 
 export interface SyncPushOperation {
   action: SyncAction
@@ -45,20 +40,14 @@ export interface SyncPushItemResult {
   collection: SyncCollection
   entityId: string
   entityVersion?: string
-  error?: {
-    code: string
-    message: string
-  }
+  error?: { code: string; message: string }
   opId: string
   result: SyncOperationResult
   serverSeq?: number
 }
 
 export interface SyncPushResponse {
-  checkpoint: {
-    latestSeq: number
-    serverTime: number
-  }
+  checkpoint: { latestSeq: number; serverTime: number }
   results: SyncPushItemResult[]
 }
 
@@ -79,10 +68,5 @@ export interface SyncChange {
 
 export interface SyncPullResponse {
   changes: SyncChange[]
-  checkpoint: {
-    hasMore: boolean
-    latestSeq: number
-    nextSeq: number
-    sinceSeq: number
-  }
+  checkpoint: { hasMore: boolean; latestSeq: number; nextSeq: number; sinceSeq: number }
 }

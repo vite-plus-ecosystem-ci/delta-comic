@@ -35,7 +35,7 @@ _____   _________________ ____        __________________ _____   ______
 - **用户优先**: 界面与阅读体验为中心，支持主题切换、夜间模式等常见阅读习惯。
 - **人性化UI**: 仿**BiliBili**的移动端界面，经过市场验证，使用更舒心。
 - **开源与可扩展**: 插件模式让更多站点能快速接入（对普通用户透明）。
-- [**评论区戳我**](https://github.com/orgs/delta-comic/discussions/32)!: _就是github的discuess_
+- [**评论区戳我**](https://github.com/orgs/delta-comic/discussions/32)!: _就是github的discuss_
 - **人类主导**: 匠心程序员手作ui。
 
 ## 实机演示
@@ -70,15 +70,37 @@ _____   _________________ ____        __________________ _____   ______
 
 > 代码块内是下载命令
 
-- [x] 禁漫天堂 `ap:jmcomic` -_天堂支点_
-- [x] 哔咔漫画 `ap:bika` -_三花聚顶_
-- [x] CosAv `ap:cosav` -_众生相_
-- [ ] E-Hentai -_应许之地_
-- [ ] 糖心Vlog _心外无物_
+- [x] 「天堂支点」 [禁漫天堂](https://github.com/delta-comic/jmcomic-sdk)
+
+```txt
+ap:jmcomic
+```
+
+- [x] 「三花聚顶」 [哔咔漫画](https://github.com/delta-comic/delta-comic-plugin-bika)
+
+```txt
+ap:bika
+```
+
+- [x] 「众生之相」 [CosAv](https://github.com/delta-comic/delta-comic-plugin-cosav)
+
+```txt
+ap:cosav
+```
+
+- [ ] 「应许之地」 [E-Hentai](https://github.com/delta-comic/delta-comic-plugin-ehentai)
+- [ ] 「既有之梦」 [Hanime1](https://github.com/delta-comic/delta-comic-plugin-hanime1)
+- [ ] 「心外无物」 糖心Vlog
 
 ## 状态
 
-[![Star History Chart](https://api.star-history.com/svg?repos=delta-comic/delta-comic&type=Date)](https://www.star-history.com/#delta-comic/delta-comic&Date)
+<a href="https://www.star-history.com/?repos=delta-comic%2Fdelta-comic&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=delta-comic/delta-comic&type=date&theme=dark&legend=top-left&sealed_token=x-IHSjGD7vCOI9zzr2qloazU_LXrCugkN_4gJvQMKSjgDg9FE3eaFI66SFACqWZvchb8br4BQj6RXH4HZXDxiu_oWeeqbNwpUnL83Jp8qP8y_vk2QKUbTQM3Bgo4rLb6mbpRA7FxollQvaEHV_VdB-xz-w_5fjheC9mWDjtFuAKSTznoiHkF91GSia01" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=delta-comic/delta-comic&type=date&legend=top-left&sealed_token=x-IHSjGD7vCOI9zzr2qloazU_LXrCugkN_4gJvQMKSjgDg9FE3eaFI66SFACqWZvchb8br4BQj6RXH4HZXDxiu_oWeeqbNwpUnL83Jp8qP8y_vk2QKUbTQM3Bgo4rLb6mbpRA7FxollQvaEHV_VdB-xz-w_5fjheC9mWDjtFuAKSTznoiHkF91GSia01" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=delta-comic/delta-comic&type=date&legend=top-left&sealed_token=x-IHSjGD7vCOI9zzr2qloazU_LXrCugkN_4gJvQMKSjgDg9FE3eaFI66SFACqWZvchb8br4BQj6RXH4HZXDxiu_oWeeqbNwpUnL83Jp8qP8y_vk2QKUbTQM3Bgo4rLb6mbpRA7FxollQvaEHV_VdB-xz-w_5fjheC9mWDjtFuAKSTznoiHkF91GSia01" />
+ </picture>
+</a>
 
 ![Alt](https://repobeats.axiom.co/api/embed/d29bef6ede7cc9fcfabb0d1499a656e06f5462bf.svg 'Repobeats analytics image')
 

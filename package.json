@@ -20,29 +20,41 @@
   },
   "type": "module",
   "scripts": {
-    "changeset": "vp exec changeset",
-    "vp:install": "vp install",
     "check": "vp check",
-    "test": "vp test",
     "dev": "vp run --filter app dev",
     "lib-build": "vp run -t app#build",
-    "release": "vp run lib-build && vp exec changeset publish",
+    "release": "node ./script/bootstrap-release-history.mts && vp exec semantic-release",
+    "release:dry-run": "node ./script/bootstrap-release-history.mts && vp exec semantic-release --dry-run",
     "set-ver": "node ./script/set-version.mts",
     "tauri": "vp run --filter app tauri",
+    "test": "vp test",
+    "test:coverage": "vp test run --coverage",
     "typecheck": "vp run -r typecheck",
-    "version-packages": "node ./script/version-packages.mts"
+    "vp:install": "vp install"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.0",
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@typescript/native-preview": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vue/test-utils": "catalog:",
     "commitlint-plugin-cspell": "catalog:",
     "cspell": "catalog:",
-    "oxlint-tsgolint": "catalog:",
-    "vite-plus": "catalog:"
+    "happy-dom": "catalog:",
+    "semantic-release": "^25.0.7",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "badges": [
+    {
+      "description": "semantic-release: angular",
+      "href": "https://github.com/semantic-release/semantic-release",
+      "url": "https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release"
+    },
     {
       "description": "Repo License",
       "href": "https://github.com/delta-comic/delta-comic/blob/main/LICENSE",
@@ -59,6 +71,6 @@
       "url": "https://wakatime.com/badge/user/018cf362-35ff-48f2-af6b-61f09a441de4/project/9f2c18ca-6eec-4e82-8041-5d23c1aba440.svg"
     }
   ],
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.10.0",
   "readme": "./README.md"
 }

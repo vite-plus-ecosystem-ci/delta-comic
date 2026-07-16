@@ -19,7 +19,11 @@ const assertRecord = (row: unknown, collection: SyncCollection): Record<string, 
   return row as Record<string, unknown>
 }
 
-const requireField = (row: Record<string, unknown>, key: string, collection: SyncCollection): string => {
+const requireField = (
+  row: Record<string, unknown>,
+  key: string,
+  collection: SyncCollection,
+): string => {
   const value = row[key]
   if (value === undefined || value === null || value === '') {
     throw new CloudClientError('SYNC_INVALID_ENTITY_ID', `${collection}.${key} is required`)

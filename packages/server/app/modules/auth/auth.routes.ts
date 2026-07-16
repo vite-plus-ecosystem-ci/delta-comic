@@ -9,24 +9,16 @@ import { authModels } from './auth.schemas'
 export const authRoutes = new Elysia({ prefix: '/auth' })
   .use(serverContext)
   .use(authModels)
-  .post(
-    '/register',
-    async ({ authService, body }) => ok(await authService.register(body)),
-    {
-      body: 'Auth.RegisterRequest',
-      detail: { summary: 'Register and create a terminal session', tags: ['Auth'] },
-      response: { 200: 'Response.AuthTokens' },
-    },
-  )
-  .post(
-    '/login',
-    async ({ authService, body }) => ok(await authService.login(body)),
-    {
-      body: 'Auth.LoginRequest',
-      detail: { summary: 'Login and create a terminal session', tags: ['Auth'] },
-      response: { 200: 'Response.AuthTokens' },
-    },
-  )
+  .post('/register', async ({ authService, body }) => ok(await authService.register(body)), {
+    body: 'Auth.RegisterRequest',
+    detail: { summary: 'Register and create a terminal session', tags: ['Auth'] },
+    response: { 200: 'Response.AuthTokens' },
+  })
+  .post('/login', async ({ authService, body }) => ok(await authService.login(body)), {
+    body: 'Auth.LoginRequest',
+    detail: { summary: 'Login and create a terminal session', tags: ['Auth'] },
+    response: { 200: 'Response.AuthTokens' },
+  })
   .post(
     '/refresh',
     async ({ authService, body }) => ok(await authService.refresh(body.refreshToken)),

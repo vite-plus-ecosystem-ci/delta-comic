@@ -1,8 +1,7 @@
 import type { PluginArchiveDB } from '@delta-comic/db'
-import { extendsDepends } from '@delta-comic/utils/vite'
+import { exposeHostLibraries, extendsDepends } from '@delta-comic/utils/vite'
 import { merge } from 'es-toolkit'
 import JSZip from 'jszip'
-import { viteExternalsPlugin as external } from 'vite-plugin-externals'
 import monkey from 'vite-plugin-monkey'
 
 type DeltaComicBundleAssetSource = string | Uint8Array
@@ -21,6 +20,7 @@ type DeltaComicPlugin = {
   name: string
   enforce?: 'post' | 'pre'
   config?(config: unknown): unknown
+  resolveId?(source: string): void
   generateBundle?(
     this: DeltaComicPluginContext,
     options: unknown,
@@ -36,12 +36,29 @@ export const deltaComic = (
 ): DeltaComicPluginOption[] => {
   const externalGlobals = extendsDepends as Record<string, string>
   const isServer = command == 'serve'
+  const sharedRuntimeGuard: DeltaComicPlugin = {
+    name: 'delta-comic-shared-runtime-guard',
+    enforce: 'pre',
+    resolveId(source) {
+      if (Object.hasOwn(externalGlobals, source)) return
+
+      const externalRoot = Object.keys(externalGlobals).find(root => source.startsWith(`${root}/`))
+      if (!externalRoot && !source.startsWith('@vue/')) return
+
+      const publicEntry = externalRoot ?? 'vue'
+      throw new Error(
+        `[delta-comic] Shared runtime subpath "${source}" is not supported. Import "${publicEntry}" so the plugin reuses the host instance.`,
+      )
+    },
+  }
   const plugin: DeltaComicPlugin = {
     name: 'delta-comic-helper',
     enforce: 'post',
     config(config: any) {
       return merge(config, {
         build: {
+          assetsInlineLimit: Number.POSITIVE_INFINITY,
+          cssCodeSplit: false,
           lib: {
             entry: './src/main.ts',
             fileName: 'index',
@@ -49,6 +66,7 @@ export const deltaComic = (
             name: `$$lib$$.__DcPlugin__${meta.name.id.replace('-', '_')}__`,
             formats: ['es'],
           },
+          rollupOptions: { output: { inlineDynamicImports: true } },
         },
       })
     },
@@ -73,14 +91,12 @@ export const deltaComic = (
       this.emitFile({ type: 'asset', fileName: 'manifest.json', source: manifest })
     },
   }
-  const externals = external(
-    Object.fromEntries(
-      Object.entries(externalGlobals).map(([key, val]) => [key, val.split('.').slice(1)]),
-    ),
-    { disableInServe: false },
-  ) as DeltaComicPluginOption
+  const externals = exposeHostLibraries({
+    libraries: externalGlobals,
+  }) as unknown as DeltaComicPluginOption
 
   return [
+    sharedRuntimeGuard,
     externals,
     ...(isServer
       ? [

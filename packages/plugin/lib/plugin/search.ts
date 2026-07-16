@@ -1,5 +1,4 @@
 import type { StreamQuery, uni } from '@delta-comic/model'
-import type { UseQueryReturn } from '@pinia/colada'
 import type { Component } from 'vue'
 
 export interface Config {
@@ -21,8 +20,13 @@ export interface Config {
 
   barcode?: Barcode[]
 
-  fetchRandomItems?: (signal?: AbortSignal) => Promise<uni.item.Item[]>
+  /** Search landing-page sections supplied by this plugin. */
+  hotSearch?: HotSearchProvider[]
+
+  fetchRandomItems?: ItemProvider
 }
+
+export type ItemProvider = (signal: AbortSignal) => uni.item.Item[] | PromiseLike<uni.item.Item[]>
 
 export interface SearchMethod {
   name: string
@@ -35,13 +39,35 @@ export interface SearchMethod {
   ): PromiseLike<({ text: string; value: string } | Component)[]>
 }
 
+export interface HotSearchTarget {
+  /** Search method key declared by the same plugin. */
+  method: string
+  /** Falls back to the search method's default sort when omitted. */
+  sort?: string
+}
+
+export interface HotSearchItem {
+  text: string
+  /** Search input used after selection. Defaults to `text`. */
+  value?: string
+  badge?: { text: string; tone?: 'accent' | 'warning' }
+  /** Overrides the provider target for this item. */
+  target?: HotSearchTarget
+}
+
+export interface HotSearchProvider {
+  title: string
+  target: HotSearchTarget
+  fetchItems(signal: AbortSignal): PromiseLike<HotSearchItem[]> | HotSearchItem[]
+}
+
 export interface HotLevelboard {
   name: string
-  content: () => UseQueryReturn<uni.item.Item[]>
+  content: ItemProvider
 }
 export interface HotMainList {
   name: string
-  content: () => UseQueryReturn<uni.item.Item[]>
+  content: ItemProvider
   onClick?(): any
 }
 export interface HotTopButton {

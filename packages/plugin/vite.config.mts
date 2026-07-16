@@ -11,6 +11,7 @@ export default defineConfig({
     dts: { tsconfig: './tsconfig.app.json', tsgo: true },
     sourcemap: true,
   },
+  resolve: { alias: { '@': fileURLToPath(new URL('./lib', import.meta.url)) } },
   root,
   test: { environment: 'node', include: ['lib/**/*.test.ts', 'vite/**/*.test.ts'] },
 })

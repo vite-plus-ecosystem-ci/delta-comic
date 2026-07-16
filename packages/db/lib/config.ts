@@ -16,16 +16,21 @@ export interface Table {
   data: string
 }
 
+export type ConfigRef<T> = Ref<T> & { readonly ready: Promise<void> }
+
 const cloneValue = <T>(value: T): T => {
   if (typeof structuredClone === 'function') return structuredClone(value)
   return JSON.parse(JSON.stringify(value)) as T
 }
 
 const createDefaultData = <T extends ConfigDescription>(config: T): FormResult<T> =>
-  fromPairs(Object.entries(config).map(([name, desc]) => [name, desc.defaultValue])) as FormResult<T>
+  fromPairs(
+    Object.entries(config).map(([name, desc]) => [name, desc.defaultValue]),
+  ) as FormResult<T>
 
-const parseJson = <T>(value: string | null | undefined, fallback: T): T => {
+const parseJson = <T>(value: unknown, fallback: T): T => {
   if (!value) return cloneValue(fallback)
+  if (typeof value !== 'string') return cloneValue(value as T)
   try {
     return JSON.parse(value) as T
   } catch (error) {
@@ -45,7 +50,7 @@ const upsertConfig = async (belongTo: string, form: ConfigDescription, data: unk
 export const useConfig = <T extends ConfigDescription>(
   belongTo: string,
   form: T,
-): Ref<FormResult<T>> => {
+): ConfigRef<FormResult<T>> => {
   const defaultData = createDefaultData(form)
   const data = ref(cloneValue(defaultData)) as Ref<FormResult<T>>
   let hydrated = false
@@ -60,7 +65,7 @@ export const useConfig = <T extends ConfigDescription>(
     }, 100)
   }
 
-  void (async () => {
+  const ready = (async () => {
     try {
       const { db } = await import('.')
       const stored = await db
@@ -70,7 +75,9 @@ export const useConfig = <T extends ConfigDescription>(
         .executeTakeFirst()
       data.value = parseJson(stored?.data, defaultData)
       hydrated = true
-      if (!stored || stored.form !== JSON.stringify(form)) persist()
+      const storedForm =
+        typeof stored?.form === 'string' ? stored.form : JSON.stringify(stored?.form)
+      if (!stored || storedForm !== JSON.stringify(form)) persist()
     } catch (error) {
       console.warn('[db] failed to load config value', error)
       data.value = cloneValue(defaultData)
@@ -84,8 +91,8 @@ export const useConfig = <T extends ConfigDescription>(
       if (!hydrated) return
       persist()
     },
-    { deep: true },
+    { deep: true, flush: 'sync' },
   )
 
-  return data
+  return Object.assign(data, { ready })
 }

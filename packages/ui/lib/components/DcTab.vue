@@ -206,9 +206,9 @@ defineSlots<{ left(): any; right(): any; bottom(): any }>()
 .dc-tabs__nav {
   display: flex;
   align-items: center;
-  height: var(--van-tabs-line-height, 44px);
-  padding-bottom: var(--van-tabs-padding-bottom, 15px);
-  background: var(--van-background-2);
+  height: var(--dc-tabs-height, 44px);
+  padding-bottom: var(--dc-tabs-indicator-offset, 10px);
+  background: var(--dc-color-surface);
 }
 
 .dc-tabs__swiper {
@@ -253,7 +253,7 @@ defineSlots<{ left(): any; right(): any; bottom(): any }>()
 
 .dc-tabs__tab-text {
   font-size: 14px;
-  color: var(--van-text-color-2);
+  color: var(--dc-color-text-secondary);
   white-space: nowrap;
   transition:
     color 0.2s,
@@ -261,17 +261,17 @@ defineSlots<{ left(): any; right(): any; bottom(): any }>()
 }
 
 .dc-tabs__tab--active .dc-tabs__tab-text {
-  color: var(--van-text-color);
+  color: var(--dc-color-text);
   font-weight: 500;
 }
 
 .dc-tabs__indicator {
   position: absolute;
-  bottom: var(--van-tabs-padding-bottom, 15px);
+  bottom: var(--dc-tabs-indicator-offset, 10px);
   left: 0;
   height: 3px;
   border-radius: 3px;
-  background: var(--van-tabs-bottom-bar-color, var(--p-color, #1989fa));
+  background: var(--dc-tabs-indicator-color, var(--dc-color-primary));
   pointer-events: none;
   transition:
     transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),

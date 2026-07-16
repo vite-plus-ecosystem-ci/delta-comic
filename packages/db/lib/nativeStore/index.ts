@@ -23,11 +23,12 @@ const legacyValue = (namespace: string, key: string) => {
   }
 }
 
-const parseValue = <T extends object>(
-  value: string | null,
-  defaultValue: MaybeRefOrGetter<T>,
-): T => {
-  if (value === null) return cloneDefault(defaultValue)
+const parseValue = <T extends object>(value: unknown, defaultValue: MaybeRefOrGetter<T>): T => {
+  if (value === null || value === '') return cloneDefault(defaultValue)
+  if (typeof value !== 'string') {
+    if (typeof structuredClone === 'function') return structuredClone(value as T)
+    return JSON.parse(JSON.stringify(value)) as T
+  }
   try {
     return JSON.parse(value) as T
   } catch (error) {
@@ -39,12 +40,14 @@ const parseValue = <T extends object>(
 const getStoreValue = async (namespace: string, key: string) => {
   const { db } = await import('../index')
   return (
-    (await db
-      .selectFrom('nativeStore')
-      .select('value')
-      .where('namespace', '=', namespace)
-      .where('key', '=', key)
-      .executeTakeFirst())?.value ?? null
+    (
+      await db
+        .selectFrom('nativeStore')
+        .select('value')
+        .where('namespace', '=', namespace)
+        .where('key', '=', key)
+        .executeTakeFirst()
+    )?.value ?? null
   )
 }
 

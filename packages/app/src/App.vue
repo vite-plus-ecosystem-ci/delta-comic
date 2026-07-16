@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { Global } from '@delta-comic/plugin'
 import { SharedFunction } from '@delta-comic/utils'
-import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { useIntervalFn } from '@vueuse/core'
 import { Mutex } from 'es-toolkit'
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 
+import { readClipboardText, writeClipboardText } from './platform'
 import { pluginName } from './symbol'
 const $router = useRouter()
 const $route = useRoute()
+const { t } = useI18n()
 
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()
 SharedFunction.define(
   async token => {
-    await Clipboard.writeText(token)
+    await writeClipboardText(token)
     scanned.add(token)
-    window.$message.success('复制成功')
+    window.$message.success(t('common.feedback.copied'))
   },
   pluginName,
   'pushShareToken',
@@ -26,7 +28,7 @@ SharedFunction.define(
 
 const handleShareTokenCheck = async () => {
   try {
-    const chipText = await Clipboard.readText()
+    const chipText = await readClipboardText()
     if (scanned.has(chipText)) return
     scanned.add(chipText)
     const handlers = Array.from(Global.shareToken.values()).filter(v => v.patten(chipText))
@@ -36,13 +38,13 @@ const handleShareTokenCheck = async () => {
       await lock.acquire()
       const detail = await handler.show(chipText)
       window.$dialog.info({
-        title: `口令探测：${detail.title}`,
+        title: t('share.tokenDetected', { title: detail.title }),
         content: detail.detail,
         closeOnEsc: false,
         maskClosable: false,
         closable: false,
-        positiveText: '查看',
-        negativeText: '取消',
+        positiveText: t('common.actions.view'),
+        negativeText: t('common.actions.cancel'),
         onPositiveClick() {
           detail.onPositive()
           lock.release()

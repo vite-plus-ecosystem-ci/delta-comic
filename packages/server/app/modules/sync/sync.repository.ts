@@ -15,7 +15,11 @@ const PROCESSING_ERROR_CODE = 'SYNC_PROCESSING'
 export class SyncRepository {
   constructor(private readonly db: D1Database) {}
 
-  async findOperation(userId: string, terminalUuid: string, opId: string): Promise<SyncOpRow | null> {
+  async findOperation(
+    userId: string,
+    terminalUuid: string,
+    opId: string,
+  ): Promise<SyncOpRow | null> {
     return (await first(
       this.db,
       `SELECT * FROM sync_ops
@@ -57,7 +61,11 @@ export class SyncRepository {
     return (result.meta.changes ?? 0) > 0
   }
 
-  async findEntity(userId: string, collection: SyncCollection, entityId: string): Promise<SyncEntityRow | null> {
+  async findEntity(
+    userId: string,
+    collection: SyncCollection,
+    entityId: string,
+  ): Promise<SyncEntityRow | null> {
     return (await first(
       this.db,
       `SELECT * FROM sync_entities
@@ -231,7 +239,11 @@ export class SyncRepository {
     )
   }
 
-  async markTerminalPushed(input: { lastPushedAt: number; terminalUuid: string; userId: string }): Promise<void> {
+  async markTerminalPushed(input: {
+    lastPushedAt: number
+    terminalUuid: string
+    userId: string
+  }): Promise<void> {
     await run(
       this.db,
       `INSERT INTO sync_terminal_cursors

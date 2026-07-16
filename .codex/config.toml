@@ -1,7 +1,0 @@
-[mcp_servers.nvim]
-command = "npx"
-args = ["-y", "mcp-neovim-server"]
-
-[mcp_servers.nvim.env]
-ALLOW_SHELL_COMMANDS = "true"
-NVIM_SOCKET_PATH = "/tmp/nvim"

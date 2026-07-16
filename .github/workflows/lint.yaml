@@ -7,6 +7,12 @@ on:
       - '.github/workflows/lint.yaml'
       - '*.config.ts'
       - 'tsconfig*.json'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - '.github/workflows/lint.yaml'
+      - '*.config.ts'
+      - 'tsconfig*.json'
 
 permissions:
   contents: read

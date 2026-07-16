@@ -4,7 +4,11 @@ const textEncoder = new TextEncoder()
 const PBKDF2_ITERATIONS = 210_000
 const PASSWORD_ALG = `pbkdf2-sha256:${PBKDF2_ITERATIONS}`
 
-const derivePasswordHash = async (password: string, salt: string, pepper: string): Promise<string> => {
+const derivePasswordHash = async (
+  password: string,
+  salt: string,
+  pepper: string,
+): Promise<string> => {
   const sourceKey = await crypto.subtle.importKey(
     'raw',
     textEncoder.encode(`${pepper}:${password}`),
@@ -27,11 +31,7 @@ const derivePasswordHash = async (password: string, salt: string, pepper: string
 
 export const createPasswordRecord = async (password: string, pepper: string) => {
   const salt = bytesToBase64Url(randomBytes(16))
-  return {
-    alg: PASSWORD_ALG,
-    hash: await derivePasswordHash(password, salt, pepper),
-    salt,
-  }
+  return { alg: PASSWORD_ALG, hash: await derivePasswordHash(password, salt, pepper), salt }
 }
 
 export const verifyPassword = async (

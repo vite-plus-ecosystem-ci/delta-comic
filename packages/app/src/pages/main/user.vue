@@ -7,6 +7,7 @@ import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { NCollapseTransition } from 'naive-ui'
 import { computed, shallowRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { Icons } from '@/icons'
@@ -15,6 +16,7 @@ const $router = useRouter()
 const config = useConfig()
 const $window = window
 const pluginStore = usePluginStore()
+const { t } = useI18n()
 
 const { data: favouriteCount } = FavouriteDB.useQueryItem(
   db => DBUtils.countDb(db),
@@ -79,9 +81,9 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
     </DcVar>
   </DefineUser>
 
-  <div class="w-full bg-(--van-background-2) pt-safe"></div>
-  <div class="flex h-10 w-full items-center justify-end bg-(--van-background-2)">
-    <VanIcon color="var(--van-text-color-2)" class="mx-2">
+  <div class="w-full bg-(--dc-surface) pt-safe"></div>
+  <div class="flex h-10 w-full items-center justify-end bg-(--dc-surface)">
+    <NIcon color="var(--dc-text-secondary)" class="mx-2" size="28">
       <svg
         v-if="config.isDark"
         xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +120,7 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
           ></path>
         </g>
       </svg>
-    </VanIcon>
+    </NIcon>
   </div>
   <AnimatePresence>
     <User
@@ -127,7 +129,7 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
       v-if="app.activatedUser"
     />
     <NCollapseTransition :show="showActivatedUserSelect" appear>
-      <User :user :plugin v-for="[plugin, user] of userNoTopUserList" />
+      <User :user :plugin v-for="[plugin, user] of userNoTopUserList" :key="plugin" />
     </NCollapseTransition>
     <Motion
       :initial="{ opacity: 0 }"
@@ -135,7 +137,7 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
       :exit="{ opacity: 0 }"
       v-if="uni.user.User.userBase.size > 1"
     >
-      <NDivider class="my-0! bg-(--van-background-2)">
+      <NDivider class="my-0! bg-(--dc-surface)">
         <NIcon @click="showActivatedUserSelect = !showActivatedUserSelect" size="20px">
           <Icons.material.KeyboardArrowUpRound v-if="showActivatedUserSelect" />
           <Icons.material.KeyboardArrowDownRound v-else />
@@ -146,62 +148,62 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
 
   <div
     v-if="isEmpty(uni.user.User.userBase)"
-    class="flex h-20 w-full items-center justify-center bg-(--van-background-2)"
+    class="flex h-20 w-full items-center justify-center bg-(--dc-surface)"
   >
-    <span class="text-(--van-text-color-2) italic">没有已注册的用户信息</span>
+    <span class="text-(--dc-text-secondary) italic">{{ t('user.noRegisteredUsers') }}</span>
   </div>
-  <VanRow
-    class="h-16 w-full bg-(--van-background-2) py-2 *:*:flex *:*:flex-col *:*:items-center *:*:justify-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2)"
-  >
-    <VanCol span="8">
-      <div class="van-hairline--right">
-        <span>{{ favouriteCount }}</span>
-        <span>收藏</span>
-      </div>
-    </VanCol>
-    <VanCol span="8">
-      <div>
-        <span>{{ subscribesCount }}</span>
-        <span>关注</span>
-      </div>
-    </VanCol>
-    <VanCol span="8">
-      <div class="van-hairline--left">
-        <span>{{ recentCount }}</span>
-        <span>待看</span>
-      </div>
-    </VanCol>
-  </VanRow>
   <div
-    class="h-[calc(100%-2.5rem-5rem-4rem)] w-full overflow-y-auto bg-(--van-background-2) text-xs!"
+    class="grid h-16 w-full grid-cols-3 bg-(--dc-surface) py-2 *:flex *:flex-col *:items-center *:justify-center *:*:first:text-lg *:*:last:text-xs *:*:last:text-(--dc-text-secondary)"
   >
-    <div class="flex h-20 w-full items-center justify-around">
-      <div
+    <div class="dc-hairline-right">
+      <span>{{ favouriteCount }}</span>
+      <span>{{ t('user.stats.favourites') }}</span>
+    </div>
+    <div>
+      <span>{{ subscribesCount }}</span>
+      <span>{{ t('user.stats.subscriptions') }}</span>
+    </div>
+    <div class="dc-hairline-left">
+      <span>{{ recentCount }}</span>
+      <span>{{ t('user.stats.watchLater') }}</span>
+    </div>
+  </div>
+  <div class="h-[calc(100%-2.5rem-5rem-4rem)] w-full overflow-y-auto bg-(--dc-surface) text-xs!">
+    <div class="mx-auto grid min-h-20 w-full max-w-5xl grid-cols-4 items-center">
+      <button
+        type="button"
         @click="$router.push('/user/download')"
-        class="van-haptics-feedback flex flex-col items-center justify-center"
+        class="dc-interactive flex h-20 flex-col items-center justify-center"
       >
-        <NIcon name="photo-o" size="2rem" color="var(--bili-blue)">
+        <NIcon size="2rem" color="var(--bili-blue)">
           <Icons.antd.FolderOutlined />
         </NIcon>
-        <span class="mt-1 text-(--van-text-color)">本地缓存</span>
-      </div>
-      <div
+        <span class="mt-1 text-(--dc-text)">{{ t('user.sections.localCache') }}</span>
+      </button>
+      <button
+        type="button"
         @click="$router.push('/user/history')"
-        class="van-haptics-feedback flex flex-col items-center justify-center"
+        class="dc-interactive flex h-20 flex-col items-center justify-center"
       >
-        <VanIcon name="clock-o" size="2rem" color="var(--bili-blue)" />
-        <span class="mt-1 text-(--van-text-color)">历史记录</span>
-      </div>
-      <div
+        <NIcon size="2rem" color="var(--bili-blue)">
+          <Icons.material.TimerRound />
+        </NIcon>
+        <span class="mt-1 text-(--dc-text)">{{ t('user.sections.history') }}</span>
+      </button>
+      <button
+        type="button"
         @click="$router.push('/user/favourite')"
-        class="van-haptics-feedback flex flex-col items-center justify-center"
+        class="dc-interactive flex h-20 flex-col items-center justify-center"
       >
-        <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
-        <span class="mt-1 text-(--van-text-color)">我的收藏</span>
-      </div>
-      <div
+        <NIcon size="2rem" color="var(--bili-blue)">
+          <Icons.material.StarOutlineRound />
+        </NIcon>
+        <span class="mt-1 text-(--dc-text)">{{ t('user.sections.favourites') }}</span>
+      </button>
+      <button
+        type="button"
         @click="$router.push('/user/recent')"
-        class="van-haptics-feedback flex flex-col items-center justify-center"
+        class="dc-interactive flex h-20 flex-col items-center justify-center"
       >
         <NIcon size="1.9rem" color="var(--bili-blue)">
           <svg
@@ -216,14 +218,23 @@ const [DefineUser, User] = createReusableTemplate<{ user: uni.user.User; plugin:
             ></path>
           </svg>
         </NIcon>
-        <span class="mt-1 text-(--van-text-color)">稍后再看</span>
-      </div>
+        <span class="mt-1 text-(--dc-text)">{{ t('user.sections.watchLater') }}</span>
+      </button>
     </div>
-    <template v-for="[pluginName, plugin] of pluginStore.plugins.entries()">
-      <ActionCard :pluginName v-for="card of plugin.user?.userActionPages ?? []" :card />
+    <template v-for="[pluginName, plugin] of pluginStore.plugins.entries()" :key="pluginName">
+      <ActionCard
+        :pluginName
+        v-for="(card, cardIndex) of plugin.user?.userActionPages ?? []"
+        :key="`${pluginName}:${cardIndex}`"
+        :card
+      />
     </template>
-    <DcCell title="设置" is-link @click="$router.force.push({ name: '/setting' })" />
-    <DcCell title="青少年模式" @click="$window.close()" is-link />
+    <DcCell
+      :title="t('settings.title')"
+      is-link
+      @click="$router.force.push({ name: '/setting' })"
+    />
+    <DcCell :title="t('user.sections.teenMode')" @click="$window.close()" is-link />
   </div>
 </template>
 <style scoped lang="css">

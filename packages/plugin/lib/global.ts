@@ -1,13 +1,15 @@
 import { SourcedKeyMap, uni } from '@delta-comic/model'
+import { environmentRegistry } from '@delta-comic/ui'
 import { SharedFunction } from '@delta-comic/utils'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { shallowReactive, type Component, type Raw } from 'vue'
 
+import { pluginI18n, pluginMessageKey } from '@/i18n'
 import type { Search, Share, Subscribe, User } from '@/plugin'
 
 import { usePluginStore } from './driver'
+import { runtimeExtensions } from './driver/extensions'
 import { OfflineShareRound, TagOutlined } from './driver/icon'
-import type { GlobalInjectionsConfig } from './env'
 
 class _Global {
   public share = shallowReactive(
@@ -23,6 +25,46 @@ class _Global {
     SourcedKeyMap.createReactive<[plugin: string, key: string], Subscribe.Config>(),
   )
   public globalNodes = shallowReactive(new Array<Raw<Component>>())
+
+  private readonly globalNodeOwners = new Map<Raw<Component>, string>()
+  private readonly registrationOwners: string[] = []
+
+  /**
+   * Associates global registrations made by a plugin with that plugin. The runtime
+   * deliberately loads plugins serially while this ambient scope is active.
+   */
+  public async withRegistrationOwner<T>(plugin: string, action: () => Promise<T>): Promise<T> {
+    this.registrationOwners.push(plugin)
+    try {
+      return await runtimeExtensions.withOwner(plugin, () =>
+        environmentRegistry.withOwner(plugin, action),
+      )
+    } finally {
+      this.registrationOwners.pop()
+    }
+  }
+
+  private get registrationOwner() {
+    return this.registrationOwners.at(-1)
+  }
+
+  public addGlobalNode(component: Raw<Component>, plugin = this.registrationOwner) {
+    this.globalNodes.push(component)
+    if (plugin) this.globalNodeOwners.set(component, plugin)
+    return component
+  }
+
+  /** Removes only registrations owned by the requested plugin. */
+  public removeOwnedRegistrations(plugin: string) {
+    for (let index = this.globalNodes.length - 1; index >= 0; index--) {
+      const component = this.globalNodes[index]
+      if (this.globalNodeOwners.get(component) !== plugin) continue
+      this.globalNodes.splice(index, 1)
+      this.globalNodeOwners.delete(component)
+    }
+    environmentRegistry.removeOwner(plugin)
+    runtimeExtensions.removeOwner(plugin)
+  }
 
   public tabbar = shallowReactive(new Map<string, Search.Tabbar[]>())
   public addTabbar(plugin: string, ...tabbar: Search.Tabbar[]) {
@@ -42,6 +84,12 @@ class _Global {
     this.barcode.set(plugin, old.concat(barcode))
   }
 
+  public hotSearch = shallowReactive(new Map<string, Search.HotSearchProvider[]>())
+  public addHotSearch(plugin: string, ...providers: Search.HotSearchProvider[]) {
+    const old = this.hotSearch.get(plugin) ?? []
+    this.hotSearch.set(plugin, old.concat(providers))
+  }
+
   public levelboard = shallowReactive(new Map<string, Search.HotLevelboard[]>())
   public addLevelboard(plugin: string, ...levelboard: Search.HotLevelboard[]) {
     const old = this.levelboard.get(plugin) ?? []
@@ -59,8 +107,6 @@ class _Global {
     const old = this.mainLists.get(plugin) ?? []
     this.mainLists.set(plugin, old.concat(mainLists))
   }
-
-  public envExtends = shallowReactive(new Set<GlobalInjectionsConfig>())
 }
 
 export const Global = new _Global()
@@ -77,7 +123,7 @@ Global.share.set(['core', 'token'], {
   filter: page => !!page.preload,
   icon: TagOutlined,
   key: 'token',
-  name: '复制口令',
+  name: pluginMessageKey('plugin.share.copyToken'),
   async call(page) {
     const item = page.preload?.toJSON()
     if (!item) throw new Error('Not found preload in content. Maybe not fetch detail?')
@@ -101,7 +147,7 @@ Global.share.set(['core', 'native'], {
   filter: page => !!page.preload,
   icon: OfflineShareRound,
   key: 'native',
-  name: '原生分享',
+  name: pluginMessageKey('plugin.share.native'),
   async call(page) {
     const item = page.preload?.toJSON()
     if (!item) throw new Error('Not found preload in content. Maybe not fetch detail?')
@@ -118,7 +164,7 @@ Global.share.set(['core', 'native'], {
       }),
     )
     const token = `[${item.title}](复制这条口令，打开Delta Comic)${compressed}`
-    await navigator.share({ title: 'Delta Comic内容分享', text: token })
+    await navigator.share({ title: pluginI18n.translate('plugin.share.nativeTitle'), text: token })
 
     return { token }
   },
@@ -126,7 +172,7 @@ Global.share.set(['core', 'native'], {
 
 Global.shareToken.set(['core', 'token'], {
   key: 'token',
-  name: '默认口令',
+  name: pluginMessageKey('plugin.share.defaultToken'),
   patten(chipboard) {
     return /^\[.+\]\(复制这条口令，打开Delta Comic\).+/.test(chipboard)
   },
@@ -138,8 +184,11 @@ Global.shareToken.set(['core', 'token'], {
       ),
     )
     return {
-      title: '口令',
-      detail: `发现分享的内容: ${meta.item.name}，需要的插件: ${pluginStore.$getI18nName(meta.plugin)}`,
+      title: pluginI18n.translate('plugin.share.tokenTitle'),
+      detail: pluginI18n.translate('plugin.share.tokenDetail', {
+        item: meta.item.name,
+        plugin: pluginStore.$getI18nName(meta.plugin),
+      }),
       onNegative() {},
       onPositive() {
         return SharedFunction.call(

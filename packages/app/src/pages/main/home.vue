@@ -1,26 +1,22 @@
 <script setup lang="ts">
 import { Global } from '@delta-comic/plugin'
-import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
+import { computed, provide, shallowRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import userIcon from '@/assets/images/userIcon.webp'
-import ExtendableSearchBar from '@/components/home/mainPageSearchBar.vue'
+import MainPageSearchBar from '@/components/home/mainPageSearchBar.vue'
 import { Icons } from '@/icons'
 import { useAppStore } from '@/stores/app'
 import { isShowMainHomeNavBar } from '@/symbol'
 const $router = useRouter()
+const { t } = useI18n()
 const isShowNavBar = shallowRef(true)
 provide(isShowMainHomeNavBar, isShowNavBar)
 
 definePage({ redirect: { name: '/main/home/random' } })
 
-const extendableSearchBar = useTemplateRef('extendableSearchBar')
-
-const toSearchInHideMode = async () => {
-  isShowNavBar.value = true
-  await nextTick()
-  extendableSearchBar.value?.inputEl?.focus()
-}
+const openSearch = () => $router.force.push({ name: '/main/search' })
 
 const app = useAppStore()
 
@@ -29,15 +25,30 @@ const tabItem = computed(() =>
     pair[1].map(val => ({ title: val.title, name: val.id, queries: { plugin: pair[0] } })),
   ),
 )
+const tabs = computed(() => [
+  {
+    title: t('home.tabs.recommended'),
+    name: 'random',
+    route: { name: '/main/home/random' as const },
+  },
+  { title: t('home.tabs.hot'), name: 'hot', route: { name: '/main/home/hot' as const } },
+  ...tabItem.value.map(
+    v =>
+      ({
+        ...v,
+        route: { name: '/main/home/[id]', params: { id: v.name }, query: v.queries },
+      }) as const,
+  ),
+])
 </script>
 
 <template>
-  <div class="w-full bg-(--van-background-2) pt-safe"></div>
+  <div class="w-full bg-(--dc-surface) pt-safe"></div>
   <header
     :class="[
       isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--safe-area-inset-top)+100%)]',
     ]"
-    class="relative flex h-13.5 w-full items-center overflow-hidden bg-(--van-background-2) transition-transform duration-200 *:overflow-hidden"
+    class="relative flex h-13.5 w-full items-center overflow-hidden bg-(--dc-surface) transition-transform duration-200 *:overflow-hidden"
   >
     <div class="ml-1 size-10.25!">
       <Teleport to="#popups">
@@ -45,68 +56,71 @@ const tabItem = computed(() =>
           :src="app.activatedUser?.avatar ?? userIcon"
           :fallback="userIcon"
           round
-          v-if="!extendableSearchBar?.isSearching"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']"
           class="fixed top-safe-offset-2 ml-1 size-10.25! transition-transform duration-200"
         />
       </Teleport>
     </div>
-    <ExtendableSearchBar ref="extendableSearchBar" />
-    <div
-      class="flex w-[calc(50%-63px)] justify-evenly font-mono"
-      v-if="!extendableSearchBar?.isSearching"
-    >
-      <NIcon color="rgb(156 163 175)" @click="$router.force.push({ name: '/' })" size="1.8rem">
-        <Icons.material.VideogameAssetFilled />
+    <MainPageSearchBar @activate="openSearch" />
+    <div class="ml-auto flex shrink-0 items-center gap-3 px-3">
+      <button
+        type="button"
+        class="dc-interactive rounded-full p-1"
+        :aria-label="t('home.actions.openGame')"
+        @click="$router.force.push({ name: '/' })"
+      >
+        <NIcon color="rgb(156 163 175)" size="1.8rem">
+          <Icons.material.VideogameAssetFilled />
+        </NIcon>
+      </button>
+      <NIcon color="rgb(156 163 175)" size="1.8rem" :aria-label="t('home.announcement')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M3 10v4a2 2 0 0 0 2 2h1l2 4h2l-1.5-4H11l7 3V5l-7 3H5a2 2 0 0 0-2 2Zm17-2.5v9a3 3 0 0 0 0-9Z"
+          />
+        </svg>
       </NIcon>
-      <VanIcon name="bullhorn-o" color="rgb(156 163 175)" size="1.8rem" />
     </div>
   </header>
   <div
-    class="static h-(--van-tabs-line-height) transition-transform duration-200"
+    class="static h-(--dc-tabs-height) transition-transform duration-200"
     :class="[
       isShowNavBar
         ? 'translate-y-0'
-        : '-translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]',
+        : '-translate-y-[calc(var(--dc-tabs-height)+var(--dc-tabs-padding-bottom))]',
     ]"
   >
-    <DcTab
-      :items="[
-        { title: '推荐', name: 'random', route: { name: '/main/home/random' } },
-        { title: '热门', name: 'hot', route: { name: '/main/home/hot' } },
-        ...tabItem.map(
-          v =>
-            ({
-              ...v,
-              route: { name: '/main/home/[id]', params: { id: v.name }, query: v.queries },
-            }) as const,
-        ),
-      ]"
-    />
-    <VanIcon
-      name="search"
-      @click="toSearchInHideMode"
-      size="25px"
-      color="var(--van-text-color-2)"
-      class="absolute! top-1/2 right-0 -translate-y-1/2 rounded-full bg-(--van-background-2) p-1 shadow transition-transform duration-200"
+    <DcTab :items="tabs" />
+    <button
+      type="button"
+      :aria-label="t('search.actions.expand')"
+      @click="openSearch"
+      class="dc-interactive absolute! top-1/2 right-0 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-(--dc-surface) p-1 text-(--dc-text-secondary) shadow transition-transform duration-200"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']"
-    />
-    <VanIcon
-      size="25px"
-      color="var(--van-text-color-2)"
-      :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']"
-      class="absolute! top-1/2 right-10 aspect-square -translate-y-1/2 rounded-full bg-(--van-background-2) p-1 shadow transition-transform duration-200"
-      @click="$router.force.push({ name: '/cate' })"
-      name="more-o"
     >
-    </VanIcon>
+      <NIcon size="25">
+        <Icons.material.SearchFilled />
+      </NIcon>
+    </button>
+    <button
+      type="button"
+      :aria-label="t('category.openAll')"
+      :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']"
+      class="dc-interactive absolute! top-1/2 right-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-(--dc-surface) p-1 text-(--dc-text-secondary) shadow transition-transform duration-200"
+      @click="$router.force.push({ name: '/cate' })"
+    >
+      <NIcon size="25">
+        <Icons.material.MoreHorizRound />
+      </NIcon>
+    </button>
   </div>
   <div
     class="min-h-screen w-full overflow-hidden transition-all duration-200"
     :class="[
       isShowNavBar
-        ? 'h-[calc(100%-var(--van-tabs-line-height)-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0'
-        : 'h-[calc(100%-var(--safe-area-inset-top)-var(--van-tabs-line-height))]! -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]',
+        ? 'h-[calc(100%-var(--dc-tabs-height)-var(--dc-tabs-height)-var(--dc-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0'
+        : 'h-[calc(100%-var(--safe-area-inset-top)-var(--dc-tabs-height))]! -translate-y-[calc(var(--dc-tabs-height)+var(--dc-tabs-padding-bottom))]',
     ]"
   >
     <RouterView />

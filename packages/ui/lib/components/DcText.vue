@@ -30,7 +30,7 @@ const texts = computed(() => {
 
 <template>
   <div
-    :class="cn('break-normal whitespace-pre-wrap text-(--van-text-color)', $props.class)"
+    :class="cn('break-normal whitespace-pre-wrap text-(--dc-color-text)', $props.class)"
     :style
     v-html="texts"
   ></div>

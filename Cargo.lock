@@ -814,7 +814,7 @@ dependencies = [
 
 [[package]]
 name = "delta-comic"
-version = "2.3.1"
+version = "2.3.0"
 dependencies = [
  "log",
  "serde",
@@ -4970,7 +4970,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-db"
-version = "2.3.1"
+version = "2.3.0"
 dependencies = [
  "percent-encoding",
  "tauri",
@@ -5054,7 +5054,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-plugin"
-version = "2.3.1"
+version = "2.3.0"
 dependencies = [
  "log",
  "serde",
@@ -5107,7 +5107,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-utils"
-version = "2.3.1"
+version = "2.3.0"
 dependencies = [
  "log",
  "mime_guess",

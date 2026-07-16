@@ -1,10 +1,10 @@
-import { invoke } from '@tauri-apps/api/core'
-
 const CALLBACK_NAME = 'authCallback'
 const DEFAULT_POLL_INTERVAL = 300
 
-const call = <T>(command: string, args: Record<string, unknown> = {}) =>
-  invoke<T>(`plugin:utils|${command}`, args)
+const call = async <T>(command: string, args: Record<string, unknown> = {}) => {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return await invoke<T>(`plugin:utils|${command}`, args)
+}
 
 export interface InjectCode {
   js: string
@@ -225,6 +225,7 @@ export abstract class WebviewAuth<T = unknown> {
 
 export class PageWebviewAuth<T = unknown> extends WebviewAuth<T> {
   private page: OpenedWebviewPage | undefined
+  private popup: Window | null = null
   private running: Promise<WebviewAuthResult<T>> | undefined
   private closed = false
 
@@ -246,6 +247,10 @@ export class PageWebviewAuth<T = unknown> extends WebviewAuth<T> {
 
   public async unmount() {
     this.closed = true
+    if (this.popup) {
+      this.popup.close()
+      this.popup = null
+    }
     if (!this.page) return
     const page = this.page
     this.page = undefined
@@ -254,6 +259,9 @@ export class PageWebviewAuth<T = unknown> extends WebviewAuth<T> {
 
   private async openAndWait() {
     try {
+      if (typeof window !== 'undefined' && !('__TAURI_INTERNALS__' in window)) {
+        return await this.openBrowserPopup()
+      }
       this.page = await openWebviewPage({
         allFrames: this.options.allFrames ?? true,
         callbackName: CALLBACK_NAME,
@@ -294,6 +302,53 @@ export class PageWebviewAuth<T = unknown> extends WebviewAuth<T> {
     } finally {
       this.running = undefined
     }
+  }
+
+  private async openBrowserPopup(): Promise<WebviewAuthResult<T>> {
+    const features = [
+      `width=${this.options.width ?? 560}`,
+      `height=${this.options.height ?? 760}`,
+      'noopener=no',
+      'popup=yes',
+    ].join(',')
+    this.popup = window.open(this.url, this.options.title ?? 'Delta Comic 登录', features)
+    if (!this.popup) throw new Error('browser blocked the authentication popup')
+
+    return await new Promise<WebviewAuthResult<T>>((resolve, reject) => {
+      const cleanup = () => {
+        clearInterval(closedPoll)
+        window.removeEventListener('message', onMessage)
+        this.popup = null
+      }
+      const onMessage = (event: MessageEvent) => {
+        if (event.source !== this.popup) return
+        const data = event.data as { type?: string; value?: T }
+        if (!data || data.type !== 'delta-comic:auth-callback') return
+        const result: WebviewAuthResult<T> = {
+          callbackValue: data.value as T,
+          cookie: '',
+          href: this.url,
+          localStorage: {},
+          sessionStorage: {},
+          title: this.options.title ?? '',
+        }
+        this.popup?.close()
+        cleanup()
+        this.done(result)
+        resolve(result)
+      }
+      const closedPoll = setInterval(() => {
+        if (!this.popup?.closed) return
+        cleanup()
+        reject(
+          new Error(
+            'authentication popup closed before callback; the callback page must postMessage ' +
+              '{ type: "delta-comic:auth-callback", value } to window.opener',
+          ),
+        )
+      }, this.options.pollInterval ?? DEFAULT_POLL_INTERVAL)
+      window.addEventListener('message', onMessage)
+    })
   }
 }
 

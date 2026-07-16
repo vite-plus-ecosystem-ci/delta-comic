@@ -4,9 +4,6 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { deltaComic } from './index'
 
-vi.mock('vite-plugin-externals', () => ({
-  viteExternalsPlugin: () => ({ name: 'vite-plugin-externals' }),
-}))
 vi.mock('vite-plugin-monkey', () => ({ default: () => ({ name: 'vite-plugin-monkey' }) }))
 
 const meta: PluginArchiveDB.Meta = {
@@ -29,10 +26,18 @@ type TestBundleItem =
 type TestOutputBundle = Record<string, TestBundleItem>
 
 type TestPluginContext = { emitFile(file: TestEmittedFile): unknown }
+type TestTransformContext = { error(message: string): never }
 
 type TestDeltaComicPlugin = {
   name: string
   enforce?: 'post' | 'pre'
+  config?(config: unknown): any
+  resolveId?(source: string): void
+  transform?(
+    this: TestTransformContext,
+    code: string,
+    id: string,
+  ): Promise<{ code: string } | undefined>
   generateBundle?(
     this: TestPluginContext,
     options: unknown,
@@ -52,7 +57,72 @@ const getBuildPlugin = (): TestDeltaComicPlugin => {
   return buildPlugin
 }
 
+const getSharedRuntimeGuard = (): TestDeltaComicPlugin => {
+  const plugins = deltaComic(meta, 'build').flat() as unknown[]
+  const guard = plugins.find(
+    plugin =>
+      Boolean(plugin) &&
+      typeof plugin == 'object' &&
+      (plugin as { name?: unknown }).name == 'delta-comic-shared-runtime-guard',
+  ) as TestDeltaComicPlugin | undefined
+  if (!guard) throw new Error('delta-comic-shared-runtime-guard not found')
+  return guard
+}
+
+const getSharedRuntimeExternals = (): TestDeltaComicPlugin => {
+  const plugins = deltaComic(meta, 'build').flat() as unknown[]
+  const externals = plugins.find(
+    plugin =>
+      Boolean(plugin) &&
+      typeof plugin == 'object' &&
+      (plugin as { name?: unknown }).name == 'delta-comic:shared-runtime-externals',
+  ) as TestDeltaComicPlugin | undefined
+  if (!externals) throw new Error('delta-comic:shared-runtime-externals not found')
+  return externals
+}
+
 describe('deltaComic vite plugin', () => {
+  it('rejects shared runtime subpaths that would bypass host externals', () => {
+    const guard = getSharedRuntimeGuard()
+
+    expect(guard.resolveId?.('vue')).toBeUndefined()
+    expect(() => guard.resolveId?.('vue/dist/vue.esm-bundler.js')).toThrow(
+      'Import "vue" so the plugin reuses the host instance',
+    )
+    expect(guard.resolveId?.('vue-router/experimental')).toBeUndefined()
+    expect(() => guard.resolveId?.('vue-router/auto-routes')).toThrow(
+      'Import "vue-router" so the plugin reuses the host instance',
+    )
+    expect(() => guard.resolveId?.('@vue/runtime-core')).toThrow(
+      'Import "vue" so the plugin reuses the host instance',
+    )
+  })
+
+  it('rewrites plugin static and dynamic imports to the host ABI', async () => {
+    const externals = getSharedRuntimeExternals()
+    const context: TestTransformContext = {
+      error(message): never {
+        throw new Error(message)
+      },
+    }
+    const result = await externals.transform?.call(
+      context,
+      `import { createApp } from 'vue'\nconst db = import('@delta-comic/db')`,
+      '\0virtual:plugin-entry',
+    )
+
+    expect(result?.code).toContain('const createApp = window.$$lib$$.Vue.createApp')
+    expect(result?.code).toContain('Promise.resolve(window.$$lib$$.DcDb)')
+  })
+
+  it('forces a browser-safe single-file bundle with inlined assets', () => {
+    const config = getBuildPlugin().config?.({})
+
+    expect(config.build.assetsInlineLimit).toBe(Number.POSITIVE_INFINITY)
+    expect(config.build.cssCodeSplit).toBe(false)
+    expect(config.build.rollupOptions.output.inlineDynamicImports).toBe(true)
+  })
+
   it('emits plugin.zip and keeps manifest.json outside the archive', async () => {
     const plugin = getBuildPlugin()
     const emitted: TestEmittedFile[] = []

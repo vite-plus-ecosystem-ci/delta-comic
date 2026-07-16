@@ -1,44 +1,52 @@
 <script setup lang="ts">
-import { uni } from '@delta-comic/model'
 import { Global } from '@delta-comic/plugin'
-import { chunk } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import { Icons } from '@/icons'
 
-const hotList = computed(() => Array.from(Global.mainLists.values()))
-
-const getItemCard = (contentType: uni.content.ContentType_) =>
-  uni.item.Item.itemCards.get(contentType)
+const $router = useRouter()
+const { t } = useI18n()
+const hotList = computed(() =>
+  Array.from(Global.mainLists.entries()).flatMap(([plugin, blocks]) =>
+    blocks.map((block, blockIndex) => ({ block, blockIndex, plugin })),
+  ),
+)
+const topButtons = computed(() => {
+  const buttons = Array.from(Global.topButton.values()).flat()
+  if (!isEmpty(Global.levelboard)) {
+    buttons.unshift({
+      bgColor: '#ff9212',
+      name: t('home.ranking'),
+      icon: Icons.other.HotLevel,
+      onClick() {
+        const first = Global.levelboard.keys().next().value!
+        return $router.force.push({ name: '/hot/[plugin]', params: { plugin: first } })
+      },
+    })
+  }
+  return buttons
+})
 </script>
 
 <template>
   <NScrollbar class="size-full">
     <div
-      class="scrollbar flex h-fit w-full gap-8 overflow-x-auto overflow-y-hidden bg-(--van-background-2) px-4 py-1"
+      class="scrollbar flex h-fit w-full gap-8 overflow-x-auto overflow-y-hidden bg-(--dc-surface) px-4 py-1"
     >
       <div
         class="flex h-full w-fit flex-col items-center justify-around"
-        v-for="btn of [
-          isEmpty(Global.levelboard)
-            ? undefined
-            : {
-                bgColor: '#ff9212',
-                name: '排行榜',
-                icon: Icons.other.HotLevel,
-                onClick() {
-                  const first = Global.levelboard.keys().next().value!
-                  return $router.force.push({ name: '/hot/[plugin]', params: { plugin: first } })
-                },
-              },
-          ...Array.from(Global.topButton.values()).flat(),
-        ].filter(v => !!v)"
+        v-for="(btn, buttonIndex) of topButtons"
+        :key="`${btn.name}:${buttonIndex}`"
       >
         <button
-          class="flex size-12 items-center justify-center rounded-full"
+          type="button"
+          class="dc-interactive flex size-12 items-center justify-center rounded-full"
+          :aria-label="btn.name"
           :style="{ backgroundColor: btn.bgColor }"
-          @click="btn.onClick"
+          @click="btn.onClick?.()"
         >
           <NIcon color="white" size="calc(var(--spacing) * 6.5)">
             <component :is="btn.icon" />
@@ -47,40 +55,13 @@ const getItemCard = (contentType: uni.content.ContentType_) =>
         <div class="text-[13px]!">{{ btn.name }}</div>
       </div>
     </div>
-    <div v-for="block of hotList.flat()">
-      <VanSticky>
-        <div
-          class="relative mx-auto my-1 flex h-10 w-[calc(100%-8px)] items-center rounded bg-(--van-background-2)"
-          @click="block.onClick"
-        >
-          <span class="ml-3 text-xl font-bold text-(--nui-primary-color)">{{ block.name }}</span>
-          <NIcon class="absolute! right-3" color="var(--van-text-color-3)" size="20px">
-            <Icons.material.ArrowForwardIosRound />
-          </NIcon>
-        </div>
-      </VanSticky>
-      <DcVar :value="block.content()" v-slot="{ value }">
-        <DcContent :source="{ type: 'query', query: value }">
-          <div class="flex gap-1 px-1">
-            <div
-              class="flex w-full flex-col gap-1"
-              v-for="items of chunk(
-                value.data.value ?? [],
-                Math.floor((value.data.value ?? []).length / 2),
-              )"
-            >
-              <component
-                v-for="item of items"
-                :item
-                free-height
-                type="small"
-                :is="getItemCard(item.contentType)"
-              />
-            </div>
-          </div>
-        </DcContent>
-      </DcVar>
-    </div>
+    <HotMainListBlock
+      v-for="entry of hotList"
+      :key="`${entry.plugin}:${entry.block.name}:${entry.blockIndex}`"
+      v-bind="entry"
+    >
+      <template #arrow><Icons.material.ArrowForwardIosRound /></template>
+    </HotMainListBlock>
   </NScrollbar>
 </template>
 <style scoped lang="css">

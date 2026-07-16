@@ -1,75 +1,80 @@
 import 'core-js'
-import * as DcDb from '@delta-comic/db'
-import * as DcModel from '@delta-comic/model'
-import * as DcPlugin from '@delta-comic/plugin'
-import * as DcUi from '@delta-comic/ui'
+import { pluginRuntime, useConfig } from '@delta-comic/plugin'
+import { configureUiI18n, type UiMessageKey, type UiMessageParams } from '@delta-comic/ui'
 
 import './logger'
-import * as DcUtils from '@delta-comic/utils'
-import * as Pc from '@pinia/colada'
-import { reactiveComputed, useCssVar, useDark } from '@vueuse/core'
+import { PiniaColada } from '@pinia/colada'
+import { reactiveComputed, useDark } from '@vueuse/core'
 import Color from 'color'
-import * as Naive from 'naive-ui'
 import {
   NConfigProvider,
   NMessageProvider,
   NDialogProvider,
   NLoadingBarProvider,
-  zhCN,
+  dateEnUS,
+  dateZhCN,
+  dateZhTW,
+  enUS as naiveEnUS,
+  zhCN as naiveZhCN,
+  zhTW as naiveZhTW,
   type GlobalThemeOverrides,
   darkTheme,
+  lightTheme,
   NGlobalStyle,
 } from 'naive-ui'
-import * as Pinia from 'pinia'
-import { createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 
 import '@/index.css'
-import 'vant/lib/index.css'
-import { CORSFetch } from 'tauri-plugin-better-cors-fetch'
-import { M3, type InsetsScheme } from 'tauri-plugin-m3'
-import * as Vant from 'vant'
-import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } from 'vant'
-import * as Vue from 'vue'
-import { createApp, defineComponent, watch } from 'vue'
-import * as VR from 'vue-router'
+import { computed, createApp, defineComponent, watch } from 'vue'
 import { DataLoaderPlugin } from 'vue-router/experimental'
 
 import AppSetup from './AppSetup.vue'
+import { i18n, resolveAppLocale } from './i18n'
+import { initializePlatform } from './platform'
 import { router } from './router'
-CORSFetch.init({ request: { danger: { acceptInvalidCerts: true, acceptInvalidHostnames: true } } })
 
-window.$$lib$$ = { Vue, Vant, Naive, VR, Pinia, DcModel, DcUi, DcPlugin, DcUtils, DcDb, Pc }
-window.$api.NImage = Naive.NImage
-window.$api.showImagePreview = Vant.showImagePreview
-window.$api.M3 = M3
+configureUiI18n((key: UiMessageKey, params?: UiMessageParams) =>
+  i18n.global.t(`ui.${key}`, params as Record<string, number | string>),
+)
 
 document.addEventListener('contextmenu', e => e.preventDefault())
 
-const handleSafeAreaChange = (v: InsetsScheme | false) => {
-  if (!v)
-    v = { adjustedInsetBottom: 0, adjustedInsetLeft: 0, adjustedInsetRight: 0, adjustedInsetTop: 0 }
-  const { adjustedInsetBottom, adjustedInsetLeft, adjustedInsetRight, adjustedInsetTop } = v
-  document.documentElement.style.setProperty(
-    `--safe-area-inset-bottom`,
-    `${adjustedInsetBottom ?? 0}px`,
-  )
-  document.documentElement.style.setProperty(
-    `--safe-area-inset-left`,
-    `${adjustedInsetLeft ?? 0}px`,
-  )
-  document.documentElement.style.setProperty(
-    `--safe-area-inset-right`,
-    `${adjustedInsetRight ?? 0}px`,
-  )
-  document.documentElement.style.setProperty(`--safe-area-inset-top`, `${adjustedInsetTop ?? 0}px`)
-}
-await M3.getInsets().then(handleSafeAreaChange)
+await initializePlatform().then(v => {
+  for (const direction of ['Top', 'Bottom', 'Left', 'Right'] as const)
+    document.documentElement.style.setProperty(
+      `--safe-area-inset-${direction.toLowerCase()}`,
+      `${(v || {})[`adjustedInset${direction}`] ?? 0}px`,
+    )
+})
+
+const pinia = createPinia()
+setActivePinia(pinia)
 
 const app = createApp(
   defineComponent(() => {
     const themeColor = Color('#fb7299').hex()
     const themeColorDark = Color(themeColor).darken(0.2).hex()
-    const config = DcPlugin.useConfig()
+    const config = useConfig()
+    const locale = computed(() => resolveAppLocale(config.$loadApp().data.value.language))
+    const naiveLocale = computed(() => {
+      switch (locale.value) {
+        case 'zh-CN':
+          return { dateLocale: dateZhCN, locale: naiveZhCN }
+        case 'zh-TW':
+          return { dateLocale: dateZhTW, locale: naiveZhTW }
+        default:
+          return { dateLocale: dateEnUS, locale: naiveEnUS }
+      }
+    })
+
+    watch(
+      locale,
+      value => {
+        i18n.global.locale.value = value
+        document.documentElement.lang = value
+      },
+      { immediate: true },
+    )
 
     const themeOverrides = reactiveComputed<GlobalThemeOverrides>(() => ({
       common: {
@@ -80,47 +85,31 @@ const app = createApp(
         cardColor: config.isDark ? '#17181a' : undefined,
       },
     }))
-    const fontBold = useCssVar('--nui-font-weight')
-
     const isUseDarkMode = useDark({ listenToStorageChanges: false })
     watch(
       () => config.isDark,
-      isDark => (isUseDarkMode.value = isDark),
+      isDark => {
+        isUseDarkMode.value = isDark
+        document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+      },
+      { immediate: true },
     )
     return () => (
       <NConfigProvider
-        locale={zhCN}
+        locale={naiveLocale.value.locale}
+        dateLocale={naiveLocale.value.dateLocale}
         abstract
-        theme={config.isDark ? darkTheme : undefined}
+        theme={config.isDark ? darkTheme : lightTheme}
         themeOverrides={themeOverrides}
       >
         <NGlobalStyle />
         <NLoadingBarProvider>
           <NDialogProvider>
-            <VanConfigProvider
-              themeVars={
-                {
-                  blue: themeColor,
-                  green: themeOverrides.common?.successColor,
-                  red: themeOverrides.common?.errorColor,
-                  orange: themeOverrides.common?.warningColor,
-
-                  baseFont: 'var(--nui-font-family)',
-                  priceFont: 'var(--font-family-mono)',
-
-                  background: config.isDark ? themeOverrides.common?.cardColor : undefined,
-
-                  fontBold: fontBold.value,
-                } as ConfigProviderThemeVars
-              }
-              class='h-full overflow-hidden'
-              theme={config.isDark ? 'dark' : 'light'}
-              themeVarsScope='global'
-            >
+            <div class='h-full overflow-hidden'>
               <NMessageProvider max={5}>
                 <AppSetup />
               </NMessageProvider>
-            </VanConfigProvider>
+            </div>
           </NDialogProvider>
         </NLoadingBarProvider>
       </NConfigProvider>
@@ -130,12 +119,19 @@ const app = createApp(
 
 app.use(DataLoaderPlugin, { router })
 
-const pinia = createPinia()
 app.use(pinia)
 
-app.use(Pc.PiniaColada)
+app.use(PiniaColada)
+
+app.use(i18n)
 
 app.use(router)
+
+const preboot = await pluginRuntime.preparePreboot(app)
+if (preboot.reloadRequired) {
+  location.reload()
+  await new Promise<never>(() => {})
+}
 
 const meta = document.createElement('meta')
 meta.name = 'naive-ui-style'

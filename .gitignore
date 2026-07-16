@@ -12,6 +12,7 @@ dist
 dev-dist
 dist-ssr
 coverage
+.vitest
 *.local
 *.local.*
 debug
@@ -36,6 +37,7 @@ release
 
 target
 dist-vite
+packages/app/public/runtime/
 *.tsbuildinfo
 packages/*/android/.tauri
 packages/*/android/.gradle

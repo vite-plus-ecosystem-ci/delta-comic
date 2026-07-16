@@ -103,7 +103,7 @@ export const createDownloadMessage = async <T,>(
         class='overflow-hidden bg-(--n-color)'
         style={{ boxShadow: 'var(--n-box-shadow)' }}
       >
-        <Transition name='van-fade'>
+        <Transition name='dc-fade'>
           {minsize.value ? (
             <div class='relative size-full' onClick={() => (minsize.value = false)}>
               <DcLoading class='absolute top-0 left-0 size-full' color='var(--p-color)' />
@@ -137,7 +137,7 @@ export const createDownloadMessage = async <T,>(
               {/* @ts-ignore class应当存在 */}
               <TransitionGroup name='list' tag='ul' class='ml-1! h-fit w-full!'>
                 {messageList.map((v, index) => (
-                  <div class='van-hairline--bottom w-full py-1' key={index}>
+                  <div class='dc-hairline--bottom w-full py-1' key={index}>
                     <span class='text-sm font-semibold'>{v.title}</span>
                     <div class='relative h-fit w-full'>
                       <NProgress
@@ -154,7 +154,7 @@ export const createDownloadMessage = async <T,>(
                         height={7}
                         status={v.state}
                       />
-                      <Transition name='van-slide-right'>
+                      <Transition name='dc-slide-right'>
                         {withDirectives(
                           <div class='absolute! top-1/2 right-[4%] flex -translate-y-1/2 gap-3 ease-in-out!'>
                             <NButton
@@ -189,7 +189,7 @@ export const createDownloadMessage = async <T,>(
                         )}
                       </Transition>
                     </div>
-                    <div class='h-4! text-xs text-(--van-text-color-2)'>
+                    <div class='h-4! text-xs text-(--dc-color-text-secondary)'>
                       {(v.state == 'error' && `${v.error.name}: ${v.error.message}`) ||
                         v.description ||
                         '...'}

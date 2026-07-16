@@ -31,9 +31,9 @@ export class MemoryCloudSessionStorage implements CloudSessionStorage {
 export class LocalStorageCloudSessionStorage implements CloudSessionStorage {
   constructor(
     private readonly key = 'delta-comic:cloud:session',
-    private readonly storage: StringStorage | undefined = (globalThis as {
-      localStorage?: StringStorage
-    }).localStorage,
+    private readonly storage: StringStorage | undefined = (
+      globalThis as { localStorage?: StringStorage }
+    ).localStorage,
   ) {}
 
   async clearSession(): Promise<void> {

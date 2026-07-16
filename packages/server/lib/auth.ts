@@ -1,6 +1,5 @@
 import { DEFAULT_TOKEN_REFRESH_LEEWAY } from './constants'
 import { CloudConfigurationError, CloudUnauthenticatedError } from './errors'
-
 import type { CloudHttpClient } from './http'
 import type { CloudSessionStorage } from './storage'
 import type {
@@ -106,7 +105,9 @@ export class CloudAuthClient {
       : this.terminalProvider
   }
 
-  private async withTerminal<T extends Partial<CloudTerminalInput>>(input: T): Promise<T & CloudTerminalInput> {
+  private async withTerminal<T extends Partial<CloudTerminalInput>>(
+    input: T,
+  ): Promise<T & CloudTerminalInput> {
     const terminal = await this.resolveTerminal()
     const merged = { ...terminal, ...input }
     if (!merged.terminalUuid) throw new CloudConfigurationError('cloud terminal uuid is missing')
