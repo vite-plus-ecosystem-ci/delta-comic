@@ -46,10 +46,10 @@ onLongPress(
     @click.stop="handleClick"
     ref="htmlRefHook"
   >
-    <NIcon :size :color="isActive ? 'var(--p-color)' : 'var(--van-gray-7)'">
+    <NIcon :size :color="isActive ? 'var(--dc-color-primary)' : 'var(--dc-color-icon)'">
       <component :is="icon" />
     </NIcon>
-    <span class="mt-1 text-xs text-(--van-text-color-2)">
+    <span class="mt-1 text-xs text-(--dc-color-text-secondary)">
       <slot />
     </span>
   </div>

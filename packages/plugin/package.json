@@ -40,14 +40,16 @@
     "@octokit/rest": "catalog:",
     "@tauri-apps/api": "catalog:",
     "@tauri-apps/plugin-fs": "catalog:",
+    "blake3-wasm": "catalog:",
     "es-toolkit": "catalog:",
     "jszip": "catalog:",
     "ky": "catalog:",
     "lz-string": "catalog:",
-    "vite-plugin-externals": "catalog:",
+    "semver": "catalog:",
     "vite-plugin-monkey": "catalog:"
   },
   "devDependencies": {
+    "@types/semver": "catalog:",
     "@typescript/native-preview": "catalog:",
     "vue-component-type-helpers": "catalog:"
   },
@@ -56,9 +58,7 @@
     "@delta-comic/model": "workspace:*",
     "@delta-comic/ui": "workspace:*",
     "@delta-comic/utils": "workspace:*",
-    "@pinia/colada": "catalog:",
     "naive-ui": "catalog:",
-    "pinia": "catalog:",
     "vue": "catalog:"
   }
 }

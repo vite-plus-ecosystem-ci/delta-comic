@@ -20,7 +20,17 @@
   </head>
 
   <body class="static size-full">
-    <div id="app" class="static size-full overflow-auto bg-(--van-background) **:select-none"></div>
+    <div id="popups"></div>
+    <div id="setup" role="status" aria-label="Delta Comic" aria-busy="true">
+      <div class="setup__portrait" aria-hidden="true">
+        <img class="setup__portrait-image" src="/setup.avif" alt="" fetchpriority="high" />
+        <div class="setup__portrait-title">Delta Comic</div>
+      </div>
+      <div class="setup__desktop" aria-hidden="true">
+        <div class="setup__desktop-title">Delta Comic</div>
+      </div>
+    </div>
+    <div id="app" class="static size-full overflow-auto bg-(--dc-background) **:select-none"></div>
 
     <script>
       window.process = { env: {} }
@@ -28,8 +38,9 @@
       window.$api = {}
       window.$layout = {}
       window.$$safe$$ = false
-      window.$$lib$$ = {}
+      window.$$lib$$ ??= {}
     </script>
+    <script src="/runtime/host-libraries.umd.js"></script>
     <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>

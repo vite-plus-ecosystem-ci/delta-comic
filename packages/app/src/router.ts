@@ -2,7 +2,6 @@ import { uni } from '@delta-comic/model'
 import { useConfig } from '@delta-comic/plugin'
 import { SharedFunction } from '@delta-comic/utils'
 import type { DeltaRouter } from '@delta-comic/utils'
-import { M3 } from 'tauri-plugin-m3'
 import { toValue } from 'vue'
 import {
   createRouter,
@@ -16,6 +15,7 @@ import {
 import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 
 import { searchSourceKey } from '@/components/search/source'
+import { setStatusBar } from '@/platform'
 import { useContentStore } from '@/stores/content'
 import { pluginName } from '@/symbol'
 
@@ -75,11 +75,11 @@ router.beforeEach(async to => {
   const isDark = useConfig().isDark
   if (to.meta.statusBar) {
     const sb = toValue(to.meta.statusBar)
-    if (sb == 'auto') await M3.setBarColor(isDark ? 'dark' : 'light')
-    else if (sb) await M3.setBarColor(sb)
+    if (sb == 'auto') await setStatusBar(isDark ? 'dark' : 'light')
+    else if (sb) await setStatusBar(sb)
     return true
   }
-  await M3.setBarColor(!isDark ? 'dark' : 'light')
+  await setStatusBar(!isDark ? 'dark' : 'light')
   return true
 })
 

@@ -32,17 +32,18 @@ export class DbCloudSyncAdapter {
   async collectSnapshot(): Promise<SnapshotCollections> {
     const { db } = await import('@delta-comic/db')
     const collections = await Promise.all(
-      syncCollectionNames.map(async collection => [
-        collection,
-        await db.selectFrom(collection).selectAll().execute(),
-      ] as const),
+      syncCollectionNames.map(
+        async collection =>
+          [collection, await db.selectFrom(collection).selectAll().execute()] as const,
+      ),
     )
     return Object.fromEntries(collections) as SnapshotCollections
   }
 
   async applyRemoteChanges(changes: SyncChange[]): Promise<void> {
     const sorted = [...changes].sort((left, right) => {
-      const leftOrder = left.action === 'delete' ? deleteOrder[left.collection] : upsertOrder[left.collection]
+      const leftOrder =
+        left.action === 'delete' ? deleteOrder[left.collection] : upsertOrder[left.collection]
       const rightOrder =
         right.action === 'delete' ? deleteOrder[right.collection] : upsertOrder[right.collection]
       return leftOrder - rightOrder || left.serverSeq - right.serverSeq
@@ -69,7 +70,10 @@ export class DbCloudSyncAdapter {
         await trx.deleteFrom('itemStore').where('key', '=', change.entityId).execute()
         return
       case 'favouriteCard':
-        await trx.deleteFrom('favouriteCard').where('createAt', '=', Number(change.entityId)).execute()
+        await trx
+          .deleteFrom('favouriteCard')
+          .where('createAt', '=', Number(change.entityId))
+          .execute()
         return
       case 'favouriteItem': {
         const [belongTo, itemKey] = splitEntityId(change.entityId)

@@ -10,8 +10,13 @@
     "dist",
     "gen",
     "capabilities",
-    "README.md",
     "light.css",
-    "dark.css"
+    "dark.css",
+    "skills-lock.json",
+    ".agents",
+    "target",
+    ".codex",
+    "AGENTS.md",
+    "worker-configuration.d.ts"
   ]
 }

@@ -4,7 +4,21 @@ on:
   push:
     paths:
       - 'packages/**'
-      - '.github/workflows/lint.yaml'
+      - 'script/**'
+      - '.github/workflows/test.yaml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '*.config.ts'
+      - 'tsconfig*.json'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'script/**'
+      - '.github/workflows/test.yaml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '*.config.ts'
       - 'tsconfig*.json'
 
@@ -12,7 +26,7 @@ permissions:
   contents: read
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
@@ -33,4 +47,4 @@ jobs:
       - name: Test
         run: |
           vp run lib-build
-          vp test
+          vp test run

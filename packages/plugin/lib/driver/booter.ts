@@ -1,21 +1,13 @@
 import { isString } from 'es-toolkit'
-import { sortBy } from 'es-toolkit/compat'
 import { markRaw, type Ref } from 'vue'
 
 import type { PluginConfig } from '@/plugin'
 
-import type { PluginBooter } from './init/utils'
+import { runtimeExtensions } from './extensions'
 import type { PluginLoadingInfo } from './loader'
 import { usePluginStore } from './store'
 
-const rawBooters = import.meta.glob<PluginBooter>('./init/booter/*_*.ts', {
-  eager: true,
-  import: 'default',
-})
-export const booters = sortBy(Object.entries(rawBooters), ([fname]) =>
-  // oxlint-disable-next-line no-useless-escape
-  Number(fname.match(/[\d\.]+(?=_)/)?.[0]),
-).map(v => v[1])
+export const booters = runtimeExtensions.booters.values
 
 export const bootPlugin = async (
   cfg: PluginConfig,

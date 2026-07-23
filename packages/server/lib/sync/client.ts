@@ -1,6 +1,6 @@
 import { CLOUD_SCHEMA_VERSION } from '../constants'
-
 import type { CloudHttpClient } from '../http'
+
 import type {
   SyncPullRequest,
   SyncPullResponse,

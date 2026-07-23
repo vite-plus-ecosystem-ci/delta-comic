@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { Global } from '@delta-comic/plugin'
+import { Global, pluginRuntime } from '@delta-comic/plugin'
 import { useStyleTag } from '@vueuse/core'
 import { AnimatePresence, motion } from 'motion-v'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
-import { shallowRef, computed } from 'vue'
+import { computed, nextTick, onMounted, shallowRef } from 'vue'
 
 import App from './App.vue'
 import Plugin from './components/plugin/index.vue'
+import PrebootRecoveryAlert from './components/plugin/PrebootRecoveryAlert.vue'
 import UpdateChecker from './components/updateChecker.vue'
 
 window.$message = useMessage()
@@ -32,26 +33,33 @@ useStyleTag(injectStyle)
 
 const isBooted = shallowRef(false)
 const showContent = shallowRef(false)
+const startupReady = shallowRef(false)
+const prebootRecovery = shallowRef(pluginRuntime.readRecovery())
+
+const dismissPrebootRecovery = () => {
+  pluginRuntime.clearRecovery()
+  prebootRecovery.value = null
+}
+
+const dismissStartupSplash = () => document.querySelector('#setup')?.remove()
+
+onMounted(async () => {
+  const result = await pluginRuntime.activatePreboot()
+  if (result.reloadRequired) {
+    location.reload()
+    return
+  }
+  startupReady.value = true
+  await nextTick()
+  dismissStartupSplash()
+})
 </script>
 
 <template>
   <AnimatePresence>
-    <template v-if="!isBooted">
-      <div
-        class="fixed top-0 left-0 flex size-full justify-center overflow-hidden bg-(--van-background-2) transition-all"
-      >
-        <DcImage
-          hide-loading
-          src="/setup.avif"
-          class="absolute top-1/2 w-[95%]! -translate-y-3/5"
-          fit="scale-down"
-        />
-        <div class="absolute bottom-16 text-2xl font-semibold text-(--p-color)">Delta Comic</div>
-      </div>
-    </template>
     <motion.div
       @click="showContent = true"
-      class="van-haptics-feedback fixed bottom-10 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-xl bg-(--p-color) shadow-2xl! transition-opacity"
+      class="dc-interactive fixed bottom-10 flex -translate-x-1/2 items-center justify-center overflow-hidden rounded-xl bg-(--p-color) shadow-2xl! transition-opacity"
       :initial="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }"
       v-if="!isBooted"
       :exit="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }"
@@ -74,7 +82,13 @@ const showContent = shallowRef(false)
   <Suspense v-if="isBooted">
     <App />
   </Suspense>
-  <Plugin v-model:show="showContent" v-model:is-booted="isBooted" />
+  <Plugin v-model:show="showContent" v-model:is-booted="isBooted" :startup-ready="startupReady" />
+  <PrebootRecoveryAlert
+    v-if="prebootRecovery"
+    :recovery="prebootRecovery"
+    @dismiss="dismissPrebootRecovery"
+    @manage="showContent = true"
+  />
   <component v-for="c of Global.globalNodes" :is="c" />
   <UpdateChecker />
 </template>

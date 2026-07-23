@@ -40,16 +40,19 @@
     "@aptabase/tauri": "catalog:",
     "@tauri-apps/api": "catalog:",
     "@vue/language-core": "catalog:",
+    "acorn": "^8.15.0",
+    "es-module-lexer": "^2.3.0",
     "es-toolkit": "catalog:",
+    "magic-string": "^0.30.21",
     "mitt": "catalog:"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "naive-ui": "catalog:",
-    "vant": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   }

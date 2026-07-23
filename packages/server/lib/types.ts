@@ -18,11 +18,7 @@ export interface ApiSuccess<T> {
 
 export interface ApiFailure {
   ok: false
-  error: {
-    code: string
-    message: string
-    details?: unknown
-  }
+  error: { code: string; message: string; details?: unknown }
 }
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiFailure
@@ -66,10 +62,7 @@ export interface CloudSession {
   user: CloudUser
 }
 
-export type CloudLoginRequest = CloudTerminalInput & {
-  loginName: string
-  password: string
-}
+export type CloudLoginRequest = CloudTerminalInput & { loginName: string; password: string }
 export type CloudRegisterRequest = CloudLoginRequest
 export interface CloudRefreshRequest {
   refreshToken: string

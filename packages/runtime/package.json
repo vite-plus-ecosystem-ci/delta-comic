@@ -1,0 +1,24 @@
+{
+  "name": "@delta-comic/runtime",
+  "version": "2.3.0",
+  "private": true,
+  "description": "Delta Comic 宿主与外部插件共享的预构建 UMD 运行时。",
+  "type": "module",
+  "scripts": {
+    "build": "vp build",
+    "build:dev": "vp build --mode development",
+    "typecheck": "tsgo -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@pinia/colada": "catalog:",
+    "naive-ui": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

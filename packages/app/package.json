@@ -7,9 +7,9 @@
     "build:app": "export TRUE_BUILD_MAIN_APP=\"true\" && tauri android build",
     "build:debug": "tauri android build --debug",
     "build:local": "tauri build --debug",
-    "build:web": "vp build",
+    "build:web": "vp run -t @delta-comic/runtime#build && vp build",
     "dev": "tauri dev",
-    "dev:web": "vp dev",
+    "dev:web": "vp run -t @delta-comic/runtime#build:dev && vp dev",
     "tauri": "vp exec tauri",
     "typecheck": "vue-tsc -p tsconfig.app.json --noEmit && tsgo -p tsconfig.node.json --noEmit"
   },
@@ -35,11 +35,12 @@
     "semver": "catalog:",
     "tauri-plugin-better-cors-fetch": "catalog:",
     "tauri-plugin-m3": "catalog:",
-    "vant": "catalog:",
     "vue": "catalog:",
+    "vue-i18n": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@delta-comic/runtime": "workspace:",
     "@tailwindcss/vite": "catalog:",
     "@tauri-apps/cli": "catalog:",
     "@types/semver": "catalog:",
@@ -56,8 +57,7 @@
     "vite-plugin-wasm": "catalog:",
     "vite-plus": "catalog:",
     "vue-component-type-helpers": "catalog:",
-    "vue-tsc": "catalog:",
-    "vue-tsgo": "catalog:"
+    "vue-tsc": "catalog:"
   },
   "readme": "../../README.md"
 }

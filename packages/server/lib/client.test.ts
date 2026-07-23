@@ -1,26 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { createCloudClient } from './client'
 import { CloudApiError, CloudDisabledError } from './errors'
 import { MemoryCloudSessionStorage } from './storage'
 import { getSyncEntityId } from './sync/collections'
 import { createSyncOperation, createSyncSnapshotRequest } from './sync/operations'
-
 import type { CloudSession } from './types'
 
 const session = (): CloudSession => ({
   terminal: { terminalUuid: '00000000-0000-4000-8000-000000000000' },
   tokens: {
-    accessExpiresAt: Date.now() + 60_000,
+    accessExpiresAt: Date.now() + 120_000,
     accessToken: 'access-token',
-    refreshExpiresAt: Date.now() + 120_000,
+    refreshExpiresAt: Date.now() + 240_000,
     refreshToken: 'refresh-token',
   },
   user: { id: 'user-id', loginName: 'alice' },
 })
 
-const jsonResponse = (data: unknown, init?: ResponseInit): Response =>
-  Response.json(data, init)
+const jsonResponse = (data: unknown, init?: ResponseInit): Response => Response.json(data, init)
 
 describe('DeltaComicCloudClient', () => {
   it('does not perform requests when cloud is disabled', async () => {
@@ -78,9 +76,7 @@ describe('DeltaComicCloudClient', () => {
   })
 
   it('builds sync entity ids and snapshot operations compatible with the server', async () => {
-    expect(getSyncEntityId('favouriteItem', { belongTo: 1, itemKey: 'comic:1' })).toBe(
-      '1:comic:1',
-    )
+    expect(getSyncEntityId('favouriteItem', { belongTo: 1, itemKey: 'comic:1' })).toBe('1:comic:1')
     expect(getSyncEntityId('subscribe', { key: 'author', plugin: 'demo' })).toBe('demo:author')
 
     const operation = await createSyncOperation({

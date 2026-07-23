@@ -1,111 +1,85 @@
 import { useConfig as useDbConfig } from '@delta-comic/db'
-import type { FormResult, FormSingleConfigure } from '@delta-comic/model'
-import { defineStore } from 'pinia'
+import type { FormResult } from '@delta-comic/model'
 import { computed, shallowReactive, type Ref } from 'vue'
 
-export type ConfigDescription = Record<
-  string,
-  Required<Pick<FormSingleConfigure, 'defaultValue'>> & FormSingleConfigure
->
-export class ConfigPointer<T extends ConfigDescription = ConfigDescription> {
-  constructor(
-    public pluginName: string,
-    public config: T,
-    public configName: string,
-  ) {
-    this.key = Symbol.for(`config:${pluginName}`)
-  }
-  public readonly key: symbol
+import type { ConfigDescription, ConfigPointer } from './configPointer'
+import { coreConfig } from './features/core/config'
+
+export * from './configPointer'
+
+export type ConfigSave<T> = {
+  form: ConfigDescription
+  data: Ref<T>
+  name: string
+  ready: Promise<void>
 }
 
-const appConfig = new ConfigPointer(
-  'core',
-  {
-    recordHistory: { type: 'switch', defaultValue: true, info: '记录历史记录' },
-    showAIProject: { type: 'switch', defaultValue: true, info: '展示AI作品' },
-    darkMode: {
-      type: 'radio',
-      defaultValue: 'system',
-      info: '暗色模式配置',
-      comp: 'select',
-      selects: [
-        { label: '浅色', value: 'light' },
-        { label: '暗色', value: 'dark' },
-        { label: '跟随系统', value: 'system' },
-      ],
-    },
-    easilyTitle: { type: 'switch', defaultValue: false, info: '简化标题(实验性功能)' },
-    githubToken: {
-      type: 'string',
-      defaultValue: '',
-      info: 'github的token',
-      placeholder: '仅用于解除api访问限制',
-    },
-    receivePerReleaseUpdate: {
-      type: 'switch',
-      defaultValue: false,
-      info: '接受预发布版本更新(可能不稳定)',
-    },
-    cloudEnabled: {
-      type: 'switch',
-      defaultValue: false,
-      info: '启用云服务',
-    },
-    cloudServerUrl: {
-      type: 'string',
-      defaultValue: '',
-      info: '云服务地址',
-      placeholder: '默认关闭，启用后填写云服务地址',
-    },
-    installOverride: { type: 'pairs', defaultValue: [], info: '安装源覆盖配置', required: true },
-  },
-  '核心',
-)
-
-export type ConfigSave<T> = { form: ConfigDescription; data: Ref<T>; name: string }
-
-export const useConfig = defineStore('config', helper => {
-  const configDescription = shallowReactive(new Map<symbol, ConfigSave<any>>())
-
-  const $load = helper.action(
-    <T extends ConfigPointer>(pointer: T): ConfigSave<FormResult<T['config']>> => {
-      const v = configDescription.get(pointer.key)
-      if (!v) throw new Error(`not found config by plugin "${pointer.pluginName}"`)
-      return v
-    },
-    'load',
-  )
-
-  const $loadApp = helper.action(() => $load(appConfig), 'loadApp')
-
-  const isSystemDark = matchMedia('(prefers-color-scheme: dark)').matches
-  const isDark = computed(() => {
-    if (!$isExistConfig(appConfig)) return isSystemDark
-    const cfg = $load(appConfig).data.value
-    switch (cfg.darkMode) {
+export class ConfigStore {
+  public readonly form = shallowReactive(new Map<symbol, ConfigSave<any>>())
+  private readonly darkMode = computed(() => {
+    if (!this.$isExistConfig(coreConfig)) return this.isSystemDark
+    const config = this.$load(coreConfig).data.value
+    switch (config.darkMode) {
       case 'light':
         return false
       case 'dark':
         return true
       case 'system':
       default:
-        return isSystemDark
+        return this.isSystemDark
     }
   })
-  const $isExistConfig = helper.action(
-    (pointer: ConfigPointer) => configDescription.has(pointer.key),
-    'isExistConfig',
-  )
-  const $resignerConfig = helper.action((pointer: ConfigPointer) => {
+
+  private readonly isSystemDark =
+    globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+
+  public get isDark() {
+    return this.darkMode.value
+  }
+
+  public constructor() {
+    // Core settings remain available when the built-in core runtime is disabled.
+    this.$registerConfig(coreConfig)
+  }
+
+  public $load<T extends ConfigPointer>(pointer: T): ConfigSave<FormResult<T['config']>> {
+    const value = this.form.get(pointer.key)
+    if (!value) throw new Error(`not found config by plugin "${pointer.pluginName}"`)
+    return value
+  }
+
+  public $loadApp() {
+    return this.$load(coreConfig)
+  }
+
+  public $isExistConfig(pointer: ConfigPointer) {
+    return this.form.has(pointer.key)
+  }
+
+  public $registerConfig(pointer: ConfigPointer) {
+    const registered = this.form.get(pointer.key)
+    if (registered) return registered
+
     const store = useDbConfig(pointer.pluginName, pointer.config)
-    configDescription.set(pointer.key, {
+    const saved: ConfigSave<any> = {
       form: pointer.config,
       data: store,
-      name: pointer.pluginName,
-    })
-  }, 'resignerConfig')
+      name: pointer.configName,
+      ready: (store as typeof store & { ready: Promise<void> }).ready,
+    }
+    this.form.set(pointer.key, saved)
+    return saved
+  }
 
-  $resignerConfig(appConfig) // important: register core config first, because app depend on it
+  /** @deprecated Use `$registerConfig`. */
+  public $resignerConfig(pointer: ConfigPointer) {
+    return this.$registerConfig(pointer)
+  }
 
-  return { isDark, form: configDescription, $loadApp, $load, $isExistConfig, $resignerConfig }
-})
+  public $unregisterConfig(pointer: ConfigPointer) {
+    this.form.delete(pointer.key)
+  }
+}
+
+let configStore: ConfigStore | undefined
+export const useConfig = () => (configStore ??= new ConfigStore())

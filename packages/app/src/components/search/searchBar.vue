@@ -8,14 +8,18 @@ import { computedAsync } from '@vueuse/core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
+import { NButton, NIcon, NInput } from 'naive-ui'
 import { computed, shallowRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import { Icons } from '@/icons'
 import { pluginName } from '@/symbol'
 import { getBarcodeList, type ThinkList } from '@/utils/search'
 
 import { searchSourceKey } from './source'
 const $props = defineProps<{ source: string }>()
+const { t } = useI18n()
 
 const isSearching = shallowRef(false)
 usePreventBack(isSearching)
@@ -52,24 +56,35 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
 </script>
 
 <template>
-  <form action="/" @submit.prevent :class="[{ 'fixed top-0 left-0 z-1000 w-screen': isSearching }]">
-    <VanSearch
-      ref="search"
-      :show-action="true"
-      v-model="searchText"
-      placeholder="请输入搜索内容"
-      @focus="isSearching = true"
-      @search="handleSearch(searchText)"
-      @click-left-icon="handleSearch(searchText)"
-      @cancel="$router.back()"
-      autocomplete="off"
-    >
-      <template #left-icon>
-        <div class="inline-flex h-full translate-y-[1] items-center justify-center">
-          <VanIcon name="search" size="1.2rem" />
-        </div>
-      </template>
-    </VanSearch>
+  <form
+    action="/"
+    :class="[{ 'fixed top-0 left-0 z-1000 w-screen': isSearching }]"
+    @submit.prevent="handleSearch(searchText)"
+  >
+    <div class="flex h-13.5 items-center gap-2 bg-(--dc-background-2) px-3">
+      <NInput
+        v-model:value="searchText"
+        round
+        clearable
+        :placeholder="t('search.placeholder.full')"
+        :input-props="{ autocomplete: 'off' }"
+        @focus="isSearching = true"
+      >
+        <template #prefix>
+          <button
+            type="button"
+            class="inline-flex items-center border-0 bg-transparent p-0 text-inherit"
+            :aria-label="t('search.actions.search')"
+            @click="handleSearch(searchText)"
+          >
+            <NIcon size="1.2rem"><Icons.material.SearchFilled /></NIcon>
+          </button>
+        </template>
+      </NInput>
+      <NButton text type="primary" attr-type="button" @click="$router.back()">
+        {{ t('common.actions.cancel') }}
+      </NButton>
+    </div>
   </form>
 
   <AnimatePresence>
@@ -79,7 +94,7 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
       :initial="{ opacity: 0 }"
       :animate="{ opacity: 0.5 }"
       :exit="{ opacity: 0 }"
-      class="fixed top-safe-offset-[54px] left-0 z-10 h-screen w-screen bg-(--van-black)"
+      class="fixed top-safe-offset-[54px] left-0 z-10 h-screen w-screen bg-(--dc-black)"
     >
     </motion.div>
     <motion.div
@@ -89,16 +104,19 @@ const thinkList = computedAsync<ThinkList>(async onCancel => {
       v-if="isSearching"
       layout
       :transition="{ duration: 0.1 }"
-      class="fixed top-safe-offset-[54px] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--van-background-2) pt-1 pb-3 transition-all"
+      class="fixed top-safe-offset-[54px] z-10 flex max-h-[60vh] w-full flex-wrap justify-evenly overflow-hidden rounded-b-3xl bg-(--dc-background-2) pt-1 pb-3 transition-all"
     >
       <DcCellGroup class="w-full">
         <template v-if="!isEmpty(thinkList)">
-          <template v-for="think of thinkList">
+          <template
+            v-for="(think, index) of thinkList"
+            :key="'text' in think ? `${think.value}:${index}` : index"
+          >
             <DcCell
               v-if="'text' in think"
               :title="think.text"
               @click="searchText = think.value"
-              class="van-haptics-feedback w-full"
+              class="dc-haptics-feedback w-full"
             />
             <component v-else :is="think" />
           </template>

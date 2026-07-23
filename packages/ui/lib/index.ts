@@ -16,7 +16,10 @@ import DcText from './components/DcText.vue'
 import DcToggleIcon from './components/DcToggleIcon.vue'
 import DcVar from './components/DcVar.vue'
 import DcWaterfall from './components/DcWaterfall.vue'
+import DcEnvironment from './environment/DcEnvironment.vue'
 export * from './components/form'
+export * from './environment'
+export * from './i18n'
 
 export {
   DcAuthorIcon,
@@ -25,6 +28,7 @@ export {
   DcImagedIcon,
   DcAwait,
   DcContent,
+  DcEnvironment,
   DcImage,
   DcList,
   DcLoading,

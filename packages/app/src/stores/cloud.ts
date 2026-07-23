@@ -1,3 +1,4 @@
+import { useConfig } from '@delta-comic/plugin'
 import {
   CloudClientError,
   CloudDisabledError,
@@ -8,7 +9,6 @@ import {
   type SyncPullRequest,
   type SyncPushOperation,
 } from '@delta-comic/server'
-import { useConfig } from '@delta-comic/plugin'
 import { defineStore } from 'pinia'
 import { computed, shallowRef } from 'vue'
 
@@ -39,7 +39,10 @@ export const useCloudStore = defineStore('cloud', () => {
     if (!isConfigured.value) throw new CloudDisabledError()
     const key = `${isEnabled.value}:${serverUrl.value}`
     if (!runtime.value || runtimeKey.value !== key) {
-      runtime.value = createAppCloudRuntime({ enabled: isEnabled.value, serverUrl: serverUrl.value })
+      runtime.value = createAppCloudRuntime({
+        enabled: isEnabled.value,
+        serverUrl: serverUrl.value,
+      })
       runtimeKey.value = key
     }
     return runtime.value
@@ -54,7 +57,10 @@ export const useCloudStore = defineStore('cloud', () => {
       lastError.value =
         error instanceof CloudClientError
           ? error
-          : new CloudClientError('CLOUD_APP_ERROR', error instanceof Error ? error.message : String(error))
+          : new CloudClientError(
+              'CLOUD_APP_ERROR',
+              error instanceof Error ? error.message : String(error),
+            )
       throw lastError.value
     } finally {
       status.value = 'idle'
@@ -95,7 +101,9 @@ export const useCloudStore = defineStore('cloud', () => {
     await run('syncing', async () => {
       const currentRuntime = getRuntime()
       const collections = await currentRuntime.adapter.collectSnapshot()
-      const result = await currentRuntime.client.sync.snapshot(createSyncSnapshotRequest(collections))
+      const result = await currentRuntime.client.sync.snapshot(
+        createSyncSnapshotRequest(collections),
+      )
       await currentRuntime.metadata.setCheckpoint(result.checkpoint.latestSeq)
       lastSyncedAt.value = Date.now()
       return result
@@ -114,7 +122,11 @@ export const useCloudStore = defineStore('cloud', () => {
     await run('syncing', async () => {
       const currentRuntime = getRuntime()
       const sinceSeq = request?.sinceSeq ?? (await currentRuntime.metadata.getCheckpoint())
-      const result = await currentRuntime.client.sync.pull({ ...request, sinceSeq, schemaVersion: 1 })
+      const result = await currentRuntime.client.sync.pull({
+        ...request,
+        sinceSeq,
+        schemaVersion: 1,
+      })
       await currentRuntime.adapter.applyRemoteChanges(result.changes)
       await currentRuntime.metadata.setCheckpoint(result.checkpoint.latestSeq)
       lastSyncedAt.value = Date.now()

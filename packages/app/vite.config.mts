@@ -12,16 +12,19 @@ export default defineConfig(
     ({
       plugins: lazyPlugins(async () => {
         const [
+          { exposeHostLibraries },
           { default: tailwindcss },
           { default: vue },
           { default: vueJsx },
           { default: MotionResolver },
-          { NaiveUiResolver, VantResolver },
+          { NaiveUiResolver },
           { default: Components },
           { default: vueDevTools },
           { default: wasm },
           { default: VueRouter },
+          { DeltaComicUiResolver },
         ] = await Promise.all([
+          import('@delta-comic/utils/vite'),
           import('@tailwindcss/vite'),
           import('@vitejs/plugin-vue'),
           import('@vitejs/plugin-vue-jsx'),
@@ -31,16 +34,8 @@ export default defineConfig(
           import('vite-plugin-vue-devtools'),
           import('vite-plugin-wasm'),
           import('vue-router/vite'),
+          import('@delta-comic/ui/vite'),
         ])
-        const deltaComicUiResolvers = await (async () => {
-          try {
-            const { DeltaComicUiResolver } = await import('@delta-comic/ui/vite')
-            return [DeltaComicUiResolver()]
-          } catch (error) {
-            console.warn(error, 'Fail to import `@delta-comic/ui/vite`')
-            return []
-          }
-        })()
 
         return [
           // @ts-ignore
@@ -53,15 +48,11 @@ export default defineConfig(
           vueJsx(),
           Components({
             dts: true,
-            resolvers: [
-              VantResolver(),
-              MotionResolver(),
-              NaiveUiResolver(),
-              ...deltaComicUiResolvers,
-            ],
+            resolvers: [MotionResolver(), NaiveUiResolver(), DeltaComicUiResolver()],
             dtsTsx: false,
           }),
           tailwindcss(),
+          exposeHostLibraries({ entry: fileURLToPath(new URL('./src/main.tsx', import.meta.url)) }),
         ]
       }),
       resolve: {
@@ -80,6 +71,7 @@ export default defineConfig(
         // produce sourcemaps for debug builds
         sourcemap: !!process.env.TAURI_ENV_DEBUG,
       },
+      worker: { format: 'es' },
       base: '/',
       server: {
         port: 5173,
@@ -94,6 +86,7 @@ export default defineConfig(
           ignored: ['**/src-tauri/**', 'src-tauri'],
         },
       },
+      test: { environment: 'happy-dom', include: ['src/**/*.test.ts'] },
       clearScreen: false,
       envPrefix: ['VITE_', 'TAURI_ENV_*'],
     }) as UserConfig,

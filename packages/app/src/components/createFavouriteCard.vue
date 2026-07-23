@@ -1,65 +1,133 @@
 <script setup lang="ts">
 import { FavouriteDB } from '@delta-comic/db'
-import { useMessage, type NDrawer } from 'naive-ui'
-import { ref, shallowRef } from 'vue'
+import {
+  NButton,
+  NDrawer,
+  NForm,
+  NFormItem,
+  NInput,
+  NSwitch,
+  type FormInst,
+  type FormRules,
+  useMessage,
+} from 'naive-ui'
+import { computed, reactive, shallowRef, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+interface FavouriteFormData {
+  title: string
+  description: string
+  isPrivate: boolean
+}
+
+const createEmptyFormData = (): FavouriteFormData => ({
+  title: '',
+  description: '',
+  isPrivate: true,
+})
 
 const show = shallowRef(false)
+const submitting = shallowRef(false)
 const $message = useMessage()
-const create = (defaultValue = formDataRaw) => {
+const { t } = useI18n()
+const formRef = useTemplateRef<FormInst>('form')
+const formData = reactive(createEmptyFormData())
+const formRules = computed<FormRules>(() => ({
+  title: [
+    { required: true, message: t('favourite.validation.nameRequired'), trigger: ['input', 'blur'] },
+  ],
+}))
+
+const resetForm = (value: Partial<FavouriteFormData> = {}) => {
+  Object.assign(formData, createEmptyFormData(), value)
+  formRef.value?.restoreValidation()
+}
+
+const create = (defaultValue: Partial<FavouriteFormData> = {}) => {
   if (show.value) {
-    $message.warning('正在创建中')
+    $message.warning(t('favourite.feedback.creating'))
     return
   }
-  formData.value = defaultValue
+  resetForm(defaultValue)
   show.value = true
 }
 
-const formDataRaw = { title: '', description: '', isPrivate: true }
-const formData = ref(formDataRaw)
-
 const cancel = () => {
-  formData.value = formDataRaw
+  resetForm()
   show.value = false
 }
 
 const { createCard } = FavouriteDB.useCreateCard()
 
 const onSubmit = async () => {
-  await createCard({ card: { ...formData.value, private: false, createAt: Date.now() } })
-  formData.value = formDataRaw
-  show.value = false
+  if (submitting.value) return
+  try {
+    await formRef.value?.validate()
+  } catch {
+    return
+  }
+
+  submitting.value = true
+  try {
+    await createCard({
+      card: {
+        title: formData.title,
+        description: formData.description,
+        private: formData.isPrivate,
+        createAt: Date.now(),
+      },
+    })
+    cancel()
+  } finally {
+    submitting.value = false
+  }
 }
+
 defineExpose({ create })
 </script>
 
 <template>
-  <NDrawer v-model:show="show" placement="bottom" @afterLeave="cancel">
-    <div class="my-2 flex h-8 w-full items-center pl-5 font-semibold">创建收藏夹</div>
-    <VanForm @submit="onSubmit">
+  <NDrawer v-model:show="show" placement="bottom" @after-leave="cancel">
+    <div class="my-2 flex h-8 w-full items-center pl-5 font-semibold">
+      {{ t('favourite.create.title') }}
+    </div>
+    <form @submit.prevent="onSubmit">
       <DcCellGroup inset>
-        <VanField
-          v-model="formData.title"
-          name="title"
-          label="名称"
-          placeholder="名称"
-          :rules="[{ required: true, message: '请填写名称' }]"
-        />
-        <VanField
-          v-model="formData.description"
-          type="textarea"
-          name="description"
-          label="简介"
-          placeholder="可选的"
-        />
-        <VanField name="switch" label="私密的">
-          <template #input>
-            <VanSwitch v-model="formData.isPrivate" />
-          </template>
-        </VanField>
+        <NForm
+          ref="form"
+          :model="formData"
+          :rules="formRules"
+          label-placement="left"
+          label-width="70"
+          class="px-4 pt-4"
+        >
+          <NFormItem :label="t('favourite.fields.name')" path="title">
+            <NInput v-model:value="formData.title" :placeholder="t('favourite.fields.name')" />
+          </NFormItem>
+          <NFormItem :label="t('favourite.fields.description')" path="description">
+            <NInput
+              v-model:value="formData.description"
+              type="textarea"
+              :placeholder="t('common.form.optional')"
+              :autosize="{ minRows: 2, maxRows: 5 }"
+            />
+          </NFormItem>
+          <NFormItem :label="t('favourite.fields.private')" path="isPrivate">
+            <NSwitch v-model:value="formData.isPrivate" />
+          </NFormItem>
+        </NForm>
       </DcCellGroup>
-      <NButton class="m-5! w-30!" strong secondary attr-type="submit" type="primary" size="large">
-        提交
+      <NButton
+        class="m-5! w-30!"
+        strong
+        secondary
+        attr-type="submit"
+        type="primary"
+        size="large"
+        :loading="submitting"
+      >
+        {{ t('common.actions.submit') }}
       </NButton>
-    </VanForm>
+    </form>
   </NDrawer>
 </template>

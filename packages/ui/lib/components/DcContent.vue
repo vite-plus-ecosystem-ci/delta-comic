@@ -6,6 +6,7 @@ import { AnimatePresence, motion, type VariantType } from 'motion-v'
 import { NButton, NEmpty, NIcon, NResult } from 'naive-ui'
 import { type StyleValue, computed, useTemplateRef } from 'vue'
 
+import { translateUi } from '../i18n'
 import { cn, type StyleProps } from '../utils'
 
 import DcLoading from './DcLoading.vue'
@@ -70,7 +71,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '8px',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '100%',
   },
   isErrorNoData: {
@@ -83,7 +84,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '50%',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '4px',
   },
   isLoadingData: {
@@ -122,7 +123,7 @@ const loadingVariants = computed<Record<AllVariant, VariantType>>(() => ({
     left: '50%',
     top: '50%',
     translateX: '-50%',
-    backgroundColor: 'var(--van-background-2)',
+    backgroundColor: 'var(--dc-color-surface)',
     borderRadius: '4px',
   },
   done: {
@@ -178,14 +179,14 @@ defineSlots<{ default(data: { data?: T }): any }>()
         "
         :style="isLoadingState ? styleLoading : undefined"
       >
-        <Transition name="van-fade">
+        <Transition name="dc-fade">
           <DcLoading size="25px" color="var(--p-color)" v-if="animateOn === 'isLoadingNoData'" />
-          <DcLoading size="10px" color="white" v-else-if="animateOn === 'isLoadingData'"
-            >加载中</DcLoading
-          >
+          <DcLoading size="10px" color="white" v-else-if="animateOn === 'isLoadingData'">
+            {{ translateUi('status.loading') }}
+          </DcLoading>
           <div v-else-if="animateOn === 'isEmpty'">
             <NEmpty
-              description="无结果"
+              :description="translateUi('status.noResults')"
               :class="cn('w-full justify-center!', classEmpty)"
               :style="[style, styleEmpty]"
             />
@@ -193,7 +194,7 @@ defineSlots<{ default(data: { data?: T }): any }>()
           <div v-else-if="animateOn === 'isErrorNoData'" class="size-full">
             <NResult
               status="error"
-              title="网络错误"
+              :title="translateUi('status.networkError')"
               :class="
                 cn(
                   'flex size-full! flex-col items-center! justify-center! text-wrap *:w-full',
@@ -201,11 +202,11 @@ defineSlots<{ default(data: { data?: T }): any }>()
                 )
               "
               :style="[style, styleError]"
-              :description="source.error?.message ?? '未知原因'"
+              :description="source.error?.message ?? translateUi('status.unknownReason')"
             >
               <template #footer>
                 <NButton v-if="source.refetch" @click="source.refetch()" type="primary">
-                  重试
+                  {{ translateUi('actions.retry') }}
                 </NButton>
               </template>
               <template #icon>
@@ -223,8 +224,10 @@ defineSlots<{ default(data: { data?: T }): any }>()
               <WifiTetheringErrorRound />
             </NIcon>
             <div class="flex flex-col justify-center gap-2 text-white">
-              <div class="text-sm">网络错误</div>
-              <div class="text-xs text-wrap">{{ source.error?.message ?? '未知原因' }}</div>
+              <div class="text-sm">{{ translateUi('status.networkError') }}</div>
+              <div class="text-xs text-wrap">
+                {{ source.error?.message ?? translateUi('status.unknownReason') }}
+              </div>
             </div>
             <NButton
               circle
