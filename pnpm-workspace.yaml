@@ -79,13 +79,13 @@ catalog:
   typescript: ^6.0.3
   unplugin-vue-components: 32.1.0
   userscript-meta: ^1.0.1
-  vite: npm:@voidzero-dev/vite-plus-core@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89
+  vite: npm:@voidzero-dev/vite-plus-core@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d
   vite-plugin-externals: ^0.6.2
   vite-plugin-monkey: ^8.0.6
   vite-plugin-ms-clarity: ^1.0.0
   vite-plugin-vue-devtools: ^8.0.7
   vite-plugin-wasm: ^3.5.0
-  vite-plus: 0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89
+  vite-plus: 0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d
   vitest: 4.1.10
   vue: ^3.5.39
   vue-i18n: ^11.4.6
@@ -178,16 +178,26 @@ minimumReleaseAgeExclude:
   - '@oxlint/binding-win32-arm64-msvc@1.75.0'
   - '@oxlint/binding-win32-ia32-msvc@1.75.0'
   - '@oxlint/binding-win32-x64-msvc@1.75.0'
-  - '@voidzero-dev/vite-plus-core@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-darwin-arm64@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-darwin-x64@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-linux-arm64-gnu@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-linux-arm64-musl@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-linux-x64-gnu@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-linux-x64-musl@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-win32-arm64-msvc@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
-  - '@voidzero-dev/vite-plus-win32-x64-msvc@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-core@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-darwin-arm64@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-darwin-x64@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-linux-arm64-gnu@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d
+    || 0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-linux-arm64-musl@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d
+    || 0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-linux-x64-gnu@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-linux-x64-musl@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-win32-arm64-msvc@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d
+    || 0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
+  - '@voidzero-dev/vite-plus-win32-x64-msvc@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89'
   - oxfmt@0.60.0
   - oxlint-tsgolint@7.0.2001
   - oxlint@1.75.0
-  - vite-plus@0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89
+  - vite-plus@0.0.0-commit.57939439ddcb16d9f54ebf7d41432893182ee46d ||
+    0.0.0-commit.9855245a469b178066c25a5d45c971c130565d89
