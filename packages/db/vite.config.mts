@@ -6,7 +6,8 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   pack: {
-    dts: { tsgo: true, tsconfig: './tsconfig.app.json' },
+    deps: { resolveDepSubpath: true },
+    dts: { generator: 'tsgo', tsconfig: './tsconfig.app.json' },
     sourcemap: true,
     entry: './lib/index.ts',
   },
