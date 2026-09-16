@@ -11,6 +11,7 @@ export default defineConfig({
   lint: lint as OxlintConfig,
   run: { cache: { tasks: true, scripts: true } },
   test: {
+    sharedViteServer: false,
     clearMocks: true,
     restoreMocks: true,
     unstubEnvs: true,
@@ -52,7 +53,15 @@ export default defineConfig({
     },
     exclude: ['**/node_modules/**', '**/.git/**', '.agents/**'],
     projects: [
-      { test: { name: 'root', environment: 'node', include: ['script/**/*.test.ts'] } },
+      {
+        extends: false,
+        test: {
+          clearMocks: false,
+          name: 'root',
+          environment: 'node',
+          include: ['script/**/*.test.ts'],
+        },
+      },
       'packages/app',
       'packages/db',
       'packages/model',
