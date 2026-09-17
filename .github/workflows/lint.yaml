@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: voidzero-dev/setup-vp@v1.20.0
         with:
           node-version-file: .node-version
           cache: true
