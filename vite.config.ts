@@ -11,6 +11,10 @@ export default defineConfig({
   lint: lint as OxlintConfig,
   run: { cache: { tasks: true, scripts: true } },
   test: {
+    // Vitest v4 compatibility: keep separate Vite servers for inline projects.
+    // Remove when plugins and config hooks can run once for shared projects.
+    // https://vitest.dev/guide/migration/#inline-projects-share-the-vite-server-by-default
+    sharedViteServer: false,
     clearMocks: true,
     restoreMocks: true,
     unstubEnvs: true,
@@ -52,7 +56,21 @@ export default defineConfig({
     },
     exclude: ['**/node_modules/**', '**/.git/**', '.agents/**'],
     projects: [
-      { test: { name: 'root', environment: 'node', include: ['script/**/*.test.ts'] } },
+      {
+        // Vitest v4 compatibility: keep this inline project independent of the root config.
+        // Remove to inherit root options, including plugins and setup files.
+        // https://vitest.dev/guide/migration/#inline-projects-inherit-the-root-config-by-default
+        extends: false,
+        test: {
+          // Vitest v4 compatibility: preserve mock call history.
+          // Remove after tests no longer rely on calls from setup or earlier tests.
+          // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
+          clearMocks: false,
+          name: 'root',
+          environment: 'node',
+          include: ['script/**/*.test.ts'],
+        },
+      },
       'packages/app',
       'packages/db',
       'packages/model',
