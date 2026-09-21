@@ -6,10 +6,19 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   pack: {
-    dts: { tsgo: true, tsconfig: './tsconfig.app.json' },
+    deps: { resolveDepSubpath: true },
+    dts: { generator: 'tsgo', tsconfig: './tsconfig.app.json' },
     sourcemap: true,
     entry: './lib/index.ts',
   },
   root,
-  test: { environment: 'node', include: ['lib/**/*.test.ts'] },
+  test: {
+    // Vitest v4 compatibility: preserve mock call history.
+    // Remove after tests no longer rely on calls from setup or earlier tests.
+    // https://rfc-vitest-v5-upgrade-viteplus-dev.voidzero-docs.workers.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
+    // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
+    clearMocks: false,
+    environment: 'node',
+    include: ['lib/**/*.test.ts'],
+  },
 })

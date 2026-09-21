@@ -80,9 +80,9 @@ export default defineConfig(({ command }) => ({
   pack: {
     entry: './vite/index.ts',
     outDir: 'dist-vite',
-    dts: { oxc: true },
+    dts: { generator: 'oxc' },
     sourcemap: true,
-    deps: { neverBundle: ['unplugin-vue-components'] },
+    deps: { resolveDepSubpath: true, neverBundle: ['unplugin-vue-components'] },
   },
   test: { environment: 'happy-dom', include: ['lib/**/*.test.ts', 'vite/**/*.test.ts'] },
 })) as UserConfig
