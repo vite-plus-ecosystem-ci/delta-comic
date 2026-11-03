@@ -80,9 +80,15 @@ export default defineConfig(({ command }) => ({
   pack: {
     entry: './vite/index.ts',
     outDir: 'dist-vite',
-    dts: { oxc: true },
+    dts: { generator: 'oxc' },
     sourcemap: true,
-    deps: { neverBundle: ['unplugin-vue-components'] },
+    deps: {
+      // tsdown <0.23 compatibility: resolve external dependency subpaths.
+      // Remove to preserve subpath imports as written (the new default).
+      // https://tsdown.dev/options/dependencies#deps-resolvedepsubpath
+      resolveDepSubpath: true,
+      neverBundle: ['unplugin-vue-components'],
+    },
   },
   test: { environment: 'happy-dom', include: ['lib/**/*.test.ts', 'vite/**/*.test.ts'] },
 })) as UserConfig
