@@ -48,8 +48,7 @@ const confirm = () => {
       </div>
       <div class="install-plan__row install-plan__row--target">
         <div>
-          <strong>{{ plugin?.manifest.name }}</strong
-          ><code>{{ plugin?.manifest.version }}</code>
+          <strong>{{ plugin?.manifest.name }}</strong><code>{{ plugin?.manifest.version }}</code>
         </div>
         <span>{{ plugin?.installedVersion ? '更新' : '安装' }}</span>
       </div>
