@@ -34,10 +34,7 @@ const selected = computed(() =>
           class="modules-page__row"
           :class="{ 'modules-page__row--selected': selected?.key === module.key }"
         >
-          <div>
-            <strong>{{ module.name }}</strong
-            ><small>{{ module.apiPrefix }}</small>
-          </div>
+          <div><strong>{{ module.name }}</strong><small>{{ module.apiPrefix }}</small></div>
           <StatusMark
             :label="module.runtime.available ? '可用' : '配置不完整'"
             :tone="module.runtime.available ? 'success' : 'warning'"
